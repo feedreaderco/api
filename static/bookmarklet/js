@@ -1,0 +1,166 @@
+(function(){
+  var feed = ''
+  , article = ''
+  , bookmarklet = feedreader.bookmarklet || null
+  , api = function(method,endpoint,callback,params) {
+    var xhr = new XMLHttpRequest()
+    , urlparams = '?token='+this.token
+    if (params) if (method==='GET') urlparams = "?"+params
+    xhr.open(method,'https://feedreader.co/'+this.user+'/'+endpoint+'/json'+urlparams)
+    xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded")
+    xhr.onload = callback
+    xhr.send(params)
+  }
+  , toggleBookmarklet = function(callback) {
+    if (!bookmarklet) {
+      var heading = document.createElement('a')
+      , user = document.createElement('a')
+      , link = document.createElement('a')
+      , newFolder = document.createElement('input')
+      , addFolder = document.createElement('input')
+      newFolder.placeholder = "New Folder"
+      newFolder.style.float = 'left'
+      addFolder.style.float = 'left'
+      addFolder.value = "Add"
+      addFolder.type = 'submit'
+      addFolder.onclick = function() {
+        addToFolder(newFolder.value)
+        newFolder.value = ''
+        return false
+      }
+      var elements = [heading,user,link,newFolder,addFolder]
+      heading.innerHTML = "<h1>Feed Reader</h1>"
+      heading.href = "https://feedreader.co"
+      user.innerHTML = "<h3>"+this.user+"</h3>"
+      user.href = "https://feedreader.co/"+this.user
+      link.innerHTML = "<h2>"+window.location.hostname+"</h2>"
+      link.href = "https://feedreader.co/feeds/"+feed
+      elements.forEach(function(e){
+        e.style.font = 'inherit'
+        e.style.color = 'inherit'
+        e.style.lineHeight = '30px'
+        e.style.padding = '0'
+        e.style.margin = '0'
+        e.style.textDecoration = 'none'
+      })
+      bookmarklet = document.createElement('div')
+      bookmarklet.style.font = '19px Georgia,sans'
+      bookmarklet.style.color = 'black'
+      bookmarklet.style.lineHeight = '30px'
+      bookmarklet.style.position = 'fixed'
+      bookmarklet.style.overflow = 'scroll'
+      bookmarklet.style.top = '0'
+      bookmarklet.style.right = '0'
+      bookmarklet.style.zindex = '999'
+      bookmarklet.style.background = 'white'
+      bookmarklet.style.border = 'thin solid black'
+      bookmarklet.style.padding = '10px'
+      bookmarklet.appendChild(heading)
+      bookmarklet.appendChild(user)
+      bookmarklet.appendChild(link)
+      bookmarklet.appendChild(newFolder)
+      bookmarklet.appendChild(addFolder)
+      feedreader.bookmarklet = bookmarklet
+      document.body.appendChild(bookmarklet)
+    }
+    else {
+      if (bookmarklet.style.right==='0') bookmarklet.style.right = '-100%'
+      else bookmarklet.style.right= '0'
+    }
+    if (callback) callback()
+  }
+  , removeFromFolder = function(folder) {
+    api('DELETE','folders/'+folder,function(){
+      if (JSON.parse(this.responseText).success) document.getElementById(folder).checked = false
+    },'xmlurl='+feed)
+  }
+  , addToFolder = function(folder) {
+    api('POST','folders/'+folder,function(){
+      if (JSON.parse(this.responseText).success) {
+        folderCheckbox = document.getElementById(folder)
+        if (!folderCheckbox) displayFolder(folder)
+        folderCheckbox = document.getElementById(folder)
+        folderCheckbox.checked = true
+      }
+    },'xmlurl='+feed)
+  }
+  , displayFolder = function(folder) {
+    var folderCheckbox = document.createElement('input')
+    , folderLabel = document.createElement('label')
+    , elements = [folderCheckbox,folderLabel]
+    folderLabel.innerHTML = "<a href=https://feedreader.co/"+this.user+"/folders/"+folder+">"+folder+"</a>"
+    folderLabel.setAttribute('for',folder)
+    folderCheckbox.type = 'checkbox'
+    folderCheckbox.id = folder
+    elements.forEach(function(e){
+      e.style.font = '19px Georgia,sans'
+      e.style.color = 'black'
+      e.style.lineHeight = '30px'
+      e.style.padding = '0'
+      e.style.margin = '0'
+      e.style.textDecoration = 'none'
+      e.style.float = 'left'
+    })
+    folderLabel.style.borderBottom = 'thin solid black'
+    folderCheckbox.style.clear = 'left'
+    folderCheckbox.onclick = function(){
+      if (!this.checked) removeFromFolder(this.id)
+      else addToFolder(this.id)
+    }
+    bookmarklet.appendChild(folderCheckbox)
+    bookmarklet.appendChild(folderLabel)
+  }
+  , getFeed = function(callback) {
+    if (window.location.hostname == 'feedreader.co') feed = current.children[1].href.slice(28)
+    if (!feed) {
+      var linkTags = document.getElementsByTagName('link')
+      , aTags = document.getElementsByTagName('a')
+      for (var i = 0; i < linkTags.length; ++i) {
+        var tag = linkTags[i]
+        if (tag.rel === 'alternate') if ((tag.type.indexOf('atom')!=-1)||(tag.type.indexOf('rss')!=-1)||(tag.type.indexOf('xml')!=-1)) {
+          feed = tag.href
+          break
+        }
+      }
+      if (!feed) for (var i = 0; i < aTags.length; ++i) {
+        var tag = aTags[i]
+        if ((tag.innerHTML.indexOf('atom')!=-1)||(tag.innerHTML.indexOf('rss')!=-1)||(tag.innerHTML.indexOf('xml')!=-1)) {
+          feed = tag.href
+          break
+        }
+      }
+    }
+    console.log(feed)
+    callback()
+  }
+  , postFeed = function() {
+    if (window.location.hostname!='feedreader.co') api('POST','feeds',function(){
+      console.log(this.responseText)
+    },'xmlurl='+feed+'&title='+window.location.hostname+'&link='+window.location.hostname)
+  }
+  this.token = feedreader.token
+  this.user = feedreader.user
+  feedreader = this
+  feedreader.bookmarklet = bookmarklet
+  getFeed(function(){
+    toggleBookmarklet(function(){
+      api('GET','folders',function(){
+        var checked = false
+        if ((folders = JSON.parse(this.responseText).allFolders)) {
+          checked = true
+          folders.forEach(function(folder,position){
+            if (position < folders.length) displayFolder(folder)
+            else postFeed()
+          })
+        }
+        if ((folders = JSON.parse(this.responseText).folders)) folders.forEach(function(folder,position){
+          if (position < folders.length) {
+            if (checked) document.getElementById(folder).checked = checked
+            else displayFolder(folder)
+          }
+          else  if (!checked) postFeed()
+        })
+      },'xmlurl='+feed)
+    })
+  })
+})()

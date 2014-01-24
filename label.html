@@ -1,0 +1,229 @@
+<!doctype html>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+@media all and (min-device-width:320px) {
+  body {font-size:19px;}
+  h1 {font-size:23px;}
+  embed, iframe, object {max-height:10em;}
+}
+@media all and (min-device-width:768px) {
+  body {font-size:21px;}
+  h1 {font-size:26px;}
+  embed, iframe, object {max-height:20em;}
+}
+@media all and (min-device-width:1024px) {
+  body {font-size:23px;}
+  h1 {font-size:32px;}
+}
+embed, iframe, object, img, p, div, table, tbody, big, h1, h3 {max-width:100%; overflow-x:auto;}
+body {width:36em; max-width:92%; padding-top:0.8em; margin:auto; line-height:1.6em; font-family:georgia,serif; text-rendering:optimizeLegibility; color:#4A525A; background:#FEFCFF;}
+big, h1, h2, h3 {line-height:inherit; padding:0; margin:0; word-wrap:break-word;}
+big, h2 {font-size:1em; font-style:italic;}
+h1 {margin-bottom:0.2em; margin-top:0.4em;}
+h2 {line-height:1.4em; margin-bottom:0.4em;}
+h3 {font-size:0.8em; text-transform:uppercase;}
+big {font-weight:bold;}
+a {text-decoration:none; color:#157DEC; border-bottom:thin solid; border-bottom-color:#157DEC;}
+.article {margin-bottom:1.6em; float:left; clear:left; word-wrap:break-word;}
+.pillbox {background:#D1D0CE; border:thin solid; border-color:#D1D0CE; color:white; font-size:0.8em; padding:0.2em; padding-left:0.4em; padding-right:0.4em; margin-right:0.1em; border-radius: 0.2em;}
+.pillbox.empty {background:white; color:#4A525A; border-color:#D1D0CE;}
+.minor-margin-top {margin-top:0.2em;}
+input {-webkit-appearance:none; font-family:inherit!important;}
+input[type="submit"] {background:#4A525A; border-color:#4A525A;}
+input[type="text"] {background:white; color:#4A525A; border-color:#D1D0CE;}
+img, p, blockquote, ul, ol, li, figcaption, span {padding:0; margin:0;}
+img {height:auto; float:none !important;}
+ul, ol {padding-left:1.8em;}
+blockquote, figcaption {padding-left:1em;}
+blockquote, p {margin-bottom:1em;}
+blockquote {padding-left:1em; border-left:thin solid; border-left-color:#4A525A;}
+em, strong {font-weight:normal; font-style:italic;}
+hr {border:none; border-top:thin solid; border-top-color:#4A525A;}
+table, tbody {table-layout:fixed;}
+tbody, table, pre, code {word-break:break-all;}
+sup {vertical-align:top; font-size:0.4em; position:relative; top:-0.5em;}
+</style>
+<title>Feed Reader</title>
+<body>
+<a href=/><h1>Feed Reader</h1></a>
+<div id=feeds>
+</div>
+<div id=folders>
+</div>
+<div id=articles>
+</div>
+</body>
+<script>
+var current
+, articles
+, labelNames = []
+, labelArticles = {}
+, token = localStorage.token
+, pathname_split = window.location.pathname.split('/')
+, hash = pathname_split.pop()
+, pathname = pathname_split.join('/')
+, user = pathname_split[1]
+, base64_encode = function(str) {
+  return window.btoa(unescape(encodeURIComponent(str)))
+}
+, api = function(method,endpoint,onload,params) {
+  var xhr = new XMLHttpRequest()
+  xhr.open(method,'https://feedreader.co'+endpoint)
+  if (method!='GET') xhr.setRequestHeader('authorization','Basic '+base64_encode(token+':'))
+  xhr.onload = onload
+  if (params) {
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded")
+    xhr.send(params)
+  }
+  else xhr.send()
+}
+, add_label = function(newLabel) {
+  var value = newLabel.value
+  , newLabelLink = document.createElement('a')
+  newLabel.value = ''
+  newLabelLink.href = "/"+user+"/labels/"+encodeURIComponent(value)
+  newLabelLink.className = "pillbox empty"
+  newLabelLink.innerHTML = value
+  newLabel.parentElement.insertBefore(newLabelLink,newLabel)
+  newLabel.style.display = 'none'
+  api('POST','/'+user+'/labels/'+encodeURIComponent(value)+'/json',function(){
+    if ((success = JSON.parse(this.responseText).success)) if (success === true) newLabelLink.className = 'pillbox'
+  },"hash="+newLabel.parentElement.id)
+}
+, get_folders = function(callback) {
+  api('GET','/'+user+'/folders/json',function(){
+    var div = document.getElementById('folders') 
+    if ((folders = JSON.parse(this.responseText).folders)) if (folders.length) div.innerHTML = folders.map(function(folder) {
+      return "<a href=/"+user+"/folders/"+encodeURIComponent(folder)+" class=pillbox>"+folder+"</a>"	
+    }).join(' ')
+    callback()
+  })
+}
+, get_labels = function(callback) {
+  api('GET','/'+user+'/labels/json',function(){
+    if ((labels = JSON.parse(this.responseText).labels)) if (labels.length) {
+      labelNames = labels
+      labels.forEach(function(feedLabel){
+        api('GET','/'+user+'/labels/'+feedLabel+'/json',function(){
+          labelArticles[feedLabel] = []
+          if ((theseArticles = JSON.parse(this.responseText).articles)) if (theseArticles.length) labelArticles[feedLabel] = theseArticles
+        })
+      })
+    }
+    callback()
+  })
+}
+, get_articles = function(callback) {
+  api('GET',pathname+'json',function(){
+    if ((theseArticles = JSON.parse(this.responseText).articles)) {
+      var i = 0
+      articles = theseArticles
+      if (hash) i = articles.indexOf(hash)
+      if (i<0) i = 0
+      get_article(articles[i],function(){
+        get_article(articles[i+1],function(){
+          get_article(articles[i+2],function(){
+            get_article(articles[i+3],function(){
+              get_article(articles[i+4],callback)
+            })
+          })
+        })
+      })
+    }
+  })
+}
+, refresh_feeds = function() {
+  if (token) api('GET','/'+user+'/feeds/json',function(){
+    if ((feeds = JSON.parse(this.responseText).feeds)) feeds.forEach(function(feed){
+      api('GET','/feeds/'+feed.key+'/json',function(){
+        if ((all_articles = JSON.parse(this.responseText).articles)) console.log('Refreshed '+feed.title+', '+all_articles.length+' articles so far')
+      })
+    })
+  })
+}
+, get_article = function(hash,callback) {
+  if (!hash) callback()
+  else api('GET','/articles/'+hash+'/json',function() {
+    if ((article = JSON.parse(this.responseText).article)) {
+      if (!document.getElementById(hash)) display_article(article,callback)
+      else callback()
+    }
+    else callback()
+  })
+}
+, display_article = function(article,callback) {
+  var element = document.createElement('div')
+  , title = document.createElement('h1')
+  , meta_title = document.createElement('h2')
+  , text = document.createElement('div')
+  , link = document.createElement('a')
+  , meta_link = document.createElement('a')
+  , labels = document.createElement('div')
+  , newLabel = document.createElement('input')
+  , addLabel = document.createElement('input')
+  title.innerHTML = article.title
+  meta_title.innerHTML = article.meta.title
+  link.href = article.link
+  meta_link.href = 'https://feedreader.co/feeds/'+article.feedurl
+  link.appendChild(title)
+  meta_link.appendChild(meta_title)
+  text.innerHTML = article.description
+  labels.id = article.hash
+  labels.className = "minor-margin-top"
+  labels.innerHTML = labelNames.map(function(labelName){
+    if (labelArticles[labelName].indexOf(article.hash) === -1) return ""
+    else return "<a href=/"+user+"/labels/"+encodeURIComponent(labelName)+" class=pillbox>"+labelName+"</a>"
+  }).join(" ")
+  newLabel.placeholder = "Label Name"
+  newLabel.type = 'text'
+  newLabel.style.display = 'none'
+  newLabel.className = 'pillbox'
+  addLabel.className = 'pillbox'
+  addLabel.value = "Label"
+  addLabel.type = 'submit'
+  addLabel.onclick = function() {
+    if (newLabel.style.display === 'none') newLabel.style.display = 'inline'
+    else add_label(newLabel)
+    return false
+  }
+  labels.appendChild(newLabel)
+  labels.appendChild(addLabel)
+  element.className = 'article'
+  element.id = article.hash
+  element.appendChild(link)
+  element.appendChild(meta_link)
+  element.appendChild(text)
+  element.appendChild(labels)
+  var e = document.getElementById('articles').appendChild(element)
+  if (!current) current = e
+  callback()
+}
+, updateState = function() {
+  if ((current.nextSibling.offsetTop < window.pageYOffset)||(current.offsetTop > window.pageYOffset)) {
+    var hash = current.id
+    , i = articles.indexOf(hash)
+    get_article(articles[i+5],function(){})
+    if (current.offsetTop > window.pageYOffset) current = current.previousSibling
+    else current = current.nextSibling
+    document.title = current.children[0].firstChild.innerHTML + ' - ' + current.children[1].firstChild.innerHTML + ' (feedreader.co)'
+    history.replaceState({id:current.id},'','https://feedreader.co'+pathname+current.id)
+    if (token) {
+      console.log('Marking '+hash+' as read')
+      api('POST','/'+user+'/labels/read/json',function(){
+        console.log('Marked '+hash+' as read')
+      },"hash="+hash)
+    }
+  }
+}
+pathname = pathname + '/'
+if ((hash.length!=32)&&(hash.length!=40)) {
+  pathname = pathname + hash + '/'
+  hash = ''
+}
+window.onscroll = updateState
+window.onbeforeunload = function() {
+  api('DELETE')
+}
+get_folders(get_labels(get_articles(refresh_feeds)))
+</script>

@@ -1,0 +1,49 @@
+var crypto = require('crypto')
+, bcrypt = require('bcrypt')
+, https = require('https')
+, querystring = require('querystring')
+, redis = require('redis').createClient()
+exports.post = function(req,res){
+  console.log(req.body.user)
+  bcrypt.genSalt(10,function(e,salt){
+    bcrypt.hash(req.body.password,salt,function(e,hash){
+      redis.hsetnx('user:'+req.body.user,'password',hash,function(e){
+        crypto.randomBytes(48,function(e,b){
+          var token = b.toString('hex')
+          redis.set('token:'+token,req.body.user,function(e,u){
+	        var postdata = querystring.stringify({'name':'Feed Reader Subscription for '+req.body.user
+            , 'url':'https://feedreader.co/paid/'+token
+            , 'price':100
+            , 'description':'Access to the Feed Reader API'
+            , 'webhook':true
+            })
+            var gumroad = https.request({host:"gumroad.com"
+            , path:"/api/v1/links"
+            , auth:"d15ee55ed34b2a537e65bba836506e91:"
+            , headers:{
+	          'Content-Type':'application/x-www-form-urlencoded',
+              'Content-Length':postdata.length
+            }
+            , method:"POST"}
+            , function(s){
+              s.on('data',function(chunk){
+                try {
+                  if((link=JSON.parse(chunk).link)) res.redirect(link.short_url)
+                }
+                catch(e) {
+                 process.stdout.write(chunk)
+                 res.redirect('/error.html')
+                }
+              })
+            })
+            gumroad.write(postdata)
+            gumroad.on('error',function(e){
+              res.json({'success':false,'error':{'type':'Gumroad Error','message':"Couldn't create payment url for "+req.body.user}},500)
+            })
+            gumroad.end()
+          })
+        })
+      })
+    })
+  })
+}

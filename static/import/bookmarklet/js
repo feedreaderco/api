@@ -1,0 +1,100 @@
+(function(){
+  var feed = ''
+  , article = ''
+  , bookmarklet = null
+  , api = function(method,endpoint,callback,params) {
+    var xhr = new XMLHttpRequest()
+    , urlparams = '?token='+this.token
+    if (params) if (method==='GET') urlparams = "?"+params
+    xhr.open(method,'https://feedreader.co/'+this.user+'/'+endpoint+'/json'+urlparams)
+    xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded")
+    xhr.onload = callback
+    xhr.send(params)
+  }
+  , toggleBookmarklet = function(callback) {
+    if (!bookmarklet) {
+      var heading = document.createElement('a')
+      , user = document.createElement('a')
+      , link = document.createElement('a')
+      , newFolder = document.createElement('input')
+      , addFolder = document.createElement('input')
+
+      heading.innerHTML = "<h1>Feed Reader</h1>"
+      heading.href = "https://feedreader.co"
+      user.innerHTML = "<h3>"+this.user+"</h3>"
+      user.href = "https://feedreader.co/"+this.user
+      link.innerHTML = "<h2>"+window.location.hostname+"</h2>"
+      link.href = "https://feedreader.co/feeds"+feed
+      bookmarklet = document.createElement('div')
+      bookmarklet.style.position = 'fixed'
+      bookmarklet.style.left = '50%'
+      bookmarklet.style.zindex = '999'
+      bookmarklet.style.background = 'white'
+      bookmarklet.style.border = 'thin solid black'
+      bookmarklet.style.height = '480px'
+      bookmarklet.style.width = '320px'
+      bookmarklet.appendChild(heading)
+      bookmarklet.appendChild(user)
+      bookmarklet.appendChild(link)
+      document.body.appendChild(bookmarklet)
+    }
+    else {
+      console.log('toggling from '+bookmarklet.style.left)
+      if (bookmarklet.style.left==='50%') bookmarklet.style.left = '-100%'
+      else bookmarklet.style.left = '50%'
+      console.log('to '+bookmarklet.style.left)
+    }
+    if (callback) callback()
+  }
+  , displayFolder = function(folder) {
+    var folderCheckbox = document.createElement('input')
+    , folderLabel = document.createElement('label')
+    folderLabel.innerHTML = "<a href=https://feedreader.co/"+this.user+"/folders/"+folder+">"+folder+"</a>"
+    folderLabel.setAttribute('for',folder)
+    folderCheckbox.type = 'checkbox'
+    folderCheckbox.id = folder
+    bookmarklet.appendChild(folderCheckbox)
+    bookmarklet.appendChild(folderLabel)
+  }
+  , getFeed = function(callback) {
+    if (window.location.hostname == 'feedreader.co') feed = current.xmlurl
+    if (!feed) {
+      var linkTags = document.getElementsByTagName('link')
+      , aTags = document.getElementsByTagName('a')
+      for (var i = 0; i < linkTags.length; ++i) {
+        var tag = linkTags[i]
+        if (tag.rel === 'alternate') if ((tag.type.indexOf('atom')!=-1)||(tag.type.indexOf('rss')!=-1)||(tag.type.indexOf('xml')!=-1)) {
+          feed = tag.href
+          break
+        }
+      }
+      if (!feed) for (var i = 0; i < aTags.length; ++i) {
+        var tag = aTags[i]
+        if ((tag.innerHTML.indexOf('atom')!=-1)||(tag.innerHTML.indexOf('rss')!=-1)||(tag.innerHTML.indexOf('xml')!=-1)) {
+          feed = tag.href
+          break
+        }
+      }
+    }
+    console.log(feed)
+    callback()
+  }
+  , postFeed = function() {
+    if (window.location.hostname!='feedreader.co') api('POST','feeds',function(){
+      console.log(this.responseText)
+    },'url='+feed+'&title='+window.location.hostname+'&link='+window.location.hostname)
+  }
+  this.token = feedreader.token
+  this.user = feedreader.user
+  feedreader = this
+  getFeed(function(){
+    toggleBookmarklet(function(){
+      api('GET','folders',function(){
+        if ((folders = JSON.parse(this.responseText).allFolders || JSON.parse(this.responseText).folders)) folders.forEach(function(folder,position){
+          if (position < folders.length) displayFolder(folder)
+          else postFeed()
+        })
+      },'xmlurl='+feed)
+    })
+  })
+})()

@@ -1,0 +1,13 @@
+(function(){
+  var username = ''
+  , password = ''
+  , createForm = function(submit,callback) {
+    var form = document.createElement('form')
+    form.innerHTML = "<label for=username>Username</label><input id=username type=email><label for=password>Password</label><input id=password type=password><input type=submit value='Get Data' id=export>"
+    var export = document.getElementById('export')
+    export.onclick = submit
+    callback()
+  }
+  , getTokens = function(callback) {
+  }
+})()

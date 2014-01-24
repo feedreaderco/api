@@ -1,0 +1,300 @@
+<!doctype html>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+@media all and (min-device-width:320px) {
+  body {font-size:19px;}
+  h1 {font-size:23px;}
+  embed, iframe {max-width:100%; max-height:10em;}
+}
+@media all and (min-device-width:768px) {
+  body {font-size:21px;}
+  h1 {font-size:26px;}
+  embed, iframe {max-width:100%; max-height:20em;}
+}
+@media all and (min-device-width:1024px) {
+  body {font-size:23px;}
+  h1 {font-size:32px;}
+}
+body {width:36em; max-width:94%; padding-top:0.6em; margin:auto; line-height:1.6em; font-family:georgia,serif; text-rendering:optimizeLegibility;}
+h1, h2, h3 {line-height:inherit; padding:0; margin:0;}
+h2 {font-size:1em; font-style:italic;}
+h3 {font-size:0.8em; text-transform:uppercase;}
+a {text-decoration:none; color:black; border-bottom:thin solid black;}
+.article {margin-bottom:1.6em; max-width:100%; float:left; clear:left;}
+img, p, blockquote, ul, ol, li, figcaption, span {padding:0; margin:0;}
+p {max-width:100%;}
+img {height:auto; max-width:100%; float:none !important;}
+ul, ol {padding-left:20px;}
+blockquote, figcaption {padding-left:1em;}
+blockquote, p {margin-bottom:1em;}
+blockquote {padding-left:1em; border-left:thin solid black;}
+em, strong {font-weight:normal; font-style:italic;}
+hr {border:none; border-top:thin solid black;}
+iframe {max-width:100%;}
+embed {max-width:100%;}
+table, tbody {table-layout:fixed; max-width:100%;}
+tbody, table, pre, code {overflow-x:auto; word-break:break-all;}
+form {max-width:320px; margin:10px 0px;}
+input {font-size:inherit; margin-bottom:10px;}
+</style>
+<title>Feed Reader API</title>
+</style>
+<h1>API</h1>
+<p>The <a href=/>Feed Reader</a> API is REST based, uses basic authentication and returns JSON for now. When authentication is required, the token can be passed as a query parameter instead ("?token=SOMETOKENHERE"). Please <a href='mailto:arpith@feedreader.co'>email me</a> your feedback.</p>
+<h1>Tokens</h1>
+<h2>POST /:user/tokens/json</h2>
+<p>Authenticates a session. Accepts password as a parameter and returns an authentication token. </p>
+<p><code>curl https://feedreader.co/arpith/tokens/json -F password=notreallymypassword</code></p>
+<p><code>
+{
+  "success": true,
+  "token": "fb8ac39f556118deef404bb7d0c0192f7d483759c348694d"
+}
+</code></p>
+<h2>DELETE /:user/tokens/json</h2>
+<p>Revokes a session. Requires authentication.</p>
+<p><code>curl -X DELETE https://feedreader.co/arpith/tokens/json -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
+<p><code>
+{
+  "success": true
+}
+</code></p>
+<h1>Feeds</h1>
+<h2>POST /:user/feeds/json</h2>
+<p>Add feed url (parameter names: xmlurl, title, link) or feeds from an opml file (parameter name: opml). Requires authentication.</p>
+<p><code>curl https://feedreader.co/arpith/feeds/json -F opml=@subscriptions.xml -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
+<p><code>
+{
+  "success": true
+}
+</code></p>
+<h2>GET /:user/feeds/json</h2>
+<p>Get all subscribed feeds. Returns a list of feed objects and articles not marked read. </p>
+<p><code>curl https://feedreader.co/arpith/feeds/json</code></p>
+<p><code>
+{
+  "success": true,
+  "feeds": [
+    {
+      "title": "American Elf",
+      "htmlUrl": "http://www.americanelf.com",
+      "type": "rss",
+      "lastModified": "undefined",
+      "etag": "undefined",
+      "key": "http://feeds.feedburner.com/AmericanElfRssFeed"
+    }
+  ],
+  "articles": []
+}
+</code></p>
+<h2>GET /feeds/:xmlurl/json</h2>
+<p>Checks url for new articles and returns feed object with sorted list of article hashes.</p>
+<p><code>curl https://feedreader.co/arpith/feeds/http://feeds.feedburner.com/AmericanElfRssFeed/json -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
+<p><code>
+{
+  "title": "American Elf",
+  "htmlUrl": "http://www.americanelf.com",
+  "type": "rss",
+  "lastModified": "undefined",
+  "etag": "undefined",
+  "success": true,
+  "articles": [
+    "54eac3bad961867dfc67b659a027f0d4",
+    "97bee92629ecf71804dc4505080c68da",
+    "b3763bd521a5ef1c81443e1448cdc051"
+  ]
+}
+</code></p>
+<h1>Labels</h1>
+<h2>POST /:user/labels/:label/json</h2>
+<p>Label an article. Accepts hash (required) and score (optional) as parameters. If score is not present, Date.now() is used to order the article within the label. Requires authentication.</p>
+<p><code>curl https://feedreader.co/arpith/labels/read/json -F hash=cc5e5dcb16010782336e0e1a7e98395e -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
+<p><code>
+{
+  "success": true
+}
+</code></p>
+<h2>GET /:user/labels/:label/json</h2>
+<p>Get articles labelled with label.</p>
+<p><code>curl https://feedreader.co/arpith/labels/read/json -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
+<p><code>
+{
+  "success": true,
+  "articles": [
+    "cc5e5dcb16010782336e0e1a7e98395e"
+  ]
+}
+</code></p>
+<h2>GET /:user/labels/json</h2>
+<p>Get all labels used.</p>
+<p><code>curl https://feedreader.co/arpith/labels/json -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
+<p><code>
+{
+  "success": true,
+  "labels": [
+    "read"
+  ]
+}
+</code></p>
+<h1>Folders</h1>
+<h2>POST /:user/folders/:folder/json</h2>
+<p>Add a feed to a folder. Accepts xmlurl as parameter. Requires authentication.</p>
+<p><code>curl https://feedreader.co/arpith/folders/Kochalka/json -F xmlurl=http://feeds.feedburner.com/AmericanElfRssFeed -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
+<p><code>
+{
+  "success": true
+}
+</code></p>
+<h2>DELETE /:user/folders/:folder/json</h2>
+<p>Delete a feed from a folder. Accepts xmlurl as parameter and deletes the folder if it is now empty. Requires authentication.</p>
+<p><code>curl https://feedreader.co/arpith/folders/Kochalka/json -X DELETE -F xmlurl=http://feeds.feedburner.com/AmericanElfRssFeed -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
+<p><code>
+{
+  "success": true
+}
+</code></p>
+<h2>GET /:user/folders/:folder/json</h2>
+<p>Get feeds in folder.</p>
+<p><code>curl https://feedreader.co/arpith/folders/Kochalka/json</code></p>
+<p><code>
+{
+  "success": true,
+  "feeds": [
+    "http://feeds.feedburner.com/AmericanElfRssFeed"
+  ]
+}
+</code></p>
+<h2>GET /:user/folders/json</h2>
+<p>Get all folders used. If xmlurl is passed as a parameter, returns folders the feed belongs to as well as all folders used.</p>
+<p><code>curl https://feedreader.co/arpith/folders/json?xmlurl=http://xkcd.com/atom.xml</code></p>
+<p><code>
+{
+  "success": true,
+  "folders": [
+    "Other"
+  ],
+  "allFolders": [
+    "Other"
+  ]
+}
+</code></p>
+<h1>Articles</h1>
+<h2>POST /articles/json</h2>
+<p>Generates a hash for identification. Accepts pubdate, link and xmlurl as parameters, and returns a hex digest of the sha1 hash.</p>
+<p><code>curl https://feedreader.co/articles/json -F pubdate=2012-10-15T05:50:00.000Z -F link=http://feedproxy.google.com/~r/AmericanElfRssFeed/~3/RyYvUlNe5jw/americanelf.php -F xmlurl=http://feeds.feedburner.com/AmericanElfRssFeed -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
+<p>Note: This is currently generating a different hash and needs to be fixed.</p>
+<p><code>
+{
+  "success": true,
+  "hash": "cf7a11a8d058e60cacd3fd3d26bcbb3f"
+}
+</code></p>
+<h2>GET /articles/:hash/json</h2>
+<p>Get an article from S3.</p>
+<p><code>curl https://feedreader.co/articles/8e8fb9307239c9b99daf2cf8eea510009d7cbcf2/json</code></p>
+<p><code>
+{
+  "success": true,
+  "article": {
+    "title": "The Incident: The Music",
+    "description": "<a href=\"http://cabel.me/2012/11/12/the-incident-the-music/\">The Incident: The Music</a>: <p>For years now, Matt and I have been getting this question: when are you going to release the soundtrack from The Incident? Today, the singer/songwriter behind this wonderful, wonderful score has made it available for download.</p>\n<p>Hit up <a href=\"http://cabel.me/2012/11/12/the-incident-the-music/\">Cabel’s new blog</a> and get the back story plus some bitchin’ tunes!</p>",
+    "summary": "<a href=\"http://cabel.me/2012/11/12/the-incident-the-music/\">The Incident: The Music</a>: <p>For years now, Matt and I have been getting this question: when are you going to release the soundtrack from The Incident? Today, the singer/songwriter behind this wonderful, wonderful score has made it available for download.</p>\n<p>Hit up <a href=\"http://cabel.me/2012/11/12/the-incident-the-music/\">Cabel’s new blog</a> and get the back story plus some bitchin’ tunes!</p>",
+    "date": "2012-11-12T21:49:48.000Z",
+    "pubdate": "2012-11-12T21:49:48.000Z",
+    "pubDate": "2012-11-12T21:49:48.000Z",
+    "link": "http://mrgan.tumblr.com/post/35588576448",
+    "guid": "http://mrgan.tumblr.com/post/35588576448",
+    "author": null,
+    "comments": null,
+    "origlink": null,
+    "image": {},
+    "source": {},
+    "categories": [],
+    "enclosures": [],
+    "rss:@": {},
+    "rss:title": {
+      "@": {},
+      "#": "The Incident: The Music"
+    },
+    "rss:description": {
+      "@": {},
+      "#": "<a href=\"http://cabel.me/2012/11/12/the-incident-the-music/\">The Incident: The Music</a>: <p>For years now, Matt and I have been getting this question: when are you going to release the soundtrack from The Incident? Today, the singer/songwriter behind this wonderful, wonderful score has made it available for download.</p>\n<p>Hit up <a href=\"http://cabel.me/2012/11/12/the-incident-the-music/\">Cabel’s new blog</a> and get the back story plus some bitchin’ tunes!</p>"
+    },
+    "rss:link": {
+      "@": {},
+      "#": "http://mrgan.tumblr.com/post/35588576448"
+    },
+    "rss:guid": {
+      "@": {},
+      "#": "http://mrgan.tumblr.com/post/35588576448"
+    },
+    "rss:pubdate": {
+      "@": {},
+      "#": "Mon, 12 Nov 2012 13:49:48 -0800"
+    },
+    "meta": {
+      "#ns": [
+        {
+          "xmlns:dc": "http://purl.org/dc/elements/1.1/"
+        },
+        {
+          "xmlns:atom": "http://www.w3.org/2005/Atom"
+        }
+      ],
+      "@": [
+        {
+          "xmlns:dc": "http://purl.org/dc/elements/1.1/"
+        }
+      ],
+      "#content-type": "text/xml; charset=utf-8",
+      "#type": "rss",
+      "#version": "2.0",
+      "title": "Neven Mrgan's tumbl",
+      "description": "Missing vowels since before it was cool.",
+      "date": null,
+      "pubdate": null,
+      "pubDate": null,
+      "link": "http://mrgan.tumblr.com/",
+      "xmlurl": null,
+      "xmlUrl": null,
+      "author": null,
+      "language": null,
+      "favicon": null,
+      "copyright": null,
+      "generator": "Tumblr (3.0; @mrgan)",
+      "image": {},
+      "categories": [],
+      "rss:@": {},
+      "rss:link": [
+        {
+          "@": {
+            "rel": "hub",
+            "href": "http://tumblr.superfeedr.com/",
+            "xmlns:atom": "http://www.w3.org/2005/Atom"
+          }
+        },
+        {
+          "@": {},
+          "#": "http://mrgan.tumblr.com/"
+        }
+      ],
+      "rss:description": {
+        "@": {},
+        "#": "Missing vowels since before it was cool."
+      },
+      "rss:title": {
+        "@": {},
+        "#": "Neven Mrgan's tumbl"
+      },
+      "rss:generator": {
+        "@": {},
+        "#": "Tumblr (3.0; @mrgan)"
+      }
+    },
+    "hash": "8e8fb9307239c9b99daf2cf8eea510009d7cbcf2",
+    "feedurl": "http://mrgan.tumblr.com/rss"
+  }
+}
+</code></p>
+

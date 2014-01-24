@@ -1,0 +1,99 @@
+<!doctype html>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+@media all and (min-device-width:320px) {
+  body {font-size:19px;}
+  h1 {font-size:23px;}
+  embed, iframe {max-width:100%; max-height:10em;}
+}
+@media all and (min-device-width:768px) {
+  body {font-size:21px;}
+  h1 {font-size:32px;}
+  embed, iframe {max-width:100%; max-height:20em;}
+}
+@media all and (min-device-width:1024px) {
+  body {font-size:23px;}
+}
+body {width:36em; max-width:94%; padding-top:0.6em; margin:auto; line-height:1.6em; font-family:georgia,serif; text-rendering:optimizeLegibility;}
+h1, h2, h3 {line-height:inherit; padding:0; margin:0;}
+h2 {font-size:1em; font-style:italic;}
+h3 {font-size:0.8em; text-transform:uppercase;}
+a {text-decoration:none; color:black; border-bottom:thin solid black;}
+.article {margin-bottom:1.6em; max-width:100%; float:left; clear:left;}
+img, p, blockquote, ul, ol, li, figcaption, span {padding:0; margin:0;}
+p {max-width:100%;}
+img {height:auto; max-width:100%; float:none !important;}
+ul, ol {padding-left:20px;}
+blockquote, figcaption {padding-left:1em;}
+blockquote, p {margin-bottom:1em;}
+blockquote {padding-left:1em; border-left:thin solid black;}
+em, strong {font-weight:normal; font-style:italic;}
+hr {border:none; border-top:thin solid black;}
+iframe {max-width:100%;}
+embed {max-width:100%;}
+table, tbody {table-layout:fixed; max-width:100%;}
+tbody, table, pre, code {overflow-x:auto; word-break:break-all;}
+form {max-width:320px; margin:10px 0px; padding:10px; border:thin solid black;}
+input {font-size:inherit; margin-bottom:10px;}
+</style>
+<title>Feed Reader Settings</title>
+<body>
+<h1>Feed Reader</h1>
+<a href=# id=userlink></a>
+<h2>Import</h2>
+<form id=uploadForm method=POST action=#>
+<label for=opml>Import Subscriptions</label>
+<input placeholder=Subscriptions type=file id=opml name=opml>
+<input id=upload type=submit value='Upload'>
+</form>
+<p>Upload an OPML file of your subcriptions.</p>
+<form id=importForm method=POST action=#>
+<label for=gruser>Google Reader Username</label>
+<input placeholder="e.g., foo@gmail.com" type=email id=gruser>
+<label for=grpassword>Google Reader Password</label>
+<input placeholder="e.g., *****" type=password id=grpassword>
+<input id=import type=submit value="Import">
+</form>
+<p>Import your data from Google Reader.</p>
+<h2>Account</h2>
+<form id=accountForm method=POST action=#>
+<label for=user>Username</label>
+<input placeholder=Username type=email id=user>
+<label for=password>Password</label>
+<input placeholder=Password type=password id=password>
+<input id=save type=submit value='Save'>
+</form>
+<p>Update your personal details.</p>
+<h2>Export</h2>
+<p>You can use the <a href=/api>API</a> to export all your data.</p>
+</body>
+<script src=import.js></script>
+<script>
+var userlink = document.getElementById('userlink')
+, username = document.getElementById('user')
+, upload = document.getElementById('upload')
+, grimport = document.getElementById('import')
+, save = document.getElementById('save')
+, uploadOpml = function() {
+  api('POST',user+'/feeds/json',function(){
+    if (JSON.parse(this.responseText).success) window.location = window.location
+    return false
+  },new FormData(form))
+  return false
+}
+, importData = function() {
+  var user = document.getElementById('gruser').value
+  , password = document.getElementById('grpassword').value
+  googleReaderImport(user,password,function(){return false})
+  return false
+}
+if(!localStorage.token) window.location="/"
+else {
+  userlink.href= "/"+localStorage.user
+  userlink.innerHTML = "<h3>"+localStorage.user+"</h3>"
+  username.value = localStorage.user
+  upload.onclick = uploadOpml
+  grimport.onclick = importData
+}
+</script>
