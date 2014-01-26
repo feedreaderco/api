@@ -7,11 +7,10 @@ var Opmlparser = require('opmlparser')
 , http = require('http')
 , request = require('request')
 , hash = require('./articles.js').hash
-, awssum = require('awssum')
-, amazon = awssum.load('amazon/amazon')
-, amazonSettings = {'accessKeyId':'AKIAJGMWU75U3YTLXW7Q','secretAccessKey':'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','region':amazon.US_EAST_1}
-, S3 = awssum.load('amazon/s3').S3
-, s3 = new S3(amazonSettings)
+, AWS = require('aws-sdk')
+AWS.config.loadFromPath('./aws-config.json')
+var s3 = new AWS.S3({params:{Bucket:'articles.feedreader.co'}})
+
 exports.post = function(req,res) {
   if (req.body.xmlurl) {
     redis.sadd('folder:'+req.user+'/Other','feed:'+req.body.xmlurl,function(e){
@@ -95,9 +94,7 @@ exports.feed.get = function(req,res) {
             article.hash = hash(article)
             article.feedurl = feedrequested
             var body = JSON.stringify(article)
-            s3.PutObject({BucketName:'articles.feedreader.co'
-              , ObjectName:article.hash
-              , ContentLength:Buffer.byteLength(body)
+            s3.putObject({Key:article.hash
               , Body:body
               , ContentType:'application/json'
             }
