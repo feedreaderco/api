@@ -1,1 +1,1 @@
-This is what happens at feedreader.co
+This is what happens at https://feedreader.co
