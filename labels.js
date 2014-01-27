@@ -9,7 +9,7 @@ exports.label = {}
 exports.label.post = function(req,res){
   redis.sadd('labels:'+req.user,'label:'+req.user+'/'+req.params.label,function(e){
     if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't add label:"+req.user+"/"+req.params.label+" to labels:"+req.user}},500)
-    else if (!req.body.hash) res.json({'success':false,'error':{'type':'Missing Parameter','message':"Article hash required"}},500)
+    else if (!req.body||!req.body.hash) res.json({'success':false,'error':{'type':'Missing Parameter','message':"Article hash required"}},500)
     else { 
       if (!req.body.score) req.body.score = Date.now()
       redis.zadd('label:'+req.user+'/'+req.params.label, req.body.score,'article:'+req.body.hash,function(e){
