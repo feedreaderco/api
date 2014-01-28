@@ -56,7 +56,7 @@ exports.get = function(req,res) {
        , weights = feedurls.map(function(){return 1}).concat(-1)
        redis.zunionstore(['articles:'+req.params.user,unionkeys.length].concat(unionkeys,'weights',weights,'aggregate','min'),function(e){
          if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't create article list for "+req.params.user,'log':e.message}},500)
-         else redis.zrangebyscore('articles:'+req.params.user,'0','+inf',function(e,articles){
+         else redis.zrevrange('articles:'+req.params.user,0,-1,function(e,articles){
            if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't get article list for "+req.params.user}},500)
            else redis.del('articles:'+req.params.user,function(e){
              if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't delete article list for "+req.params.user}},500)
