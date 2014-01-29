@@ -33,8 +33,10 @@ exports.folder.get = function(req,res) {
               if (e ||!feed) feed = {}
               feed.key = feedurl
               feeds.push(feed)
-              var articles = articlekeys.map(function(key){return key.substr(8)})
-              if (feedurlPosition === feedurls.length - 1) res.json({'success':true,'feeds':feeds,'articles':articles})
+              if (feedurlPosition === feedurls.length - 1) {
+                var articles = articlekeys.map(function(key){return key.substr(8)})
+                res.json({'success':true,'feeds':feeds,'articles':articles})
+              }
             })
           })
         })
