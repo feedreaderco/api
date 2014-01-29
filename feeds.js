@@ -49,29 +49,28 @@ exports.get = function(req,res) {
     var feeds = []
     if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't get folders for "+req.params.user}},500)
     else redis.sunion(folders,function(e,feedkeys){
-     if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't get feeds from all folders for "+req.params.user}},500)
-     else {
-       var feedurls = feedkeys.map(function(feedkey){ return feedkey.substr(5)})
-       , unionkeys = feedurls.map(function(feedkey){return 'articles:'+feedkey})
-       redis.zunionstore(['articles:'+req.params.user,unionkeys.length].concat(unionkeys),function(e){
-         if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't create article list for "+req.params.user,'log':e.message}},500)
-         else redis.zrevrange('articles:'+req.params.user,0,-1,function(e,articleKeys){
-           if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't get article list for "+req.params.user}},500)
-           else redis.del('articles:'+req.params.user,function(e){
-             if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't delete article list for "+req.params.user}},500)
-             else feedurls.forEach(function(feedurl,feedurlPosition){
-               redis.hgetall('feed:'+feedurl,function(e,feed) {
-                 if (!feed) feed = {}
-                 feed.key = feedurl
-                 feeds.push(feed)
-                 var article_ids = articleKeys.map(function(key){return key.substr(8)})
-                 if (feedurlPosition === feedurls.length - 1) res.json({'success':true,'feeds':feeds,'articles':article_ids})
-               })
-             })
-           })
-         })
-       })
-      }
+      var feedurls = feedkeys.map(function(feedkey){ return feedkey.substr(5)})
+      , unionkeys = feedurls.map(function(feedkey){return 'articles:'+feedkey})
+      , feeds = []
+      if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't get feeds from folder:"+req.params.user+"/"+req.params.folder}},500)
+      else redis.zunionstore(['articles:'+req.params.user,unionkeys.length].concat(unionkeys),function(e){
+        if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't create article list for "+req.params.user}},500)
+        else redis.zrevrange('articles:'+req.params.user,0,-1,function(e,articlekeys){
+          if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't get article list for "+req.params.user}},500)
+          else redis.del('articles:'+req.params.user,function(e){
+            if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't delete article list for "+req.params.user}},500)
+            else feedurls.forEach(function(feedurl,feedurlPosition){
+              redis.hgetall('feed:'+feedurl,function(e,feed) {
+                if (e ||!feed) feed = {}
+                feed.key = feedurl
+                feeds.push(feed)
+                var articles = articlekeys.map(function(key){return key.substr(8)})
+                if (feedurlPosition === feedurls.length - 1) res.json({'success':true,'feeds':feeds,'articles':articles})
+              })
+            })
+          })
+        })
+      })
     })
   })
 }
