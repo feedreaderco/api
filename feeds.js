@@ -52,7 +52,7 @@ exports.get = function(req,res) {
       var feedurls = feedkeys.map(function(feedkey){ return feedkey.substr(5)})
       , unionkeys = feedurls.map(function(feedkey){return 'articles:'+feedkey})
       , feeds = []
-      if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't get feeds from folder:"+req.params.user+"/"+req.params.folder}},500)
+      if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't get feeds for "+req.params.user}},500)
       else redis.zunionstore(['articles:'+req.params.user,unionkeys.length].concat(unionkeys),function(e){
         if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't create article list for "+req.params.user}},500)
         else redis.zrevrange('articles:'+req.params.user,0,-1,function(e,articlekeys){
