@@ -46,7 +46,6 @@ exports.post = function(req,res) {
 }
 exports.get = function(req,res) {
   redis.smembers('folders:'+req.params.user,function(e,folders){
-    var feeds = []
     if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't get folders for "+req.params.user}},500)
     else redis.sunion(folders,function(e,feedkeys){
       var feedurls = feedkeys.map(function(feedkey){ return feedkey.substr(5)})
@@ -64,8 +63,10 @@ exports.get = function(req,res) {
                 if (e ||!feed) feed = {}
                 feed.key = feedurl
                 feeds.push(feed)
-                var articles = articlekeys.map(function(key){return key.substr(8)})
-                if (feedurlPosition === feedurls.length - 1) res.json({'success':true,'feeds':feeds,'articles':articles})
+                if (feedurlPosition === feedurls.length - 1) {
+                  var articles = articlekeys.map(function(key){return key.substr(8)})
+                  res.json({'success':true,'feeds':feeds,'articles':articles})
+                }
               })
             })
           })
