@@ -45,33 +45,34 @@ exports.post = function(req,res) {
   else res.json({'success':false,'error':{'type':'Missing Parameter Error','message':"url or opml required"}},400)
 }
 exports.get = function(req,res) {
-  redis.smembers('folders:'+req.params.user,function(e,folders){
+    redis.smembers('folders:'+req.params.user,function(e,folders){
+    var feeds = []
     if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't get folders for "+req.params.user}},500)
     else redis.sunion(folders,function(e,feedkeys){
-      var feedurls = feedkeys.map(function(feedkey){ return feedkey.substr(5)})
-      , unionkeys = feedurls.map(function(feedkey){return 'articles:'+feedkey})
-      , feeds = []
-      if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't get feeds for "+req.params.user}},500)
-      else redis.zunionstore(['articles:'+req.params.user,unionkeys.length].concat(unionkeys),function(e){
-        if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't create article list for "+req.params.user}},500)
-        else redis.zrevrange('articles:'+req.params.user,0,-1,function(e,articlekeys){
-          if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't get article list for "+req.params.user}},500)
-          else redis.del('articles:'+req.params.user,function(e){
-            if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't delete article list for "+req.params.user}},500)
-            else feedurls.forEach(function(feedurl,feedurlPosition){
-              redis.hgetall('feed:'+feedurl,function(e,feed) {
-                if (e ||!feed) feed = {}
-                feed.key = feedurl
-                feeds.push(feed)
-                if (feedurlPosition === feedurls.length - 1) {
-                  var articles = articlekeys.map(function(key){return key.substr(8)})
-                  res.json({'success':true,'feeds':feeds,'articles':articles})
-                }
-              })
-            })
-          })
-        })
-      })
+     if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't get feeds from all folders for "+req.params.user}},500)
+     else {
+       var feedurls = feedkeys.map(function(feedkey){ return feedkey.substr(5)})
+       , unionkeys = feedurls.map(function(feedkey){return 'articles:'+feedkey}).concat('label:'+req.params.user+'/read')
+       , weights = feedurls.map(function(){return -1}).concat(1)
+       redis.zunionstore(['articles:'+req.params.user,unionkeys.length].concat(unionkeys,'weights',weights,'aggregate','max'),function(e){
+         if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't create article list for "+req.params.user,'log':e.message}},500)
+         else redis.zrangebyscore('articles:'+req.params.user,'0','-inf',function(e,articles){
+           if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't get article list for "+req.params.user}},500)
+           else redis.del('articles:'+req.params.user,function(e){
+             if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't delete article list for "+req.params.user}},500)
+             else feedurls.forEach(function(feedurl,feedurlPosition){
+               redis.hgetall('feed:'+feedurl,function(e,feed) {
+                 if (!feed) feed = {}
+                 feed.key = feedurl
+                 feeds.push(feed)
+                 var article_ids = articles.map(function(key){return key.substr(8)})
+                 if (feedurlPosition === feedurls.length - 1) res.json({'success':true,'feeds':feeds,'articles':article_ids})
+               })
+             })
+           })
+         })
+       })
+      }
     })
   })
 }
