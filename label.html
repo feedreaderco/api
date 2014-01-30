@@ -102,10 +102,12 @@ var current
     if ((folders = JSON.parse(this.responseText).folders)) if (folders.length) {
       folderNames = folders
       if (pathname_split[1] === "feeds") folderNames.forEach(function(folderName) {
+        alert(folderName)
         api('GET','/'+user+'/folders/'+folderName+'/json',function(){
           var button = document.createElement('button')
           folderFeeds[folderName] = []
-          if ((theseFeeds = JSON.parse(this.responseText).feeds)) if (theseFeeds.length) folderFeeds[folderName] = theseFeeds      
+          if ((theseFeeds = JSON.parse(this.responseText).feeds)) if (theseFeeds.length) folderFeeds[folderName] = theseFeeds
+          alert(folderFeeds[folderName])
           if (folderFeeds[folderName].indexOf(viewedFeed) === -1) button.className = "pillbox empty"
           else button.className = "pillbox"
           button.value = folder
