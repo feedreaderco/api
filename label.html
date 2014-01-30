@@ -127,7 +127,7 @@ var current
           folderButton = create_folder_button(folderName)
           if (folderFeedKeys[folderName].indexOf(viewedFeed) !== -1) folderButton.className = "pillbox"
           div.appendChild(folderButton)
-          if (folderPos === folderNames.length) {
+          if (folderPos === folderNames.length-1) {
             var addFolder = document.createElement('input')
             , newFolder = document.createElement('input')
             newFolder.placeholder = "Folder Name"
