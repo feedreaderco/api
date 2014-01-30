@@ -66,6 +66,7 @@ var current
 , pathname = pathname_split.join('/')
 , user = localStorage.user
 , viewedUser = pathname_split[1]
+, viewedFeed = pathname.substr(7)
 , base64_encode = function(str) {
   return window.btoa(unescape(encodeURIComponent(str)))
 }
@@ -82,17 +83,16 @@ var current
 }
 , add_to_folder = function(folderButton) {
   var folderName = folderButton.value
-  , feedName = pathname_split[2]
+  alert(viewedFeed)
   api('POST','/'+user+'/folders/'+encodeURIComponent(folderName)+'/json',function(){
     if ((success = JSON.parse(this.responseText).success)) if (success === true) folderButton.className = "pillbox"
-  },"hash="+feedName)
+  },"xmlurl="+viewedFeed)
 }
 , remove_from_folder = function(folderButton) {
   var folderName = folderButton.value
-  , feedName = pathname_split[2]
   api('DELETE','/'+user+'/folders/'+encodeURIComponent(folderName)+'/json',function(){
     if ((success = JSON.parse(this.responseText).success)) if (success === true) folderButton.className = "pillbox empty"
-  },"hash="+feedName)
+  },"xmlurl="+viewedFeed)
 }
 , add_label = function(newLabel) {
   var value = newLabel.value
@@ -112,10 +112,9 @@ var current
     var div = document.getElementById('folders') 
     if ((folders = JSON.parse(this.responseText).folders)) if (folders.length) {    
       if (pathname_split[1] === "feed") {
-        var feed_name = pathname_split[2]
         folders.forEach(folder) {
           var button = document.createElement('button')
-          if (folder.indexOf(feed_name) === -1) button.className = "pillbox empty"
+          if (folder.indexOf(viewedFeed) === -1) button.className = "pillbox empty"
           else button.className = "pillbox"
           button.value = button.innerHTML = folder
           button.onclick = function() {
