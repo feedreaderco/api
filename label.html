@@ -101,7 +101,7 @@ var current
     var div = document.getElementById('folders') 
     if ((folders = JSON.parse(this.responseText).folders)) if (folders.length) {
       folderNames = folders
-      if (pathname_split[1] === "feed") folderNames.forEach(function(folderName) {
+      if (pathname_split[1] === "feeds") folderNames.forEach(function(folderName) {
         api('GET','/'+user+'/folders/'+folderName+'/json',function(){
           var button = document.createElement('button')
           folderFeeds[folderName] = []
