@@ -85,7 +85,6 @@ var current
 }
 , add_to_folder = function(folderButton) {
   var folderName = folderButton.value
-  alert(viewedFeed)
   api('POST','/'+user+'/folders/'+encodeURIComponent(folderName)+'/json',function(){
     if ((success = JSON.parse(this.responseText).success)) if (success === true) folderButton.className = "pillbox"
   },"xmlurl="+viewedFeed)
