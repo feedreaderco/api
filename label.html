@@ -125,7 +125,7 @@ var current
           folderFeedKeys[folderName] = []
           if ((theseFeeds = JSON.parse(this.responseText).feeds)) if (theseFeeds.length) folderFeedKeys[folderName] = theseFeeds.map(function(feed){return feed.key})
           folderButton = create_folder_button(folderName)
-          if (folderFeedKeys[folderName].indexOf(viewedFeed) !== -1) folderButton.className = "pillbox"
+          if (folderFeedKeys[folderName].indexOf(viewedFeed) > -1) folderButton.className = "pillbox"
           div.appendChild(folderButton)
           if (folderPos === folderNames.length-1) {
             var addFolder = document.createElement('input')
