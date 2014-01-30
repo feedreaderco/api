@@ -64,7 +64,8 @@ var current
 , pathname_split = window.location.pathname.split('/')
 , hash = pathname_split.pop()
 , pathname = pathname_split.join('/')
-, user = pathname_split[1]
+, user = localStorage.user
+, viewedUser = pathname_split[1]
 , base64_encode = function(str) {
   return window.btoa(unescape(encodeURIComponent(str)))
 }
@@ -78,6 +79,20 @@ var current
     xhr.send(params)
   }
   else xhr.send()
+}
+, add_to_folder = function(folderButton) {
+  var folderName = folderButton.value
+  , feedName = pathname_split[2]
+  api('POST','/'+user+'/folders/'+encodeURIComponent(folderName)+'/json',function(){
+    if ((success = JSON.parse(this.responseText).success)) if (success === true) folderButton.className = "pillbox"
+  },"hash="+feedName)
+}
+, remove_from_folder = function(folderButton) {
+  var folderName = folderButton.value
+  , feedName = pathname_split[2]
+  api('DELETE','/'+user+'/folders/'+encodeURIComponent(folderName)+'/json',function(){
+    if ((success = JSON.parse(this.responseText).success)) if (success === true) folderButton.className = "pillbox empty"
+  },"hash="+feedName)
 }
 , add_label = function(newLabel) {
   var value = newLabel.value
@@ -95,9 +110,26 @@ var current
 , get_folders = function(callback) {
   api('GET','/'+user+'/folders/json',function(){
     var div = document.getElementById('folders') 
-    if ((folders = JSON.parse(this.responseText).folders)) if (folders.length) div.innerHTML = folders.map(function(folder) {
-      return "<a href=/"+user+"/folders/"+encodeURIComponent(folder)+" class=pillbox>"+folder+"</a>"	
-    }).join(' ')
+    if ((folders = JSON.parse(this.responseText).folders)) if (folders.length) {    
+      if (pathname_split[1] === "feed") {
+        var feed_name = pathname_split[2]
+        folders.forEach(folder) {
+          var button = document.createElement('button')
+          if (folder.indexOf(feed_name) === -1) button.className = "pillbox empty"
+          else button.className = "pillbox"
+          button.value = button.innerHTML = folder
+          button.onclick = function() {
+            if (button.className==="pillbox") remove_from_folder(button)
+            else add_to_folder(button)
+            return false
+          }
+          div.appendChild(button)
+        }
+      }
+      else div.innerHTML = folders.map(function(folder) {
+        return "<a href=/"+user+"/folders/"+encodeURIComponent(folder)+" class=pillbox>"+folder+"</a>"	
+      }).join(' ')
+    }
     callback()
   })
 }
