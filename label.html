@@ -103,20 +103,19 @@ var current
       folderNames = folders
       if (pathname_split[1] === "feeds") folderNames.forEach(function(folderName) {
         api('GET','/'+user+'/folders/'+folderName+'/json',function(){
-          var button = document.createElement('button')
+          var folderButton = document.createElement('input')
           folderFeedKeys[folderName] = []
           if ((theseFeeds = JSON.parse(this.responseText).feeds)) if (theseFeeds.length) folderFeedKeys[folderName] = theseFeeds.map(function(feed){return feed.key})
-          alert(folderFeedKeys[folderName])
-          if (folderFeedKeys[folderName].indexOf(viewedFeed) === -1) button.className = "pillbox empty"
-          else button.className = "pillbox"
-          button.value = folder
-          button.innerHTML = folder       
-          button.onclick = function() {
-            if (button.className==="pillbox") remove_from_folder(button)
-            else add_to_folder(button)
+          folderButton.type = 'submit'
+          if (folderFeedKeys[folderName].indexOf(viewedFeed) === -1) folderButton.className = "pillbox empty"
+          else folderButton.className = "pillbox"
+          folderButton.value = folderName
+          folderButton.onclick = function() {
+            if (folderButton.className==="pillbox") remove_from_folder(folderButton)
+            else add_to_folder(folderButton)
             return false
           }
-          div.appendChild(button)
+          div.appendChild(folderButton)
         })
       })
       else div.innerHTML = folderNames.map(function(folder) {
