@@ -18,9 +18,8 @@ var fs = require('fs')
 , labels = require('./labels.js')
 , app = express()
   .use(express.static('static'))
-  .use(express.json());
-  .use(express.urlencoded());
-
+  .use(express.json())
+  .use(express.urlencoded())
 app.all('*', function(req,res,next) {
   res.header("Access-Control-Allow-Origin", "*")
   res.header("Access-Control-Allow-Headers", "X-Requested-With")
