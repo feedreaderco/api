@@ -68,7 +68,7 @@ var current
 , pathname = pathname_split.join('/')
 , user = localStorage.user
 , viewedUser = pathname_split[1]
-, viewedFeed = pathname.substr(7)
+, viewedFeed = ""
 , base64_encode = function(str) {
   return window.btoa(unescape(encodeURIComponent(str)))
 }
@@ -101,6 +101,7 @@ var current
     var div = document.getElementById('folders') 
     if ((folders = JSON.parse(this.responseText).folders)) if (folders.length) {
       folderNames = folders
+      viewedFeed = pathname.substr(7)
       if (pathname_split[1] === "feeds") folderNames.forEach(function(folderName) {
         api('GET','/'+user+'/folders/'+folderName+'/json',function(){
           var folderButton = document.createElement('input')
