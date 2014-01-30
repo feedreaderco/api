@@ -101,26 +101,23 @@ var current
     var div = document.getElementById('folders') 
     if ((folders = JSON.parse(this.responseText).folders)) if (folders.length) {
       folderNames = folders
-      if (pathname_split[1] === "feed") {
-        folderNames.forEach(function(folderName) {
-          api('GET','/'+user+'/folders/'+folderName+'/json',function(){
-            var button = document.createElement('button')
-            folderFeeds[folderName] = []
-            if ((theseFeeds = JSON.parse(this.responseText).feeds)) if (theseFeeds.length) folderFeeds[folderName] = theseFeeds
-            
-            if (folderFeeds[folderName].indexOf(viewedFeed) === -1) button.className = "pillbox empty"
-            else button.className = "pillbox"
-            button.value = folder
-            button.innerHTML = folder       
-            button.onclick = function() {
-              if (button.className==="pillbox") remove_from_folder(button)
-              else add_to_folder(button)
-              return false
-            }
-            div.appendChild(button)
+      if (pathname_split[1] === "feed") folderNames.forEach(function(folderName) {
+        api('GET','/'+user+'/folders/'+folderName+'/json',function(){
+          var button = document.createElement('button')
+          folderFeeds[folderName] = []
+          if ((theseFeeds = JSON.parse(this.responseText).feeds)) if (theseFeeds.length) folderFeeds[folderName] = theseFeeds      
+          if (folderFeeds[folderName].indexOf(viewedFeed) === -1) button.className = "pillbox empty"
+          else button.className = "pillbox"
+          button.value = folder
+          button.innerHTML = folder       
+          button.onclick = function() {
+            if (button.className==="pillbox") remove_from_folder(button)
+            else add_to_folder(button)
+            return false
           }
+          div.appendChild(button)
         })
-      }
+      })
       else div.innerHTML = folderNames.map(function(folder) {
         return "<a href=/"+user+"/folders/"+encodeURIComponent(folder)+" class=pillbox>"+folder+"</a>"	
       }).join(' ')
