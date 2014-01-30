@@ -106,6 +106,7 @@ var current
           var button = document.createElement('button')
           folderFeedKeys[folderName] = []
           if ((theseFeeds = JSON.parse(this.responseText).feeds)) if (theseFeeds.length) folderFeedKeys[folderName] = theseFeeds.map(function(feed){return feed.key})
+          alert(folderFeedKeys[folderName])
           if (folderFeedKeys[folderName].indexOf(viewedFeed) === -1) button.className = "pillbox empty"
           else button.className = "pillbox"
           button.value = folder
