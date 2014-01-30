@@ -116,7 +116,9 @@ var current
           var button = document.createElement('button')
           if (folder.indexOf(viewedFeed) === -1) button.className = "pillbox empty"
           else button.className = "pillbox"
-          button.value = button.innerHTML = folder
+          button.value = folder
+          button.innerHTML = folder
+          alert("beware scoping")
           button.onclick = function() {
             if (button.className==="pillbox") remove_from_folder(button)
             else add_to_folder(button)
