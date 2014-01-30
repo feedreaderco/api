@@ -107,6 +107,7 @@ var current
           folderFeedKeys[folderName] = []
           if ((theseFeeds = JSON.parse(this.responseText).feeds)) if (theseFeeds.length) folderFeedKeys[folderName] = theseFeeds.map(function(feed){return feed.key})
           folderButton.type = 'submit'
+          alert(viewedFeed)
           if (folderFeedKeys[folderName].indexOf(viewedFeed) === -1) folderButton.className = "pillbox empty"
           else folderButton.className = "pillbox"
           folderButton.value = folderName
