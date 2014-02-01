@@ -1,6 +1,6 @@
 var Opmlparser = require('opmlparser')
 , opmlparser = new Opmlparser()
-, Feedparser = require('feedparser')
+, FeedParser = require('feedparser')
 , fs = require('fs')
 , redis = require('redis').createClient()
 , url = require('url')
