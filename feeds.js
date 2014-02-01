@@ -83,48 +83,57 @@ exports.feed.get = function(req,res) {
     if ((e)||(!feed)) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't get details for feed:"+feedrequested}},500)
     else {
       var unread = []
-      , headers = {}
+      , headers = {'user-agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36'
+        , 'accept':'text/html,application/xhtml+xml'}
       if (feed.lastModified) headers['If-Modified-Since'] = feed.lastModified
       if (feed.etag) headers['If-None-Match'] = feed.etag
-      feedparser.parseUrl({'uri':feedrequested,'headers':headers},function(e,meta,articles){
-        if (e) res.json({'success':false,'error':{'type':'Parser Error','message':"Couldn't parse the server response",'log':e}},500)
-        else redis.hmset('feed:'+feedrequested,'title',meta.title,'link',meta.link,function(e){
+      var req = request(feedrequested)
+      var feedparser = new FeedParser()
+      req.on('error', function(e){
+        res.json({'success':false,'error':{'type':'Feed Error','message':"Couldn't get "+feedrequested+" ("+e.message+")",'log':e}},500)
+      })
+      req.on('response', function(response) {
+        var stream = this
+        redis.hmset('feed:'+feedrequested,'lastModified',response.headers['Last-Modified'],'etag',response.headers['Etag'],function(e){
+          if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't set lastModified and etag values for "+feedrequested}},500)
+          else stream.pipe(feedparser)
+        })
+      })
+      feedparser.on('error', function(e) {
+        res.json({'success':false,'error':{'type':'Parser Error','message':"Couldn't parse the server response",'log':e}},500)
+      })
+      feedparser.on('end', done)
+      feedparser.on('meta', function (meta) {
+        redis.hmset('feed:'+feedrequested,'title',meta.title,'link',meta.link,function(e){
           if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't set title and link values for "+feedrequested}},500)
-          else articles.forEach(function(article,articlepos){
-            article.hash = hash(article)
-            article.feedurl = feedrequested
-            var body = JSON.stringify(article)
-            s3.putObject({Key:article.hash
-              , Body:body
-              , ContentType:'application/json'
-            }
-            , function (e,d) {
-              var article_date = article.pubDate || article.pubdate || article.date
-              , score = Date.parse(article_date) || Date.now()
-              if (e) res.json({'success':false,'error':{'type':'S3 Error','message':"Couldn't put "+article.hash+" on articles.feedreader.co",'log':e}},500)
-              else redis.zadd('articles:'+feedrequested,score,'article:'+article.hash,function(e){
-                if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't add article:"+article.hash+" to articles:"+feedrequested,'log':e.message}},500)
-                else if (articlepos === articles.length - 1) redis.zrevrange('articles:'+feedrequested,0,-1,function(e,all_articles){
-                  if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't get articles for "+feedrequested}},500)
-                  else {
-                    feed.success = true
-                    feed.articles = all_articles.map(function(key){return key.substr(8)})
-                    res.json(feed,200)
-                  }
-                })
+      })
+      feedparser.on('readable', function() {
+        var stream = this, item;
+        while (article = stream.read()) {
+          article.hash = hash(article)
+          article.feedurl = feedrequested
+          var body = JSON.stringify(article)
+          s3.putObject({Key:article.hash
+            , Body:body
+            , ContentType:'application/json'
+          }
+          , function (e,d) {
+            var article_date = article.pubDate || article.pubdate || article.date
+            , score = Date.parse(article_date) || Date.now()
+            if (e) res.json({'success':false,'error':{'type':'S3 Error','message':"Couldn't put "+article.hash+" on articles.feedreader.co",'log':e}},500)
+            else redis.zadd('articles:'+feedrequested,score,'article:'+article.hash,function(e){
+              if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't add article:"+article.hash+" to articles:"+feedrequested,'log':e.message}},500)
+              else if (articlepos === articles.length - 1) redis.zrevrange('articles:'+feedrequested,0,-1,function(e,all_articles){
+                if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't get articles for "+feedrequested}},500)
+                else {
+                  feed.success = true
+                  feed.articles = all_articles.map(function(key){return key.substr(8)})
+                  res.json(feed,200)
+                }
               })
             })
           })
-        })
-      })
-      .on('response',function(response){
-
-        redis.hmset('feed:'+feedrequested,'lastModified',response.headers['Last-Modified'],'etag',response.headers['Etag'],function(e){
-          if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't set lastModified and etag values for "+feedrequested}},500)
-        })
-      })
-      .on('error',function(e){
-        res.json({'success':false,'error':{'type':'Feed Error','message':"Couldn't get "+feedrequested+" ("+e.message+")",'log':e}},500)
+        }
       })
     }
   })
