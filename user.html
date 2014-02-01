@@ -52,8 +52,8 @@ sup {vertical-align:top; font-size:0.4em; position:relative; top:-0.5em;}
 <a href=# id=unread>Unread Articles</a>
 <form id=uploadForm method=POST action=#>
 <label for=opml>Import Subscriptions</label>
-<input placeholder=Subscriptions type=file id=opml name=opml>
-<input id=upload type=submit value='Upload'>
+<input placeholder=Subscriptions type=file id=opml name=opml class='pillbox empty'>
+<input id=upload type=submit value='Upload' class=pillbox>
 </form>
 <h3>Labels</h3>
 <div id=labels>
@@ -92,7 +92,7 @@ var h2 = document.getElementById('user')
     var div = document.getElementById('labels')
     if ((labels = JSON.parse(this.responseText).labels)) {
       if (!labels.length) div.innerHTML = "No labels."
-      else div.innerHTML = labels.map(function(label) {return "<a href=/"+user+"/labels/"+encodeURIComponent(label)+" class=pillbox>"+label+"</a>"}).join(', ')
+      else div.innerHTML = labels.map(function(label) {return "<a href=/"+user+"/labels/"+encodeURIComponent(label)+" class=pillbox>"+label+"</a>"}).join(' ')
     }
     else div.innerHTML = "Couldn't load labels."
   })
@@ -102,7 +102,7 @@ var h2 = document.getElementById('user')
     var div = document.getElementById('folders') 
     if ((folders= JSON.parse(this.responseText).folders)) {
       if (!folders.length) div.innerHTML = "No folders."
-      else div.innerHTML = folders.map(function(folder) {return "<a href=/"+user+"/folders/"+encodeURIComponent(folder)+"class=pillbox>"+folder+"</a>"}).join(', ')
+      else div.innerHTML = folders.map(function(folder) {return "<a href=/"+user+"/folders/"+encodeURIComponent(folder)+" class=pillbox>"+folder+"</a>"}).join(' ')
     }
     else div.innerHTML = "Couldn't load folders."
   })
