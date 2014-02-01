@@ -137,6 +137,6 @@ exports.feed.get = function(req,res) {
           })
         }
       })
-    }
+    })
   })
 }
