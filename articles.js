@@ -5,7 +5,7 @@ var redis = require('redis').createClient()
 AWS.config.loadFromPath('./aws-config.json')
 var s3 = new AWS.S3({params:{Bucket:'articles.feedreader.co'}})
 exports.hash = function(article){
-  return crypto.createHash('md5').update(article.guid||article.description).digest('hex')
+  return crypto.createHash('md5').update(article.guid).digest('hex')
 }
 exports.post = function(req,res){
   res.json({'success':true,'hash':exports.hash(req.body)})
