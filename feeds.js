@@ -119,7 +119,7 @@ exports.feed.get = function(req,res) {
       feedparser.on('readable', function() {
         var stream = this, article
         while (article = stream.read()) {
-          console.log(article.guid)
+          if (!article.guid) console.log(article)
           article.hash = hash(article)
           article.feedurl = feedrequested
           var body = JSON.stringify(article)
