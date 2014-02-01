@@ -5,38 +5,45 @@
 @media all and (min-device-width:320px) {
   body {font-size:19px;}
   h1 {font-size:23px;}
-  embed, iframe {max-width:100%; max-height:10em;}
+  embed, iframe, object {max-height:10em;}
 }
 @media all and (min-device-width:768px) {
   body {font-size:21px;}
   h1 {font-size:26px;}
-  embed, iframe {max-width:100%; max-height:20em;}
+  embed, iframe, object {max-height:20em;}
 }
 @media all and (min-device-width:1024px) {
   body {font-size:23px;}
   h1 {font-size:32px;}
 }
-body {width:36em; max-width:94%; padding-top:0.6em; margin:auto; line-height:1.6em; font-family:georgia,serif; text-rendering:optimizeLegibility;}
-h1, h2, h3 {line-height:inherit; padding:0; margin:0;}
-h2 {font-size:1em; font-style:italic;}
+embed, iframe, object, img, p, div, table, tbody, big, h1, h3 {max-width:100%; overflow-x:auto;}
+body {width:36em; max-width:92%; padding-top:0.8em; margin:auto; line-height:1.6em; font-family:georgia,serif; text-rendering:optimizeLegibility; color:#4A525A; background:#FEFCFF;}
+big, h1, h2, h3 {line-height:inherit; padding:0; margin:0; word-wrap:break-word;}
+big, h2 {font-size:1em; font-style:italic;}
+h1 {margin-bottom:0.2em; margin-top:0.4em;}
+h2 {line-height:1.4em; margin-bottom:0.4em;}
 h3 {font-size:0.8em; text-transform:uppercase;}
-a {text-decoration:none; color:black; border-bottom:thin solid black;}
-.article {margin-bottom:1.6em; max-width:100%; float:left; clear:left;}
+big {font-weight:bold;}
+a {text-decoration:none; color:#157DEC; border-bottom:thin solid; border-bottom-color:#157DEC;}
+.article {margin-bottom:1.6em; float:left; clear:left; word-wrap:break-word;}
+.pillbox {background:#D1D0CE; border:thin solid; border-color:#D1D0CE; color:white; font-size:0.8em; padding:0.2em; padding-left:0.4em; padding-right:0.4em; margin-right:0.1em; border-radius: 0.2em;}
+.pillbox.empty {background:white; color:#4A525A; border-color:#D1D0CE;}
+.minor-margin-top {margin-top:0.2em;}
+input {-webkit-appearance:none; font-family:inherit!important;}
+input[type="submit"] {background:#4A525A; border-color:#4A525A;}
+input[type="text"] {background:white; color:#4A525A; border-color:#D1D0CE;}
 img, p, blockquote, ul, ol, li, figcaption, span {padding:0; margin:0;}
-p {max-width:100%;}
-img {height:auto; max-width:100%; float:none !important;}
-ul, ol {padding-left:20px;}
+img {max-width:100% !important; height:auto !important; float:none !important;}
+img[width] {width: auto !important;}
+ul, ol {padding-left:1.8em;}
 blockquote, figcaption {padding-left:1em;}
 blockquote, p {margin-bottom:1em;}
-blockquote {padding-left:1em; border-left:thin solid black;}
+blockquote {padding-left:1em; border-left:thin solid; border-left-color:#4A525A;}
 em, strong {font-weight:normal; font-style:italic;}
-hr {border:none; border-top:thin solid black;}
-iframe {max-width:100%;}
-embed {max-width:100%;}
-table, tbody {table-layout:fixed; max-width:100%;}
-tbody, table, pre, code {overflow-x:auto; word-break:break-all;}
-form {max-width:320px; margin:10px 0px;}
-input {font-size:inherit; margin-bottom:10px;}
+hr {border:none; border-top:thin solid; border-top-color:#4A525A;}
+table, tbody {table-layout:fixed;}
+tbody, table, pre, code {word-break:break-all;}
+sup {vertical-align:top; font-size:0.4em; position:relative; top:-0.5em;}
 </style>
 <title>Feed Reader API</title>
 </style>
@@ -297,4 +304,3 @@ input {font-size:inherit; margin-bottom:10px;}
   }
 }
 </code></p>
-
