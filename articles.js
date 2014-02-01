@@ -7,6 +7,11 @@ var s3 = new AWS.S3({params:{Bucket:'articles.feedreader.co'}})
 exports.hash = function(article){
   return crypto.createHash('md5').update(article.guid).digest('hex')
 }
+exports.score = function(article){
+  var article_date = article.pubDate || article.pubdate || article.date
+  , score = Date.parse(article_date) || Date.now()
+  return(score)
+}
 exports.post = function(req,res){
   res.json({'success':true,'hash':exports.hash(req.body)})
 }
