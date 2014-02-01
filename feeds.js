@@ -119,22 +119,24 @@ exports.feed.get = function(req,res) {
       feedparser.on('readable', function() {
         var stream = this, article
         while (article = stream.read()) {
-          if (!article.guid) console.log(article)
-          article.hash = hash(article)
-          article.feedurl = feedrequested
-          var body = JSON.stringify(article)
-          s3.putObject({Key:article.hash
-            , Body:body
-            , ContentType:'application/json'
-          }
-          , function (e,d) {
-            var article_date = article.pubDate || article.pubdate || article.date
-            , score = Date.parse(article_date) || Date.now()
-            if (e) res.json({'success':false,'error':{'type':'S3 Error','message':"Couldn't put "+article.hash+" on articles.feedreader.co",'log':e}},500)
-            else redis.zadd('articles:'+feedrequested,score,'article:'+article.hash,function(e){
-              if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't add article:"+article.hash+" to articles:"+feedrequested,'log':e.message}},500)
+          if (!article.guid) res.json({'success':false,'error':{'type':'Parsing Error','message':"Couldn't get guid from "+article}},500)
+          else {
+            article.hash = hash(article)
+            article.feedurl = feedrequested
+            var body = JSON.stringify(article)
+            s3.putObject({Key:article.hash
+              , Body:body
+              , ContentType:'application/json'
+            }
+            , function (e,d) {
+              var article_date = article.pubDate || article.pubdate || article.date
+              , score = Date.parse(article_date) || Date.now()
+              if (e) res.json({'success':false,'error':{'type':'S3 Error','message':"Couldn't put "+article.hash+" on articles.feedreader.co",'log':e}},500)
+              else redis.zadd('articles:'+feedrequested,score,'article:'+article.hash,function(e){
+                if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't add article:"+article.hash+" to articles:"+feedrequested,'log':e.message}},500)
+              })
             })
-          })
+          }
         }
       })
     }
