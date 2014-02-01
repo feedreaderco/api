@@ -117,8 +117,7 @@ exports.feed.get = function(req,res) {
         })
       })
       feedparser.on('readable', function() {
-        var article
-        , stream = this
+        var stream = this, article
         while (article = stream.read()) {
           article.hash = hash(article)
           article.feedurl = feedrequested
