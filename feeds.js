@@ -45,7 +45,7 @@ exports.post = function(req,res) {
   else res.json({'success':false,'error':{'type':'Missing Parameter Error','message':"url or opml required"}},400)
 }
 exports.get = function(req,res) {
-    redis.smembers('folders:'+req.params.user,function(e,folders){
+  redis.smembers('folders:'+req.params.user,function(e,folders){
     var feeds = []
     if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't get folders for "+req.params.user}},500)
     else redis.sunion(folders,function(e,feedkeys){
