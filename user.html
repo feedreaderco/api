@@ -128,7 +128,7 @@ h2.innerHTML = user
 document.title = user + ' (feedreader.co)'
 unread.href = "/" + user + "/feeds"
 upload.onclick = upload_opml
-if (localStorage.token) form.style.display = 'block'
+if (localStorage.user===user) form.style.display = 'block'
 get_labels()
 get_folders()
 get_feeds()
