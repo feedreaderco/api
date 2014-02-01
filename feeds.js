@@ -115,6 +115,7 @@ exports.feed.get = function(req,res) {
       feedparser.on('meta', function (meta) {
         redis.hmset('feed:'+feedrequested,'title',meta.title,'link',meta.link,function(e){
           if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't set title and link values for "+feedrequested}},500)
+        })
       })
       feedparser.on('readable', function() {
         var item
@@ -137,6 +138,6 @@ exports.feed.get = function(req,res) {
           })
         }
       })
-    })
-  }
+    }
+  })
 }
