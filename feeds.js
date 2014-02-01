@@ -102,7 +102,16 @@ exports.feed.get = function(req,res) {
       feedparser.on('error', function(e) {
         res.json({'success':false,'error':{'type':'Parser Error','message':"Couldn't parse the server response",'log':e}},500)
       })
-      feedparser.on('end', done)
+      feedparser.on('end', function() {
+        redis.zrevrange('articles:'+feedrequested,0,-1,function(e,all_articles){
+          if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't get articles for "+feedrequested}},500)
+          else {
+            feed.success = true
+            feed.articles = all_articles.map(function(key){return key.substr(8)})
+             res.json(feed,200)
+          }
+        })
+      })
       feedparser.on('meta', function (meta) {
         redis.hmset('feed:'+feedrequested,'title',meta.title,'link',meta.link,function(e){
           if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't set title and link values for "+feedrequested}},500)
@@ -123,14 +132,6 @@ exports.feed.get = function(req,res) {
             if (e) res.json({'success':false,'error':{'type':'S3 Error','message':"Couldn't put "+article.hash+" on articles.feedreader.co",'log':e}},500)
             else redis.zadd('articles:'+feedrequested,score,'article:'+article.hash,function(e){
               if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't add article:"+article.hash+" to articles:"+feedrequested,'log':e.message}},500)
-              else if (articlepos === articles.length - 1) redis.zrevrange('articles:'+feedrequested,0,-1,function(e,all_articles){
-                if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't get articles for "+feedrequested}},500)
-                else {
-                  feed.success = true
-                  feed.articles = all_articles.map(function(key){return key.substr(8)})
-                  res.json(feed,200)
-                }
-              })
             })
           })
         }
