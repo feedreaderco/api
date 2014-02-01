@@ -98,6 +98,7 @@ var current
   return false
 }
 login.onclick = get_token
+if (localStorage.token && localStorage.user) window.location.pathname = localStorage.user
 window.onscroll = mark_as_read
 window.onbeforeunload = function() {
   api('DELETE')
