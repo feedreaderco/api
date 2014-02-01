@@ -87,7 +87,7 @@ exports.feed.get = function(req,res) {
         , 'accept':'text/html,application/xhtml+xml'}
       if (feed.lastModified) headers['If-Modified-Since'] = feed.lastModified
       if (feed.etag) headers['If-None-Match'] = feed.etag
-      var req = request(feedrequested)
+      var req = request({'uri':feedrequested,'headers':headers})
       var feedparser = new FeedParser()
       req.on('error', function(e){
         res.json({'success':false,'error':{'type':'Feed Error','message':"Couldn't get "+feedrequested+" ("+e.message+")",'log':e}},500)
