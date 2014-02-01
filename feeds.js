@@ -108,7 +108,7 @@ exports.feed.get = function(req,res) {
           else {
             feed.success = true
             feed.articles = all_articles.map(function(key){return key.substr(8)})
-             res.json(feed,200)
+            res.json(feed,200)
           }
         })
       })
@@ -117,7 +117,8 @@ exports.feed.get = function(req,res) {
           if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't set title and link values for "+feedrequested}},500)
       })
       feedparser.on('readable', function() {
-        var stream = this, item;
+        var item
+        , stream = this
         while (article = stream.read()) {
           article.hash = hash(article)
           article.feedurl = feedrequested
