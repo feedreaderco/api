@@ -119,7 +119,7 @@ exports.feed.get = function(req,res) {
       feedparser.on('readable', function() {
         var stream = this, article
         while (article = stream.read()) {
-          if (!article.guid) res.json({'success':false,'error':{'type':'Parsing Error','message':"Couldn't get guid from "+article}},500)
+          if (!article.guid) console.log(feedrequested)
           else {
             article.hash = hash(article)
             article.feedurl = feedrequested
