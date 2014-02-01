@@ -7,6 +7,7 @@ var Opmlparser = require('opmlparser')
 , http = require('http')
 , request = require('request')
 , hash = require('./articles.js').hash
+, score = require('./articles.js').score
 , AWS = require('aws-sdk')
 AWS.config.loadFromPath('./aws-config.json')
 var s3 = new AWS.S3({params:{Bucket:'articles.feedreader.co'}})
@@ -119,7 +120,7 @@ exports.feed.get = function(req,res) {
       feedparser.on('readable', function() {
         var stream = this, article
         while (article = stream.read()) {
-          if (!article.guid) console.log(feedrequested)
+          if (!article.guid) return false
           else {
             article.hash = hash(article)
             article.feedurl = feedrequested
@@ -129,10 +130,9 @@ exports.feed.get = function(req,res) {
               , ContentType:'application/json'
             }
             , function (e,d) {
-              var article_date = article.pubDate || article.pubdate || article.date
-              , score = Date.parse(article_date) || Date.now()
+              var article_score = score(article)
               if (e) res.json({'success':false,'error':{'type':'S3 Error','message':"Couldn't put "+article.hash+" on articles.feedreader.co",'log':e}},500)
-              else redis.zadd('articles:'+feedrequested,score,'article:'+article.hash,function(e){
+              else redis.zadd('articles:'+feedrequested,article_score,'article:'+article.hash,function(e){
                 if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't add article:"+article.hash+" to articles:"+feedrequested,'log':e.message}},500)
               })
             })
