@@ -88,18 +88,18 @@ exports.feed.get = function(req,res) {
         , 'accept':'text/html,application/xhtml+xml'}
       if (feed.lastModified) headers['If-Modified-Since'] = feed.lastModified
       if (feed.etag) headers['If-None-Match'] = feed.etag
-      var req = request({'uri':feedrequested,'headers':headers})
+      var requ = request({'uri':feedrequested,'headers':headers})
       var feedparser = new FeedParser()
-      req.on('error', function(e){
+      requ.on('error', function(e){
         res.json({'success':false,'error':{'type':'Feed Error','message':"Couldn't get "+feedrequested+" ("+e.message+")",'log':e}},500)
       })
-      req.on('response', function(response) {
+      requ.on('response', function(response) {
         redis.hmset('feed:'+feedrequested,'lastModified',response.headers['last-modified'],'etag',response.headers['etag'],function(e){
           if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't set lastModified and etag values for "+feedrequested}},500)
-          else response.pipe(res)
-          response.pipe(feedparser)
         })
       })
+      requ.pipe(res)
+      requ.pipe(feedparser)
       feedparser.on('error', function(e) {
         res.json({'success':false,'error':{'type':'Parser Error','message':"Couldn't parse the server response",'log':e}},500)
       })
