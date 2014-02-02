@@ -103,12 +103,12 @@ exports.feed.get = function(req,res) {
         res.json({'success':false,'error':{'type':'Parser Error','message':"Couldn't parse the server response",'log':e}},500)
       })
       feedparser.on('meta', function (meta) {
-        res.json(meta)
         redis.hmset('feed:'+feedrequested,'title',meta.title,'link',meta.link,function(e){
           if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't set title and link values for "+feedrequested}},500)
         })
       })
-      feedparser.on('readable', function() {
+      feedparser.on('readable', function(art) {
+        res.json(art)
         var stream = this, article
         while (article = stream.read()) {
           if (!article.guid) return false
