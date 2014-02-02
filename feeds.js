@@ -96,14 +96,14 @@ exports.feed.get = function(req,res) {
       req.on('response', function(response) {
         redis.hmset('feed:'+feedrequested,'lastModified',response.headers['last-modified'],'etag',response.headers['etag'],function(e){
           if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't set lastModified and etag values for "+feedrequested}},500)
-          else response.pipe(feedparser)
+          else response.pipe(res)
+          response.pipe(feedparser)
         })
       })
       feedparser.on('error', function(e) {
         res.json({'success':false,'error':{'type':'Parser Error','message':"Couldn't parse the server response",'log':e}},500)
       })
       feedparser.on('meta', function (meta) {
-        res.json(meta)
         redis.hmset('feed:'+feedrequested,'title',meta.title,'link',meta.link,function(e){
           if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't set title and link values for "+feedrequested}},500)
         })
