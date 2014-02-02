@@ -113,6 +113,7 @@ exports.feed.get = function(req,res) {
           if (!article.guid) return false
           else {
             article.hash = hash(article)
+            article.score = score(article)
             article.feedurl = feedrequested
             var body = JSON.stringify(article)
             s3.putObject({Key:article.hash
@@ -120,9 +121,8 @@ exports.feed.get = function(req,res) {
               , ContentType:'application/json'
             }
             , function (e,d) {
-              var article_score = score(article)
               if (e) res.json({'success':false,'error':{'type':'S3 Error','message':"Couldn't put "+article.hash+" on articles.feedreader.co",'log':e}},500)
-              else redis.zadd('articles:'+feedrequested,article_score,'article:'+article.hash,function(e){
+              else redis.zadd('articles:'+feedrequested,article.score,'article:'+article.hash,function(e){
                 if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't add article:"+article.hash+" to articles:"+feedrequested,'log':e.message}},500)
               })
             })
