@@ -112,7 +112,6 @@ exports.feed.get = function(req,res) {
         while (article = stream.read()) {
           if (!article.guid) return false
           else {
-            res.json(article)
             article.hash = hash(article)
             article.feedurl = feedrequested
             var body = JSON.stringify(article)
