@@ -116,14 +116,16 @@ exports.feed.get = function(req,res) {
             article.score = score(article)
             article.feedurl = feedrequested
             var body = JSON.stringify(article)
-            s3.putObject({Key:article.hash
+            , key = article.hash
+            , rank = article.score
+            s3.putObject({Key:key
               , Body:body
               , ContentType:'application/json'
             }
             , function (e,d) {
-              if (e) res.json({'success':false,'error':{'type':'S3 Error','message':"Couldn't put "+article.hash+" on articles.feedreader.co",'log':e}},500)
-              else redis.zadd('articles:'+feedrequested,article.score,'article:'+article.hash,function(e){
-                if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't add article:"+article.hash+" to articles:"+feedrequested,'log':e.message}},500)
+              if (e) res.json({'success':false,'error':{'type':'S3 Error','message':"Couldn't put "+key+" on feed-articles",'log':e}},500)
+              else redis.zadd('articles:'+feedrequested,rank,'article:'+key,function(e){
+                if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't add article:"+key+" to articles:"+feedrequested,'log':e.message}},500)
               })
             })
           }
