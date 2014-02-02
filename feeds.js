@@ -83,7 +83,6 @@ exports.feed.get = function(req,res) {
   redis.hgetall('feed:'+feedrequested,function(e,feed) {
     if ((e)||(!feed)) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't get details for feed:"+feedrequested}},500)
     else {
-      res.json(feed)
       var unread = []
       , headers = {'user-agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36'
         , 'accept':'text/html,application/xhtml+xml'}
@@ -95,6 +94,7 @@ exports.feed.get = function(req,res) {
         res.json({'success':false,'error':{'type':'Feed Error','message':"Couldn't get "+feedrequested+" ("+e.message+")",'log':e}},500)
       })
       req.on('response', function(response) {
+        res.json(response.headers)
         redis.hmset('feed:'+feedrequested,'lastModified',response.headers['Last-Modified'],'etag',response.headers['Etag'],function(e){
           if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't set lastModified and etag values for "+feedrequested}},500)
           else response.pipe(feedparser)
