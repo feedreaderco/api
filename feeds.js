@@ -107,12 +107,12 @@ exports.feed.get = function(req,res) {
           if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't set title and link values for "+feedrequested}},500)
         })
       })
-      feedparser.on('readable', function(art) {
-        res.json(art)
+      feedparser.on('readable', function() {
         var stream = this, article
         while (article = stream.read()) {
           if (!article.guid) return false
           else {
+            res.json(article)
             article.hash = hash(article)
             article.feedurl = feedrequested
             var body = JSON.stringify(article)
