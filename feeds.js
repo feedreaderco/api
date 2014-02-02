@@ -10,7 +10,7 @@ var Opmlparser = require('opmlparser')
 , score = require('./articles.js').score
 , AWS = require('aws-sdk')
 AWS.config.loadFromPath('./aws-config.json')
-var s3 = new AWS.S3({params:{Bucket:'articles.feedreader.co'}})
+var s3 = new AWS.S3({params:{Bucket:'feed-articles'}})
 
 exports.post = function(req,res) {
   if (req.body.xmlurl) {
