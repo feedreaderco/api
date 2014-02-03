@@ -121,12 +121,11 @@ exports.feed.get = function(req,res) {
             redis.zadd('articles:'+feedrequested,rank,'article:'+key,function(e){
               if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't add article:"+key+" to articles:"+feedrequested,'log':e.message}},500)
               else s3.putObject({Key:key
-                  , Body:body
-                  , ContentType:'application/json'
-                }
-                , function (e) {
-                  if (e) res.json({'success':false,'error':{'type':'S3 Error','message':"Couldn't put "+key+" on feed-articles",'log':e}},500)
-                })
+                , Body:body
+                , ContentType:'application/json'
+              }
+              , function (e) {
+                if (e) res.json({'success':false,'error':{'type':'S3 Error','message':"Couldn't put "+key+" on feed-articles",'log':e}},500)
               })
             })
           }
