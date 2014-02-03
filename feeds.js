@@ -118,18 +118,21 @@ exports.feed.get = function(req,res) {
             var body = JSON.stringify(article)
             , key = article.hash
             , rank = article.score
-            s3.putObject({Key:key
-              , Body:body
-              , ContentType:'application/json'
-            }
-            , function (e,d) {
-              if (e) res.json({'success':false,'error':{'type':'S3 Error','message':"Couldn't put "+key+" on feed-articles",'log':e}},500)
-              else redis.zadd('articles:'+feedrequested,rank,'article:'+key,function(e){
-                if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't add article:"+key+" to articles:"+feedrequested,'log':e.message}},500)
+            redis.zadd('articles:'+feedrequested,rank,'article:'+key,function(e){
+              if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't add article:"+key+" to articles:"+feedrequested,'log':e.message}},500)
+              else s3.putObject({Key:key
+                  , Body:body
+                  , ContentType:'application/json'
+                }
+                , function (e) {
+                  if (e) res.json({'success':false,'error':{'type':'S3 Error','message':"Couldn't put "+key+" on feed-articles",'log':e}},500)
+                })
               })
             })
           }
         }
+      })
+      feedparser.on('end', function() {
         redis.zrevrange('articles:'+feedrequested,0,-1,function(e,all_articles){
           if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't get articles for "+feedrequested}},500)
           else {
