@@ -210,14 +210,14 @@ var current
   })
 }
 , get_article = function(hash,callback) {
-  if (!hash) callback()
-  else api('GET','/articles/'+hash+'/json',function() {
+  if (!!hash) api('GET','/articles/'+hash+'/json',function() {
     if ((article = JSON.parse(this.responseText).article)) {
       if (!document.getElementById(hash)) display_article(article,callback)
       else callback()
     }
     else callback()
   })
+  else callback()
 }
 , display_article = function(article,callback) {
   var element = document.createElement('div')
