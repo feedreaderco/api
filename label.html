@@ -74,7 +74,7 @@ var current
 }
 , api = function(method,endpoint,onload,params) {
   var xhr = new XMLHttpRequest()
-  xhr.open(method,'https://feedreader.co'+endpoint)
+  xhr.open(method,'https://feedreader.co'+endpoint+'/json')
   if (method!='GET') xhr.setRequestHeader('authorization','Basic '+base64_encode(token+':'))
   xhr.onload = onload
   if (params) {
@@ -85,13 +85,13 @@ var current
 }
 , add_to_folder = function(folderButton) {
   var folderName = folderButton.value
-  api('POST','/'+user+'/folders/'+encodeURIComponent(folderName)+'/json',function(){
+  api('POST','/'+user+'/folders/'+encodeURIComponent(folderName),function(){
     if ((success = JSON.parse(this.responseText).success)) if (success === true) folderButton.className = "pillbox"
   },"xmlurl="+viewedFeed)
 }
 , remove_from_folder = function(folderButton) {
   var folderName = folderButton.value
-  api('DELETE','/'+user+'/folders/'+encodeURIComponent(folderName)+'/json',function(){
+  api('DELETE','/'+user+'/folders/'+encodeURIComponent(folderName),function(){
     if ((success = JSON.parse(this.responseText).success)) if (success === true) folderButton.className = "pillbox empty"
   },"xmlurl="+viewedFeed)
 }
@@ -115,13 +115,13 @@ var current
   add_to_folder(newButton)
 }
 , get_folders = function(callback) {
-  api('GET','/'+user+'/folders/json',function(){
+  api('GET','/'+user+'/folders',function(){
     var div = document.getElementById('folders') 
     if ((folders = JSON.parse(this.responseText).folders)) if (folders.length) {
       folderNames = folders
       viewedFeed = pathname.slice(7,-1)
       if (pathname_split[1] === "feeds") folderNames.forEach(function(folderName,folderPos) {
-        api('GET','/'+user+'/folders/'+folderName+'/json',function(){
+        api('GET','/'+user+'/folders/'+folderName,function(){
           folderFeedKeys[folderName] = []
           if ((theseFeeds = JSON.parse(this.responseText).feeds)) if (theseFeeds.length) folderFeedKeys[folderName] = theseFeeds.map(function(feed){return feed.key})
           folderButton = create_folder_button(folderName)
@@ -163,16 +163,16 @@ var current
   newLabelLink.innerHTML = value
   newLabel.parentElement.insertBefore(newLabelLink,newLabel)
   newLabel.style.display = 'none'
-  api('POST','/'+user+'/labels/'+encodeURIComponent(value)+'/json',function(){
+  api('POST','/'+user+'/labels/'+encodeURIComponent(value),function(){
     if ((success = JSON.parse(this.responseText).success)) if (success === true) newLabelLink.className = 'pillbox'
   },"hash="+newLabel.parentElement.id)
 }
 , get_labels = function(callback) {
-  api('GET','/'+user+'/labels/json',function(){
+  api('GET','/'+user+'/labels',function(){
     if ((labels = JSON.parse(this.responseText).labels)) if (labels.length) {
       labelNames = labels
       labels.forEach(function(feedLabel){
-        api('GET','/'+user+'/labels/'+feedLabel+'/json',function(){
+        api('GET','/'+user+'/labels/'+feedLabel,function(){
           labelArticles[feedLabel] = []
           if ((theseArticles = JSON.parse(this.responseText).articles)) if (theseArticles.length) labelArticles[feedLabel] = theseArticles
         })
@@ -182,7 +182,8 @@ var current
   })
 }
 , get_articles = function(callback) {
-  api('GET',pathname+'json',function(){
+  var pathname_stripped = pathname.slice(0,-1)
+  api('GET',pathname_stripped,function(){
     if ((theseArticles = JSON.parse(this.responseText).articles)) {
       var i = 0
       articles = theseArticles
@@ -201,16 +202,16 @@ var current
   })
 }
 , refresh_feeds = function() {
-  if (token) api('GET','/'+user+'/feeds/json',function(){
+  if (token) api('GET','/'+user+'/feeds',function(){
     if ((feeds = JSON.parse(this.responseText).feeds)) feeds.forEach(function(feed){
-      api('GET','/feeds/'+feed.key+'/json',function(){
+      api('GET','/feeds/'+feed.key,function(){
         if ((all_articles = JSON.parse(this.responseText).articles)) console.log('Refreshed '+feed.title+', '+all_articles.length+' articles so far')
       })
     })
   })
 }
 , get_article = function(hash,callback) {
-  if (!!hash) api('GET','/articles/'+hash+'/json',function() {
+  if (!!hash) api('GET','/articles/'+hash,function() {
     if ((article = JSON.parse(this.responseText).article)) {
       if (!document.getElementById(hash)) display_article(article,callback)
       else callback()
@@ -277,7 +278,7 @@ var current
     history.replaceState({id:current.id},'','https://feedreader.co'+pathname+current.id)
     if (token) {
       console.log('Marking '+hash+' as read')
-      api('POST','/'+user+'/labels/read/json',function(){
+      api('POST','/'+user+'/labels/read',function(){
         console.log('Marked '+hash+' as read')
       },"hash="+hash)
     }
