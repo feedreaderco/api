@@ -12,7 +12,6 @@
     xhr.send(params)
   }
   , makePillbox = function(e) {
-alert('going to make pillbox')
     e.style.background = '#D1D0CE'
     e.style.border = 'thin solid #D1D0CE'
     e.style.color = 'white'
@@ -25,7 +24,6 @@ alert('going to make pillbox')
     e.className = "feedreader-pillbox"
   }
   , makeEmpty = function(e) {
-alert('going to make empty')
     e.style.background = 'white'
     e.style.color = '#4A525A'
     e.style.borderColor = '#D1D0CE'
@@ -46,7 +44,6 @@ alert('going to make empty')
       }
       elements.forEach(function(e){
         makePillbox(e)
-        e.style.lineHeight = '30px'
         e.style.textDecoration = 'none'
         e.style.WebkitAppearance = 'none'
         e.style.fontFamily = 'inherit!important'
@@ -66,7 +63,6 @@ alert('going to make empty')
       bookmarklet.appendChild(newFolder)
       bookmarklet.appendChild(addFolder)
       feedreader.bookmarklet = bookmarklet
-      alert('almost added')
       document.body.appendChild(bookmarklet)
     }
     else {
@@ -135,14 +131,10 @@ alert('going to make empty')
   feedreader = this
   feedreader.bookmarklet = bookmarklet
   getFeed(function(){
-    alert('done getting feed')
     toggleBookmarklet(function(){
-      alert('done toggling bookmarklet ')
       api('GET','folders',function(){
-        alert('done getting folders')
         var checked = false
         if ((folders = JSON.parse(this.responseText).allFolders)) {
-          alert('done parsing all folders')
           checked = true
           folders.forEach(function(folder,position){
             if (position < folders.length) displayFolder(folder)
