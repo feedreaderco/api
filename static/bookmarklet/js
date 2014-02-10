@@ -41,6 +41,7 @@
         newFolder.value = ''
         return false
       }
+      alert('going to try stuff')
       [newFolder,addFolder].forEach(function(e){
         makePillbox(e)
         e.style.lineHeight = '30px'
@@ -63,6 +64,7 @@
       bookmarklet.appendChild(newFolder)
       bookmarklet.appendChild(addFolder)
       feedreader.bookmarklet = bookmarklet
+      alert('almost added')
       document.body.appendChild(bookmarklet)
     }
     else {
