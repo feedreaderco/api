@@ -95,7 +95,8 @@
     }
     makePillbox(folderButton)
     makeEmpty(folderButton)
-    return bookmarklet.appendChild(folderButton)
+    bookmarklet.appendChild(folderButton)
+    return folderButton
   }
   , getFeed = function(callback) {
     if (window.location.hostname == 'feedreader.co') feed = current.children[1].href.slice(28)
