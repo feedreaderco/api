@@ -16,8 +16,12 @@
       var newFolder = document.createElement('input')
       , addFolder = document.createElement('input')
       newFolder.placeholder = "New Folder"
-      newFolder.style.float = 'left'
+      newFolder.style.background = 'white'
+      newFolder.style.color = '#4A525A'
+      newFolder.style.borderColor = '#D1D0CE'    
       addFolder.style.float = 'left'
+      addFolder.style.background = '#4A525A'
+      addFolder.style.borderColor = '#4A525A'
       addFolder.value = "Add"
       addFolder.type = 'submit'
       addFolder.onclick = function() {
@@ -33,6 +37,9 @@
         e.style.padding = '0'
         e.style.margin = '0'
         e.style.textDecoration = 'none'
+        e.style.float = 'left'
+        e.style.WebkitAppearance = 'none'
+        e.style.fontFamily = 'inherit!important'
       })
       bookmarklet = document.createElement('div')
       bookmarklet.style.font = '19px Georgia,sans'
