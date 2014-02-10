@@ -13,20 +13,20 @@
   }
   , makePillbox = function(e) {
     e.style.font = '19px Georgia'
-    e.style.background = '#D1D0CE'
-    e.style.border = 'thin solid #D1D0CE'
+    e.style.background = '#4A525A'
+    e.style.border = 'thin solid #4A525A'
     e.style.color = 'white'
     e.style.padding = '0.2em'
     e.style.paddingLeft = '0.4em'
     e.style.paddingRight = '0.4em'
-    e.style.marginRight = '0.1em'
+    e.style.margin = '0.2em'
     e.style.borderRadius = '0.2em'
     e.style.WebkitAppearance = 'none'
     e.className = "feedreader-pillbox"
   }
   , makeEmpty = function(e) {
     e.style.background = 'white'
-    e.style.color = '#4A525A'
+    e.style.color = '#D1D0CE'
     e.style.borderColor = '#D1D0CE'
     e.className = "feedreader-pillbox-empty"
   }
