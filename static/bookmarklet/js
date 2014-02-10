@@ -131,10 +131,14 @@
   feedreader = this
   feedreader.bookmarklet = bookmarklet
   getFeed(function(){
+    alert('done getting feed')
     toggleBookmarklet(function(){
+      alert('done toggling bookmarklet ')
       api('GET','folders',function(){
+        alert('done getting folders')
         var checked = false
         if ((folders = JSON.parse(this.responseText).allFolders)) {
+          alert('done parsing all folders')
           checked = true
           folders.forEach(function(folder,position){
             if (position < folders.length) displayFolder(folder)
