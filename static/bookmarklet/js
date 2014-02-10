@@ -16,8 +16,6 @@
     e.style.background = '#D1D0CE'
     e.style.border = 'thin solid #D1D0CE'
     e.style.color = 'white'
-    e.style.fontSize = '0.8em'
-    e.style.fontFamily = 'inherit!important'
     e.style.padding = '0.2em'
     e.style.paddingLeft = '0.4em'
     e.style.paddingRight = '0.4em'
@@ -50,6 +48,7 @@
       bookmarklet = document.createElement('div')
       bookmarklet.style.position = 'fixed'
       bookmarklet.style.overflow = 'scroll'
+      bookmarklet.style.maxWidth = '320px'
       bookmarklet.style.top = '0'
       bookmarklet.style.right = '0'
       bookmarklet.style.zindex = '99999'
