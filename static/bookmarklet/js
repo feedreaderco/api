@@ -12,15 +12,18 @@
     xhr.send(params)
   }
   , makePillbox = function(e) {
+    e.style.font = '19px Georgia,sans'
     e.style.background = '#D1D0CE'
     e.style.border = 'thin solid #D1D0CE'
     e.style.color = 'white'
     e.style.fontSize = '0.8em'
+    e.style.fontFamily = 'inherit!important'
     e.style.padding = '0.2em'
     e.style.paddingLeft = '0.4em'
     e.style.paddingRight = '0.4em'
     e.style.marginRight = '0.1em'
     e.style.borderRadius = '0.2em'
+    e.style.WebkitAppearance = 'none'
     e.className = "feedreader-pillbox"
   }
   , makeEmpty = function(e) {
@@ -33,7 +36,6 @@
     if (!bookmarklet) {
       var newFolder = document.createElement('input')
       , addFolder = document.createElement('input')
-      , elements = [newFolder, addFolder]
       newFolder.placeholder = "New Folder"
       addFolder.value = "Add"
       addFolder.type = 'submit'
@@ -42,17 +44,10 @@
         newFolder.value = ''
         return false
       }
-      elements.forEach(function(e){
-        makePillbox(e)
-        e.style.textDecoration = 'none'
-        e.style.WebkitAppearance = 'none'
-        e.style.fontFamily = 'inherit!important'
-      })
+      makePillbox(addFolder)
+      makePillbox(newFolder)
       makeEmpty(newFolder)
       bookmarklet = document.createElement('div')
-      bookmarklet.style.font = '19px Georgia,sans'
-      bookmarklet.style.color = 'black'
-      bookmarklet.style.lineHeight = '30px'
       bookmarklet.style.position = 'fixed'
       bookmarklet.style.overflow = 'scroll'
       bookmarklet.style.top = '0'
