@@ -12,6 +12,7 @@
     xhr.send(params)
   }
   , makePillbox = function(e) {
+alert('going to make pillbox')
     e.style.background = '#D1D0CE'
     e.style.border = 'thin solid #D1D0CE'
     e.style.color = 'white'
@@ -24,6 +25,7 @@
     e.className = "feedreader-pillbox"
   }
   , makeEmpty = function(e) {
+alert('going to make empty')
     e.style.background = 'white'
     e.style.color = '#4A525A'
     e.style.borderColor = '#D1D0CE'
@@ -33,6 +35,7 @@
     if (!bookmarklet) {
       var newFolder = document.createElement('input')
       , addFolder = document.createElement('input')
+      , elements = [newFolder, addFolder]
       newFolder.placeholder = "New Folder"
       addFolder.value = "Add"
       addFolder.type = 'submit'
@@ -41,8 +44,7 @@
         newFolder.value = ''
         return false
       }
-      alert('going to try stuff')
-      [newFolder,addFolder].forEach(function(e){
+      elements.forEach(function(e){
         makePillbox(e)
         e.style.lineHeight = '30px'
         e.style.textDecoration = 'none'
