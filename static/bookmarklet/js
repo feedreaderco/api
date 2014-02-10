@@ -42,7 +42,7 @@
       bookmarklet.style.overflow = 'scroll'
       bookmarklet.style.top = '0'
       bookmarklet.style.right = '0'
-      bookmarklet.style.zindex = '999'
+      bookmarklet.style.zindex = '99999'
       bookmarklet.style.background = 'white'
       bookmarklet.style.padding = '10px'
       bookmarklet.appendChild(newFolder)
