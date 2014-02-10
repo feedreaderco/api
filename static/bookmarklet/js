@@ -32,9 +32,6 @@
       var newFolder = document.createElement('input')
       , addFolder = document.createElement('input')
       newFolder.placeholder = "New Folder"
-      makePillbox(addFolder)
-      makePillbox(newFolder)
-      makeEmpty(newFolder)
       addFolder.value = "Add"
       addFolder.type = 'submit'
       addFolder.onclick = function() {
@@ -42,13 +39,14 @@
         newFolder.value = ''
         return false
       }
-      var elements = [newFolder,addFolder]
-      elements.forEach(function(e){
+      [newFolder,addFolder].forEach(function(e){
+        makePillbox(e)
         e.style.lineHeight = '30px'
         e.style.textDecoration = 'none'
         e.style.WebkitAppearance = 'none'
         e.style.fontFamily = 'inherit!important'
       })
+      makeEmpty(newFolder)
       bookmarklet = document.createElement('div')
       bookmarklet.style.font = '19px Georgia,sans'
       bookmarklet.style.color = 'black'
