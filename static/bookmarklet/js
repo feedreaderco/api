@@ -13,10 +13,7 @@
   }
   , toggleBookmarklet = function(callback) {
     if (!bookmarklet) {
-      var heading = document.createElement('a')
-      , user = document.createElement('a')
-      , link = document.createElement('a')
-      , newFolder = document.createElement('input')
+      var newFolder = document.createElement('input')
       , addFolder = document.createElement('input')
       newFolder.placeholder = "New Folder"
       newFolder.style.float = 'left'
@@ -28,13 +25,7 @@
         newFolder.value = ''
         return false
       }
-      var elements = [heading,user,link,newFolder,addFolder]
-      heading.innerHTML = "<h1>Feed Reader</h1>"
-      heading.href = "https://feedreader.co"
-      user.innerHTML = "<h3>"+this.user+"</h3>"
-      user.href = "https://feedreader.co/"+this.user
-      link.innerHTML = "<h2>"+window.location.hostname+"</h2>"
-      link.href = "https://feedreader.co/feeds/"+feed
+      var elements = [newFolder,addFolder]
       elements.forEach(function(e){
         e.style.font = 'inherit'
         e.style.color = 'inherit'
@@ -53,11 +44,7 @@
       bookmarklet.style.right = '0'
       bookmarklet.style.zindex = '999'
       bookmarklet.style.background = 'white'
-      bookmarklet.style.border = 'thin solid black'
       bookmarklet.style.padding = '10px'
-      bookmarklet.appendChild(heading)
-      bookmarklet.appendChild(user)
-      bookmarklet.appendChild(link)
       bookmarklet.appendChild(newFolder)
       bookmarklet.appendChild(addFolder)
       feedreader.bookmarklet = bookmarklet
