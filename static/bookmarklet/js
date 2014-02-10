@@ -88,7 +88,6 @@
     folderButton.onclick = function() {
       if (folderButton.className==="feedreader-pillbox") removeFromFolder(folderButton)
       else addToFolder(folderButton)
-      alert(folderButton.className)
       return false
     }
     makePillbox(folderButton)
