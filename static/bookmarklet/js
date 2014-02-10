@@ -21,11 +21,13 @@
     e.style.paddingRight = '0.4em'
     e.style.marginRight = '0.1em'
     e.style.borderRadius = '0.2em'
+    e.className = "feedreader-pillbox"
   }
   , makeEmpty = function(e) {
     e.style.background = 'white'
     e.style.color = '#4A525A'
     e.style.borderColor = '#D1D0CE'
+    e.className = "feedreader-pillbox-empty"
   }
   , toggleBookmarklet = function(callback) {
     if (!bookmarklet) {
@@ -35,7 +37,7 @@
       addFolder.value = "Add"
       addFolder.type = 'submit'
       addFolder.onclick = function() {
-        addToFolder(newFolder.value)
+        addToFolder(displayFolder(value))
         newFolder.value = ''
         return false
       }
@@ -69,46 +71,31 @@
     }
     if (callback) callback()
   }
-  , removeFromFolder = function(folder) {
+  , removeFromFolder = function(folderButton) {
+    var folder = folderButton.value
     api('DELETE','folders/'+folder,function(){
-      if (JSON.parse(this.responseText).success) document.getElementById(folder).checked = false
+      if ((success = JSON.parse(this.responseText).success)) if (success === true) makeEmpty(folderButton)
     },'xmlurl='+feed)
   }
-  , addToFolder = function(folder) {
+  , addToFolder = function(folderButton) {
+    var folder = folderButton.value
     api('POST','folders/'+folder,function(){
-      if (JSON.parse(this.responseText).success) {
-        folderCheckbox = document.getElementById(folder)
-        if (!folderCheckbox) displayFolder(folder)
-        folderCheckbox = document.getElementById(folder)
-        folderCheckbox.checked = true
-      }
+      if ((success = JSON.parse(this.responseText).success)) if (success === true) makePillbox(folderButton)
     },'xmlurl='+feed)
   }
   , displayFolder = function(folder) {
-    var folderCheckbox = document.createElement('input')
-    , folderLabel = document.createElement('label')
-    , elements = [folderCheckbox,folderLabel]
-    folderLabel.innerHTML = "<a href=https://feedreader.co/"+this.user+"/folders/"+folder+">"+folder+"</a>"
-    folderLabel.setAttribute('for',folder)
-    folderCheckbox.type = 'checkbox'
-    folderCheckbox.id = folder
-    elements.forEach(function(e){
-      e.style.font = '19px Georgia,sans'
-      e.style.color = 'black'
-      e.style.lineHeight = '30px'
-      e.style.padding = '0'
-      e.style.margin = '0'
-      e.style.textDecoration = 'none'
-      e.style.float = 'left'
-    })
-    folderLabel.style.borderBottom = 'thin solid black'
-    folderCheckbox.style.clear = 'left'
-    folderCheckbox.onclick = function(){
-      if (!this.checked) removeFromFolder(this.id)
-      else addToFolder(this.id)
+    var folderButton = document.createElement('input')
+    folderButton.type = 'submit'
+    folderButton.value = folder
+    folderButton.id = folder
+    folderButton.onclick = function() {
+      if (folderButton.className==="feedreader-pillbox") removeFromFolder(folderButton)
+      else addToFolder(folderButton)
+      return false
     }
-    bookmarklet.appendChild(folderCheckbox)
-    bookmarklet.appendChild(folderLabel)
+    makePillbox(folderButton)
+    makeEmpty(folderButton)
+    return bookmarklet.appendChild(folderButton)
   }
   , getFeed = function(callback) {
     if (window.location.hostname == 'feedreader.co') feed = current.children[1].href.slice(28)
@@ -155,7 +142,7 @@
         }
         if ((folders = JSON.parse(this.responseText).folders)) folders.forEach(function(folder,position){
           if (position < folders.length) {
-            if (checked) document.getElementById(folder).checked = checked
+            if (checked) makePillbox(document.getElementById(folder))
             else displayFolder(folder)
           }
           else  if (!checked) postFeed()
