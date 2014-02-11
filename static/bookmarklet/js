@@ -3,7 +3,6 @@
   , article = ''
   , bookmarklet = feedreader.bookmarklet || null
   , api = function(method,endpoint,callback,params) {
-    console.log(method)
     var xhr = new XMLHttpRequest()
     , urlparams = '?token='+this.token
     if (params) if (method==='GET') urlparams = "?"+params
@@ -68,9 +67,7 @@
   }
   , removeFromFolder = function(folderButton) {
     var folder = folderButton.name
-    console.log(folder)
     api('DELETE','folders/'+folder,function(){
-      console.log(this.responseText)
       if ((success = JSON.parse(this.responseText).success)) if (success === true) makeEmpty(folderButton)
     },'xmlurl='+feed)
   }
