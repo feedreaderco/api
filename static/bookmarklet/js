@@ -126,10 +126,8 @@
   this.user = feedreader.user
   feedreader = this
   feedreader.bookmarklet = bookmarklet
-  alert('starting')
   getFeed(function(){
     toggleBookmarklet(function(){
-    alert('started')
       api('GET','folders',function(){
         var checked = false
         if ((folders = JSON.parse(this.responseText).allFolders)) {
