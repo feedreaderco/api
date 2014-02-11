@@ -33,10 +33,10 @@
   , toggleBookmarklet = function(callback) {
     if (!bookmarklet) {
       var newFolder = document.createElement('input')
-      , addFolder = document.createElement('input')
+      , addFolder = document.createElement('button')
       newFolder.placeholder = "New Folder"
-      addFolder.value = "Add"
-      addFolder.type = 'submit'
+      addFolder.name = "Add"
+      addFolder.innerHTML = 'Add'
       addFolder.onclick = function() {
         addToFolder(displayFolder(value))
         newFolder.value = ''
@@ -67,22 +67,22 @@
     if (callback) callback()
   }
   , removeFromFolder = function(folderButton) {
-    var folder = folderButton.value
+    var folder = folderButton.name
     api('DELETE','folders/'+folder,function(){
       alert(this.responseText)
       if ((success = JSON.parse(this.responseText).success)) if (success === true) makeEmpty(folderButton)
     },'xmlurl='+feed)
   }
   , addToFolder = function(folderButton) {
-    var folder = folderButton.value
+    var folder = folderButton.name
     api('POST','folders/'+folder,function(){
       if ((success = JSON.parse(this.responseText).success)) if (success === true) makePillbox(folderButton)
     },'xmlurl='+feed)
   }
   , displayFolder = function(folder) {
-    var folderButton = document.createElement('input')
-    folderButton.type = 'submit'
-    folderButton.value = folder
+    var folderButton = document.createElement('button')
+    folderButton.innerHTML = folder
+    folderButton.name = folder
     folderButton.id = folder
     folderButton.onclick = function() {
       if (folderButton.className==="feedreader-pillbox") removeFromFolder(folderButton)
