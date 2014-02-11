@@ -21,7 +21,7 @@ var fs = require('fs')
   .use(express.json())
   .use(express.urlencoded())
 app.all('*', function(req,res,next) {
-  res.header('Access-Control-Allow-Methods', 'GET, POST, DELETE')
+  res.header('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS')
   res.header("Access-Control-Allow-Origin", "*")
   res.header("Access-Control-Allow-Headers", "X-Requested-With")
   next()
