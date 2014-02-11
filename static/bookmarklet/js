@@ -52,7 +52,7 @@
       bookmarklet.lineHeight = '30px'
       bookmarklet.style.top = '0'
       bookmarklet.style.right = '0'
-      bookmarklet.style.zindex = '99999'
+      bookmarklet.style.zindex = '999999'
       bookmarklet.style.background = 'white'
       bookmarklet.style.padding = '10px'
       bookmarklet.appendChild(newFolder)
@@ -91,8 +91,8 @@
     }
     makePillbox(folderButton)
     makeEmpty(folderButton)
-    alert(folderButton.style.color)
     bookmarklet.appendChild(folderButton)
+    alert(folderButton.style.color)
     return folderButton
   }
   , getFeed = function(callback) {
