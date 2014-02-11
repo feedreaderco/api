@@ -15,7 +15,7 @@
     e.style.font = '19px Georgia'
     e.style.background = '#4A525A'
     e.style.border = 'thin solid #4A525A'
-    e.style.color = '#FFFFFF'
+    e.style.color = '#FFFFFF!important'
     e.style.padding = '0.2em'
     e.style.paddingLeft = '0.4em'
     e.style.paddingRight = '0.4em'
@@ -26,7 +26,7 @@
   }
   , makeEmpty = function(e) {
     e.style.background = 'white'
-    e.style.color = '#D1D0CE'
+    e.style.color = '#D1D0CE!important'
     e.style.borderColor = '#D1D0CE'
     e.className = "feedreader-pillbox-empty"
   }
@@ -54,7 +54,6 @@
       bookmarklet.style.zindex = '9999'
       bookmarklet.style.background = 'white'
       bookmarklet.style.padding = '10px'
-      bookmarklet.style.color = '#D1D0CE !important'
       bookmarklet.appendChild(newFolder)
       bookmarklet.appendChild(addFolder)
       feedreader.bookmarklet = bookmarklet
