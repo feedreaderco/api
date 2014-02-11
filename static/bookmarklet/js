@@ -51,9 +51,10 @@
       bookmarklet.style.maxWidth = '320px'
       bookmarklet.style.top = '0'
       bookmarklet.style.right = '0'
-      bookmarklet.style.zindex = '9999999'
+      bookmarklet.style.zindex = '9999'
       bookmarklet.style.background = 'white'
       bookmarklet.style.padding = '10px'
+      bookmarklet.style.color = '#D1D0CE !important'
       bookmarklet.appendChild(newFolder)
       bookmarklet.appendChild(addFolder)
       feedreader.bookmarklet = bookmarklet
