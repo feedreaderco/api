@@ -12,6 +12,7 @@
     xhr.send(params)
   }
   , makePillbox = function(e) {
+    alert(e.style.color)
     e.style.font = '19px Georgia'
     e.style.background = '#4A525A'
     e.style.border = 'thin solid #4A525A'
@@ -23,6 +24,7 @@
     e.style.borderRadius = '0.2em'
     e.style.WebkitAppearance = 'none'
     e.className = "feedreader-pillbox"
+    alert(e.style.color)
   }
   , makeEmpty = function(e) {
     e.style.background = 'white'
