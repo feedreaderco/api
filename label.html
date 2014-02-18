@@ -293,5 +293,5 @@ window.onscroll = updateState
 window.onbeforeunload = function() {
   api('DELETE')
 }
-get_folders(get_labels(get_articles(refresh_feeds)))
+get_articles(get_folders(get_labels(refresh_feeds)))
 </script>
