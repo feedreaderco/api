@@ -189,15 +189,20 @@ var current
       articles = theseArticles
       if (hash) i = articles.indexOf(hash)
       if (i<0) i = 0
-      get_article(articles[i],function(){
-        get_article(articles[i+1],function(){
-          get_article(articles[i+2],function(){
-            get_article(articles[i+3],function(){
-              get_article(articles[i+4],callback)
+      if (articles[i]) get_article(articles[i],function(){
+        if (articles[i+1]) get_article(articles[i+1],function(){
+          if (articles[i+2]) get_article(articles[i+2],function(){
+            if (articles[i+3]) get_article(articles[i+3],function(){
+              if (articles[i+4]) get_article(articles[i+4],callback)
+              else callback()
             })
+            else callback()
           })
+          else callback()
         })
+        else callback()
       })
+      else callback()
     }
   })
 }
