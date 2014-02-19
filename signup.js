@@ -4,7 +4,7 @@ var crypto = require('crypto')
 , querystring = require('querystring')
 , redis = require('redis').createClient()
 , gumroadConfig = require('fs').readFileSync('gumroad-config.json')
-, gumroadToken = JSON.parse(gumroad-config).token
+, gumroadToken = JSON.parse(gumroadConfig).token
 exports.post = function(req,res){
   console.log(req.body.user)
   bcrypt.genSalt(10,function(e,salt){
