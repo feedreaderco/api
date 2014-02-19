@@ -3,8 +3,8 @@ var crypto = require('crypto')
 , https = require('https')
 , querystring = require('querystring')
 , redis = require('redis').createClient()
-, gumroad-config = fs.readFileSync('gumroad-config.json')
-, gumroad-token = JSON.parse(gumroad-config).token
+, gumroadConfig = fs.readFileSync('gumroad-config.json')
+, gumroadToken = JSON.parse(gumroad-config).token
 exports.post = function(req,res){
   console.log(req.body.user)
   bcrypt.genSalt(10,function(e,salt){
@@ -21,7 +21,7 @@ exports.post = function(req,res){
             })
             var gumroad = https.request({host:"gumroad.com"
             , path:"/api/v1/links"
-            , auth:gumroad-token
+            , auth:gumroadToken
             , headers:{
 	          'Content-Type':'application/x-www-form-urlencoded',
               'Content-Length':postdata.length
