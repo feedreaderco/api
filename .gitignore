@@ -1,3 +1,5 @@
 /redis/*
 /certificates/*
+/certificates2014/*
 aws-config.json
+gumroad-config.json
