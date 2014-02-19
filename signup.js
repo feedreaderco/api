@@ -3,7 +3,7 @@ var crypto = require('crypto')
 , https = require('https')
 , querystring = require('querystring')
 , redis = require('redis').createClient()
-, gumroadConfig = fs.readFileSync('gumroad-config.json')
+, gumroadConfig = require('fs').readFileSync('gumroad-config.json')
 , gumroadToken = JSON.parse(gumroad-config).token
 exports.post = function(req,res){
   console.log(req.body.user)
