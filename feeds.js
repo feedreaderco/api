@@ -100,7 +100,12 @@ exports.feed.get = function(req,res) {
       })
       requ.pipe(feedparser)
       feedparser.on('error', function(e) {
-        res.json({'success':false,'error':{'type':'Parser Error','message':"Couldn't parse the server response",'log':e}},500)
+        if (!e.type) e.type = 'Parser Error'
+        if (!e.log) {
+          e.log = e.message
+          e.message = "Couldn't parse the server response"
+        } 
+        res.json({'success':false,'error':{'type':e.type,'message':e.message,'log':e.log}},500)
       })
       feedparser.on('meta', function (meta) {
         redis.hmset('feed:'+feedrequested,'title',meta.title,'link',meta.link,function(e){
@@ -119,13 +124,23 @@ exports.feed.get = function(req,res) {
             , key = article.hash
             , rank = article.score
             redis.zadd('articles:'+feedrequested,rank,'article:'+key,function(e){
-              if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't add article:"+key+" to articles:"+feedrequested,'log':e.message}},500)
+              if (e) {
+                var err = new Error("Couldn't add article:"+key+" to articles:"+feedrequested)
+                err.type = 'Redis Error'
+                err.log = e.message
+                this.emit('error', err)
+              }
               else s3.putObject({Key:key
                 , Body:body
                 , ContentType:'application/json'
               }
               , function (e) {
-                if (e) res.json({'success':false,'error':{'type':'S3 Error','message':"Couldn't put "+key+" on feed-articles",'log':e}},500)
+                if (e) {
+                  var err = new Error("Couldn't put "+key+" on feed-articles")
+                  err.type = 'S3 Error'
+                  err.log = e.message
+                  this.emit('error', err)
+                }
               })
             })
           }
