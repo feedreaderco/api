@@ -104,8 +104,9 @@ exports.feed.get = function(req,res) {
         if (!e.log) {
           e.log = e.message
           e.message = "Couldn't parse the server response"
-        } 
-        res.json({'success':false,'error':{'type':e.type,'message':e.message,'log':e.log}},500)
+        }
+        if (!feed.errors) feed.errors = []
+        feed.errors.push({'type':e.type,'message':e.message,'log':e.log}})
       })
       feedparser.on('meta', function (meta) {
         redis.hmset('feed:'+feedrequested,'title',meta.title,'link',meta.link,function(e){
