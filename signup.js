@@ -29,12 +29,9 @@ exports.post = function(req,res){
             , method:"POST"}
             , function(s){
               var body = ''
-              console.log('STATUS: ' + s.statusCode)
-              console.log('HEADERS: ' + JSON.stringify(s.headers))
               s.setEncoding('utf8')
               s.on('data',function(chunk){
                 body += chunk
-                console.log('Body: '+chunk)
               })
               s.on('end',function(){
                 try {
@@ -42,8 +39,10 @@ exports.post = function(req,res){
                   res.redirect(product.short_url)
                 }
                 catch(e) {
-                 console.log(body)
-                 res.redirect('/error.html')
+                  console.log('STATUS: ' + s.statusCode)
+                  console.log('HEADERS: ' + JSON.stringify(s.headers))
+                  console.log(body)
+                  res.redirect('/error.html')
                 }
               })
             })
