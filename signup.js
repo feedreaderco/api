@@ -20,10 +20,10 @@ exports.post = function(req,res){
             , 'webhook':true
             , 'auth_token':gumroadToken
             })
-            var gumroad = https.request({host:"gumroad.com"
-            , path:"/api/v2/products"
+            var gumroad = https.request({host:"api.gumroad.com"
+            , path:"/v2/products"
             , headers:{
-	          'Content-Type':'application/x-www-form-urlencoded',
+	      'Content-Type':'application/x-www-form-urlencoded',
               'Content-Length':postdata.length
             }
             , method:"POST"}
