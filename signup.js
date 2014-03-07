@@ -20,7 +20,7 @@ exports.post = function(req,res){
             , 'webhook':true
             , 'access_token':gumroadToken
             })
-            var gumroad = https.request({host:"api.gumroad.com"
+            var gumroad = https.request({hostname:"api.gumroad.com"
             , path:"/v2/products"
             , headers:{
 	      'Content-Type':'application/x-www-form-urlencoded',
@@ -29,9 +29,10 @@ exports.post = function(req,res){
             , method:"POST"}
             , function(s){
               var body = ''
-         //     s.setEncoding('utf8')
+              s.setEncoding('utf8')
               s.on('data',function(chunk){
                 body += chunk
+                console.log('Body: '+chunk)
               })
               s.on('end',function(){
                 try {
