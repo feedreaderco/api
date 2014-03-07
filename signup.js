@@ -29,6 +29,8 @@ exports.post = function(req,res){
             , method:"POST"}
             , function(s){
               var body = ''
+              console.log('STATUS: ' + s.statusCode)
+              console.log('HEADERS: ' + JSON.stringify(s.headers))
               s.setEncoding('utf8')
               s.on('data',function(chunk){
                 body += chunk
