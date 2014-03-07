@@ -23,13 +23,13 @@ exports.post = function(req,res){
             var gumroad = https.request({host:"api.gumroad.com"
             , path:"/v2/products"
             , headers:{
-	//      'Content-Type':'application/x-www-form-urlencoded',
+	      'Content-Type':'application/x-www-form-urlencoded',
               'Content-Length':postdata.length
             }
             , method:"POST"}
             , function(s){
               var body = ''
-              s.setEncoding('utf8')
+         //     s.setEncoding('utf8')
               s.on('data',function(chunk){
                 body += chunk
               })
