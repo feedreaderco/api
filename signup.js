@@ -30,11 +30,11 @@ exports.post = function(req,res){
             , function(s){
               s.on('data',function(chunk){
                 try {
-                  if((product=JSON.parse(chunk).product)) res.redirect(product.short_url)
-                  else process.stdout.write(chunk)
+                  product = JSON.parse(chunk).product
+                  res.redirect(product.short_url)
                 }
                 catch(e) {
-                 process.stdout.write(chunk)
+                 console.log(chunk)
                  res.redirect('/error.html')
                 }
               })
