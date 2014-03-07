@@ -28,13 +28,18 @@ exports.post = function(req,res){
             }
             , method:"POST"}
             , function(s){
+              var body = ''
+              s.setEncoding('utf8')
               s.on('data',function(chunk){
+                body += chunk
+              })
+              s.on('end',function(){
                 try {
-                  product = JSON.parse(chunk).product
+                  product = JSON.parse(body).product
                   res.redirect(product.short_url)
                 }
                 catch(e) {
-                 console.log(chunk)
+                 console.log(body)
                  res.redirect('/error.html')
                 }
               })
