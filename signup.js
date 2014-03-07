@@ -30,7 +30,7 @@ exports.post = function(req,res){
             , function(s){
               s.on('data',function(chunk){
                 try {
-                  if((product=JSON.parse(chunk).product)) res.redirect(link.short_url)
+                  if((product=JSON.parse(chunk).product)) res.redirect(product.short_url)
                   else process.stdout.write(chunk)
                 }
                 catch(e) {
