@@ -22,10 +22,10 @@ exports.post = function(req,res){
             })
             var gumroad = https.request({host:"api.gumroad.com"
             , path:"/v2/products"
-      //      , headers:{
+            , headers:{
 	//      'Content-Type':'application/x-www-form-urlencoded',
-      //        'Content-Length':postdata.length
-    //        }
+              'Content-Length':postdata.length
+            }
             , method:"POST"}
             , function(s){
               var body = ''
