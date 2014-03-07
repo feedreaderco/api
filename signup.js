@@ -13,15 +13,15 @@ exports.post = function(req,res){
         crypto.randomBytes(48,function(e,b){
           var token = b.toString('hex')
           redis.set('token:'+token,req.body.user,function(e,u){
-	        var postdata = querystring.stringify({'name':'Feed Reader Subscription for '+req.body.user
+	    var postdata = querystring.stringify({'name':'Feed Reader Subscription for '+req.body.user
             , 'url':'https://feedreader.co/paid/'+token
             , 'price':100
             , 'description':'Access to the Feed Reader API'
             , 'webhook':true
+            , 'auth_token':gumroadToken
             })
             var gumroad = https.request({host:"gumroad.com"
-            , path:"/api/v1/links"
-            , auth:gumroadToken
+            , path:"/api/v2/products"
             , headers:{
 	          'Content-Type':'application/x-www-form-urlencoded',
               'Content-Length':postdata.length
