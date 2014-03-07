@@ -18,7 +18,7 @@ exports.post = function(req,res){
             , 'price':100
             , 'description':'Access to the Feed Reader API'
             , 'webhook':true
-            , 'auth_token':gumroadToken
+            , 'access_token':gumroadToken
             })
             var gumroad = https.request({host:"api.gumroad.com"
             , path:"/v2/products"
