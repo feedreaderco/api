@@ -69,6 +69,7 @@ exports.folder.delete = function(req,res) {
           else res.json({'success':true})
         })
       })
+      else res.json({'success':true})
     })
   })
 }
