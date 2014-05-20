@@ -25,6 +25,7 @@
     e.className = "feedreader-pillbox"
   }
   , makeEmpty = function(e) {
+    alert("going to change button attributes")
     e.style.background = 'white'
     e.style.color = '#D1D0CE !important'
     e.style.borderColor = '#D1D0CE'
