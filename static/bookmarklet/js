@@ -70,6 +70,7 @@
     api('DELETE','folders/'+folder,function(){
       if ((success = JSON.parse(this.responseText).success)) {
         if (success === true) makeEmpty(folderButton)
+        else alert(this.responseText)
       }
       else alert(this.responseText)
     },'xmlurl='+feed)
