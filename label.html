@@ -121,7 +121,7 @@ var current
   if (pathname_split[1] === "feeds") {
     viewedFeed = pathname.slice(7,-1)
     api('GET','/'+user+'/folders',function(){
-      var parsedJSON = JSON.parse(this.response.Text)
+      var parsedJSON = JSON.parse(this.responseText)
       if ((parsedJSON.allFolders) && (parsedJSON.allFolders.length)) {
         if ((parsedJSON.folders) && (parsedJSON.folders.length)) {
           parsedJSON.allFolders.forEach(function(folderName,position) {
