@@ -121,7 +121,11 @@ var current
       folderNames = folders
       viewedFeed = pathname.slice(7,-1)
       if (pathname_split[1] === "feeds") folderNames.forEach(function(folderName,folderPos) {
+        // url looks like feedreader.co/feeds/feedurl
+        // get the feeds in this particular folder
+        // making so many calls slows down the displaying the folders as buttons!
         api('GET','/'+user+'/folders/'+folderName,function(){
+          // folderFeedKeys is a global variable
           folderFeedKeys[folderName] = []
           if ((theseFeeds = JSON.parse(this.responseText).feeds)) if (theseFeeds.length) folderFeedKeys[folderName] = theseFeeds.map(function(feed){return feed.key})
           folderButton = create_folder_button(folderName)
