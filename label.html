@@ -74,7 +74,9 @@ var current
 }
 , api = function(method,endpoint,onload,params) {
   var xhr = new XMLHttpRequest()
-  xhr.open(method,'https://feedreader.co'+endpoint+'/json')
+  , urlparams = ''
+  if ((params) && (method==='GET')) urlparams = '?'+params
+  xhr.open(method,'https://feedreader.co'+endpoint+'/json'+urlparams)
   if (method!='GET') xhr.setRequestHeader('authorization','Basic '+base64_encode(token+':'))
   xhr.onload = onload
   if (params) {
@@ -115,48 +117,48 @@ var current
   add_to_folder(newButton)
 }
 , get_folders = function(callback) {
-  api('GET','/'+user+'/folders',function(){
-    var div = document.getElementById('folders') 
-    if ((folders = JSON.parse(this.responseText).folders)) if (folders.length) {
-      folderNames = folders
-      viewedFeed = pathname.slice(7,-1)
-      if (pathname_split[1] === "feeds") folderNames.forEach(function(folderName,folderPos) {
-        // url looks like feedreader.co/feeds/feedurl
-        // get the feeds in this particular folder
-        // making so many calls slows down the displaying the folders as buttons!
-        api('GET','/'+user+'/folders/'+folderName,function(){
-          // folderFeedKeys is a global variable
-          folderFeedKeys[folderName] = []
-          if ((theseFeeds = JSON.parse(this.responseText).feeds)) if (theseFeeds.length) folderFeedKeys[folderName] = theseFeeds.map(function(feed){return feed.key})
-          folderButton = create_folder_button(folderName)
-          if (folderFeedKeys[folderName].indexOf(viewedFeed) != -1) folderButton.className = "pillbox"
-          div.appendChild(folderButton)
-          if (folderPos === folderNames.length-1) {
-            var addFolder = document.createElement('input')
-            , newFolder = document.createElement('input')
-            newFolder.placeholder = "Folder Name"
-            newFolder.type = 'text'
-            newFolder.style.display = 'none'
-            newFolder.className = 'pillbox'
-            addFolder.className = 'pillbox'
-            addFolder.value = "Add"
-            addFolder.type = 'submit'
-            addFolder.onclick = function() {
-              if (newFolder.style.display === 'none') newFolder.style.display = 'inline'
-              else add_to_new_folder(newFolder)
-              return false
-            }
-            div.appendChild(newFolder)
-            div.appendChild(addFolder)
+  var foldersDiv = document.getElementById('folders') 
+  if (pathname_split[1] === "feeds") {
+    viewedFeed = pathname.slice(7,-1)
+    api('GET','/'+user+'/folders',function(){
+      var parsedJSON = JSON.parse(this.response.Text)
+      if ((parsedJSON.allFolders) && (parsedJSON.allFolders.length)) {
+        if ((parsedJSON.folders)) && (parsedJSON.folders.length)) {
+          parsedJSON.allFolders.forEach(function(folderName,position) {
+            folderButton = create_folder_button(folderName)
+            if (parsedJSON.folders.indexOf(folderName) != -1) folderButton.className = "pillbox"
+            foldersDiv.appendChild(folderButton)
+          })
+          var addFolder = document.createElement('input')
+          , newFolder = document.createElement('input')
+          newFolder.placeholder = "Folder Name"
+          newFolder.type = 'text'
+          newFolder.style.display = 'none'
+          newFolder.className = 'pillbox'
+          addFolder.className = 'pillbox'
+          addFolder.value = "Add"
+          addFolder.type = 'submit'
+          addFolder.onclick = function() {
+            if (newFolder.style.display === 'none') newFolder.style.display = 'inline'
+            else add_to_new_folder(newFolder)
+            return false
           }
-        })
-      })
-      else div.innerHTML = folderNames.map(function(folder) {
-        return "<a href=/"+user+"/folders/"+encodeURIComponent(folder)+" class=pillbox>"+folder+"</a>"	
-      }).join(' ')
-    }
-    callback()
-  })
+          foldersDiv.appendChild(newFolder)
+          foldersDiv.appendChild(addFolder)
+        }
+      }
+    },'xmlurl='+viewedFeed)
+  }
+  else {
+    api('GET','/'+user+'/folders',function(){
+      if ((folders = JSON.parse(this.responseText).folders)) if (folders.length) {
+        foldersDiv.innerHTML = folders.map(function(folder) {
+          return "<a href=/"+user+"/folders/"+encodeURIComponent(folder)+" class=pillbox>"+folder+"</a>"	
+        }).join(' ')
+        callback()
+      }
+    })
+  }
 }
 , add_label = function(newLabel) {
   var value = newLabel.value
