@@ -104,15 +104,12 @@ exports.feed.get = function(req,res) {
         if (!e.log) {
           e.log = e.message
           e.message = "Couldn't parse the server response"
-          console.log(feedrequested)
+          if (!feed.errors) feed.errors = []
+          feed.errors.push({'type':e.type,'message':e.message,'log':e.log})
           request({'uri':feedrequested,'headers':headers}, function (error, response, body) {
+            console.log(error)
+            console.log(feedrequested)
             console.log(body)
-            if (!error) {
-              e.message += "; making another request gets: "
-              e.message += body
-              if (!feed.errors) feed.errors = []
-              feed.errors.push({'type':e.type,'message':e.message,'log':e.log})
-            }
           })
         }
       })
