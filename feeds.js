@@ -90,7 +90,7 @@ exports.feed.get = function(req,res) {
       if (feed.lastModified) headers['If-Modified-Since'] = feed.lastModified
       if (feed.etag) headers['If-None-Match'] = feed.etag
       var requ = request({'uri':feedrequested,'headers':headers}, function(e,response,body){
-        if ((e) || (!body)) console.log(feedrequested)
+        if ((e) || (!body)) console.log("Couldnt try xml2js on "+feedrequested)
         else xml2js.parseString(body,function(e,result) {
           console.log(JSON.stringify(result))
         })
@@ -112,15 +112,6 @@ exports.feed.get = function(req,res) {
           e.message = "Couldn't parse the server response"
           if (!feed.errors) feed.errors = []
           feed.errors.push({'type':e.type,'message':e.message,'log':e.log})
-          var headers = {'user-agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36'
-            , 'accept':'text/html,application/xhtml+xml'}
-          request({'uri':feedrequested,'headers':headers}, function (error, response, body) {
-            console.log(feedrequested)
-            if (error) console.log(error)
-            console.log(e.log)
-            console.log(response.headers)
-            console.log(body)
-          })
         }
       })
       feedparser.on('meta', function (meta) {
