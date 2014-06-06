@@ -147,6 +147,7 @@ var current
           foldersDiv.appendChild(addFolder)
         }
       }
+      callback()
     },'xmlurl='+viewedFeed)
   }
   else {
@@ -155,8 +156,8 @@ var current
         foldersDiv.innerHTML = folders.map(function(folder) {
           return "<a href=/"+user+"/folders/"+encodeURIComponent(folder)+" class=pillbox>"+folder+"</a>"	
         }).join(' ')
-        callback()
       }
+      callback()
     })
   }
 }
