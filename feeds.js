@@ -85,8 +85,7 @@ exports.feed.get = function(req,res) {
     if ((e)||(!feed)) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't get details for feed:"+feedrequested}},500)
     else {
       var unread = []
-      , headers = {'user-agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36'
-        , 'accept':'text/html,application/xhtml+xml'}
+      , headers = {'user-agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36'}
       if (feed.lastModified) headers['If-Modified-Since'] = feed.lastModified
       if (feed.etag) headers['If-None-Match'] = feed.etag
       var requ = request({'uri':feedrequested,'headers':headers}, function(e,response,body){
