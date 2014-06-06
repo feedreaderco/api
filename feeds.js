@@ -2,6 +2,7 @@ var Opmlparser = require('opmlparser')
 , opmlparser = new Opmlparser()
 , FeedParser = require('feedparser')
 , fs = require('fs')
+, xml2js = require('xml2js')
 , redis = require('redis').createClient()
 , url = require('url')
 , http = require('http')
@@ -88,7 +89,11 @@ exports.feed.get = function(req,res) {
         , 'accept':'text/html,application/xhtml+xml'}
       if (feed.lastModified) headers['If-Modified-Since'] = feed.lastModified
       if (feed.etag) headers['If-None-Match'] = feed.etag
-      var requ = request({'uri':feedrequested,'headers':headers})
+      var requ = request({'uri':feedrequested,'headers':headers}, function(e,response,body){
+        xml2js.parseString(body,function(e,result) {
+          console.log(JSON.stringify(result))
+        })
+      })
       var feedparser = new FeedParser()
       requ.on('error', function(e){
         res.json({'success':false,'error':{'type':'Feed Error','message':"Couldn't get "+feedrequested+" ("+e.message+")",'log':e}},500)
