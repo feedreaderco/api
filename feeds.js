@@ -106,6 +106,8 @@ exports.feed.get = function(req,res) {
           e.message = "Couldn't parse the server response"
           if (!feed.errors) feed.errors = []
           feed.errors.push({'type':e.type,'message':e.message,'log':e.log})
+          var headers = {'user-agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36'
+            , 'accept':'text/html,application/xhtml+xml'}
           request({'uri':feedrequested,'headers':headers}, function (error, response, body) {
             console.log(feedrequested)
             if (error) console.log(error)
