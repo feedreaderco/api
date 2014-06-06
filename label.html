@@ -136,12 +136,18 @@ var current
           newFolder.style.display = 'none'
           newFolder.className = 'pillbox'
           addFolder.className = 'pillbox'
-          addFolder.value = "Add"
+          addFolder.value = 'New Folder'
           addFolder.type = 'submit'
           addFolder.onclick = function() {
-            if (newFolder.style.display === 'none') newFolder.style.display = 'inline'
+            if (newFolder.style.display === 'none') {
+              addFolder.value = 'New Folder'
+              newFolder.style.display = 'inline'
+            }
             else add_to_new_folder(newFolder)
             return false
+          }
+          newFolder.onclick = function() {
+            addFolder.value = 'Save'
           }
           foldersDiv.appendChild(newFolder)
           foldersDiv.appendChild(addFolder)
@@ -260,12 +266,18 @@ var current
   newLabel.style.display = 'none'
   newLabel.className = 'pillbox'
   addLabel.className = 'pillbox'
-  addLabel.value = "Label"
+  addLabel.value = 'Label'
   addLabel.type = 'submit'
   addLabel.onclick = function() {
-    if (newLabel.style.display === 'none') newLabel.style.display = 'inline'
+    if (newLabel.style.display === 'none') {
+      addLabel.value = 'Label'
+      newLabel.style.display = 'inline'
+    }
     else add_label(newLabel)
     return false
+  }
+  newLabel.onclick = function() {
+    addLabel.value = 'Save'
   }
   labels.appendChild(newLabel)
   labels.appendChild(addLabel)
