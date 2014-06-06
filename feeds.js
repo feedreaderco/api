@@ -107,8 +107,10 @@ exports.feed.get = function(req,res) {
           if (!feed.errors) feed.errors = []
           feed.errors.push({'type':e.type,'message':e.message,'log':e.log})
           request({'uri':feedrequested,'headers':headers}, function (error, response, body) {
-            console.log(error)
             console.log(feedrequested)
+            if (error) console.log(error)
+            console.log(e.log)
+            console.log(response.headers)
             console.log(body)
           })
         }
