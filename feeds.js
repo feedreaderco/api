@@ -90,11 +90,11 @@ exports.feed.get = function(req,res) {
       if (feed.lastModified) headers['If-Modified-Since'] = feed.lastModified
       if (feed.etag) headers['If-None-Match'] = feed.etag
       var requ = request({'uri':feedrequested,'headers':headers}, function(e,response,body){
-        if (e) console.log(feedrequested+': '+JSON.stringify(e))
+        if (e) console.log(e)
         else if (body) xml2js.parseString(body,function(e,result) {
           console.log(JSON.stringify(result))
         })
-        else console.log(feedrequested+': '+JSON.stringify(response))
+        else console.log(response)
       })
       var feedparser = new FeedParser()
       requ.on('error', function(e){
