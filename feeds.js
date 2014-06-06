@@ -88,12 +88,7 @@ exports.feed.get = function(req,res) {
       , headers = {'user-agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36'}
       if (feed.lastModified) headers['If-Modified-Since'] = feed.lastModified
       if (feed.etag) headers['If-None-Match'] = feed.etag
-      var requ = request({'uri':feedrequested,'headers':headers}, function(e,response,body){
-        if ((e) || (!body)) console.log("Couldnt try xml2js on "+feedrequested)
-        else xml2js.parseString(body,function(e,result) {
-          console.log(JSON.stringify(result))
-        })
-      })
+      var requ = request({'uri':feedrequested,'headers':headers})
       var feedparser = new FeedParser()
       requ.on('error', function(e){
         res.json({'success':false,'error':{'type':'Feed Error','message':"Couldn't get "+feedrequested+" ("+e.message+")",'log':e}},500)
