@@ -140,14 +140,14 @@ var current
           addFolder.type = 'submit'
           addFolder.onclick = function() {
             if (newFolder.style.display === 'none') {
-              addFolder.value = 'New Folder'
               newFolder.style.display = 'inline'
+              addFolder.value = 'Save'
             }
-            else add_to_new_folder(newFolder)
+            else {
+              add_to_new_folder(newFolder)
+              addFolder.value = 'New Folder'
+            }
             return false
-          }
-          newFolder.onclick = function() {
-            addFolder.value = 'Save'
           }
           foldersDiv.appendChild(newFolder)
           foldersDiv.appendChild(addFolder)
@@ -270,14 +270,14 @@ var current
   addLabel.type = 'submit'
   addLabel.onclick = function() {
     if (newLabel.style.display === 'none') {
-      addLabel.value = 'Label'
       newLabel.style.display = 'inline'
+      addLabel.value = 'Save'
     }
-    else add_label(newLabel)
+    else {
+      add_label(newLabel)
+      addLabel.value = 'Label'
+    }
     return false
-  }
-  newLabel.onclick = function() {
-    addLabel.value = 'Save'
   }
   labels.appendChild(newLabel)
   labels.appendChild(addLabel)
