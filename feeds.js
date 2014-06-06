@@ -104,16 +104,15 @@ exports.feed.get = function(req,res) {
         if (!e.log) {
           e.log = e.message
           e.message = "Couldn't parse the server response"
-          var request = require('request');
-          request('http://www.google.com', function (error, response, body) {
-            if (!error && response.statusCode == 200) {
+          request({'uri':feedrequested,'headers':headers}, function (error, response, body) {
+            if (!error) {
               e.message += "; making another request gets: "
               e.message += body
+              if (!feed.errors) feed.errors = []
+              feed.errors.push({'type':e.type,'message':e.message,'log':e.log})
             }
           })
         }
-        if (!feed.errors) feed.errors = []
-        feed.errors.push({'type':e.type,'message':e.message,'log':e.log})
       })
       feedparser.on('meta', function (meta) {
         redis.hmset('feed:'+feedrequested,'title',meta.title,'link',meta.link,function(e){
