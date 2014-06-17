@@ -88,16 +88,13 @@ exports.feed.get = function(req,res) {
       , headers = {'user-agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36'}
       if (feed.lastModified) headers['If-Modified-Since'] = feed.lastModified
       if (feed.etag) headers['If-None-Match'] = feed.etag
-      var requ = request({'uri':feedrequested,'headers':headers})
-      var feedparser = new FeedParser()
-      requ.on('error', function(e){
-        res.json({'success':false,'error':{'type':'Feed Error','message':"Couldn't get "+feedrequested+" ("+e.message+")",'log':e}},500)
-      })
-      requ.on('response', function(response) {
-        redis.hmset('feed:'+feedrequested,'lastModified',response.headers['last-modified'],'etag',response.headers['etag'],function(e){
+      var requ = request({'uri':feedrequested,'headers':headers},function(e,response,body){
+        if (e) res.json({'success':false,'error':{'type':'Feed Error','message':"Couldn't get "+feedrequested+" ("+e.message+")",'log':e}},500)
+        else redis.hmset('feed:'+feedrequested,'lastModified',response.headers['last-modified'],'etag',response.headers['etag'],function(e){
           if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't set lastModified and etag values for "+feedrequested}},500)
         })
       })
+      var feedparser = new FeedParser()
       requ.pipe(feedparser)
       feedparser.on('error', function(e) {
         if (!e.type) e.type = 'Parser Error'
