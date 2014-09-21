@@ -113,7 +113,7 @@ exports.feed.get = function(req,res) {
       feedparser.on('readable', function() {
         var stream = this, article
         while (article = stream.read()) {
-          if (!article.guid) return false
+          if (!(article.guid && article.description)) return false
           else {
             article.hash = hash(article)
             article.score = score(article)
