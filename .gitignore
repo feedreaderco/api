@@ -1,5 +1,6 @@
 /redis/*
 /certificates/*
 /certificates2014/*
+/certificates2015/*
 aws-config.json
 gumroad-config.json
