@@ -1,10 +1,9 @@
 var fs = require('fs')
 , options = {
-  key: fs.readFileSync('certificates2014/certificate-private.key')
-  , cert: fs.readFileSync('certificates2014/web-server-certificate.crt')
+  key: fs.readFileSync('certificates2015/certificate-private.key')
+  , cert: fs.readFileSync('certificates2015/web-server-certificate.crt')
   , ca: [
-    fs.readFileSync('certificates2014/primary-intermediate-certificate.crt')
-    , fs.readFileSync('certificates2014/secondary-intermediate-certificate.crt')
+    fs.readFileSync('certificates2015/primary-intermediate-certificate.crt')
   ]
 }
 , http = require('http')
