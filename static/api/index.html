@@ -60,7 +60,7 @@ sup {vertical-align:top!important; font-size:0.4em!important; position:relative!
   "token": "fb8ac39f556118deef404bb7d0c0192f7d483759c348694d"
 }
 </code></p>
-<h2>DELETE /:user/tokens</h2>
+<h2>DELETE /api/v1/:user/tokens</h2>
 <p>Revokes a session. Requires authentication.</p>
 <p><code>curl -X DELETE https://feedreader.co/api/v1/arpith/tokens -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
 <p><code>
@@ -154,7 +154,7 @@ sup {vertical-align:top!important; font-size:0.4em!important; position:relative!
   "success": true
 }
 </code></p>
-<h2>DELETE /:user/folders/:folder</h2>
+<h2>DELETE /api/v1/:user/folders/:folder</h2>
 <p>Delete a feed from a folder. Accepts xmlurl as parameter and deletes the folder if it is now empty. Requires authentication.</p>
 <p><code>curl https://feedreader.co/api/v1/arpith/folders/Kochalka -X DELETE -F xmlurl=http://feeds.feedburner.com/AmericanElfRssFeed -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
 <p><code>
