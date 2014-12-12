@@ -78,7 +78,7 @@ var h2 = document.getElementById('user')
 }
 , api = function(method,endpoint,onload,params) {
   var xhr = new XMLHttpRequest()
-  xhr.open(method,'https://feedreader.co/'+endpoint)
+  xhr.open(method,'https://feedreader.co/api/v1/'+endpoint)
   if (method!='GET') xhr.setRequestHeader('authorization','Basic '+base64_encode(localStorage.token+':'))
   xhr.onload = onload
   if (params) {
@@ -88,7 +88,7 @@ var h2 = document.getElementById('user')
   else xhr.send()
 }
 , get_labels = function() {
-  api('GET',user+'/labels/json',function(){
+  api('GET',user+'/labels',function(){
     var div = document.getElementById('labels')
     if ((labels = JSON.parse(this.responseText).labels)) {
       if (!labels.length) div.innerHTML = "No labels."
@@ -98,7 +98,7 @@ var h2 = document.getElementById('user')
   })
 }
 , get_folders = function() {
-  api('GET',user+'/folders/json',function(){
+  api('GET',user+'/folders',function(){
     var div = document.getElementById('folders') 
     if ((folders= JSON.parse(this.responseText).folders)) {
       if (!folders.length) div.innerHTML = "No folders."
@@ -108,7 +108,7 @@ var h2 = document.getElementById('user')
   })
 }
 , get_feeds = function() {
-  api('GET',user+'/feeds/json',function(){
+  api('GET',user+'/feeds',function(){
     var ul = document.getElementById('feeds')
     if ((feeds = JSON.parse(this.responseText).feeds)) {
       if (!feeds.length) ul.innerHTML = "No feeds."
@@ -118,7 +118,7 @@ var h2 = document.getElementById('user')
   })
 }
 , upload_opml = function() {
-  api('POST',user+'/feeds/json',function(){
+  api('POST',user+'/feeds',function(){
     if (JSON.parse(this.responseText).success) window.location = window.location
     return false
   },new FormData(form))
