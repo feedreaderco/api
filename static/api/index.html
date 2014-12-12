@@ -49,37 +49,37 @@ sup {vertical-align:top!important; font-size:0.4em!important; position:relative!
 <title>Feed Reader API</title>
 </style>
 <h1>API</h1>
-<p>The <a href=/>Feed Reader</a> API is REST based, uses basic authentication and returns JSON for now. When authentication is required, the token can be passed as a query parameter instead ("?token=SOMETOKENHERE"). Please <a href='mailto:arpith@feedreader.co'>email me</a> your feedback.</p>
+<p>The <a href=/>Feed Reader</a> API is REST based, uses basic authentication and returns JSON. When authentication is required, the token can be passed as a query parameter instead ("?token=SOMETOKENHERE"). Please <a href='mailto:arpith@feedreader.co'>email me</a> your feedback.</p>
 <h1>Tokens</h1>
-<h2>POST /:user/tokens/json</h2>
+<h2>POST /api/v1/:user/tokens</h2>
 <p>Authenticates a session. Accepts password as a parameter and returns an authentication token. </p>
-<p><code>curl https://feedreader.co/arpith/tokens/json -F password=notreallymypassword</code></p>
+<p><code>curl https://feedreader.co/api/v1/arpith/tokens -F password=notreallymypassword</code></p>
 <p><code>
 {
   "success": true,
   "token": "fb8ac39f556118deef404bb7d0c0192f7d483759c348694d"
 }
 </code></p>
-<h2>DELETE /:user/tokens/json</h2>
+<h2>DELETE /:user/tokens</h2>
 <p>Revokes a session. Requires authentication.</p>
-<p><code>curl -X DELETE https://feedreader.co/arpith/tokens/json -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
+<p><code>curl -X DELETE https://feedreader.co/api/v1/arpith/tokens -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
 <p><code>
 {
   "success": true
 }
 </code></p>
 <h1>Feeds</h1>
-<h2>POST /:user/feeds/json</h2>
+<h2>POST /api/v1/:user/feeds</h2>
 <p>Add feed url (parameter names: xmlurl, title, link) or feeds from an opml file (parameter name: opml). Requires authentication.</p>
-<p><code>curl https://feedreader.co/arpith/feeds/json -F opml=@subscriptions.xml -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
+<p><code>curl https://feedreader.co/api/v1/arpith/feeds -F opml=@subscriptions.xml -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
 <p><code>
 {
   "success": true
 }
 </code></p>
-<h2>GET /:user/feeds/json</h2>
+<h2>GET /api/v1/:user/feeds</h2>
 <p>Get all subscribed feeds. Returns a list of feed objects and articles not marked read. </p>
-<p><code>curl https://feedreader.co/arpith/feeds/json</code></p>
+<p><code>curl https://feedreader.co/api/v1/arpith/feeds</code></p>
 <p><code>
 {
   "success": true,
@@ -96,9 +96,9 @@ sup {vertical-align:top!important; font-size:0.4em!important; position:relative!
   "articles": []
 }
 </code></p>
-<h2>GET /feeds/:xmlurl/json</h2>
+<h2>GET /api/v1/feeds/:xmlurl</h2>
 <p>Checks url for new articles and returns feed object with sorted list of article hashes.</p>
-<p><code>curl https://feedreader.co/arpith/feeds/http://feeds.feedburner.com/AmericanElfRssFeed/json -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
+<p><code>curl https://feedreader.co/api/v1/feeds/http://feeds.feedburner.com/AmericanElfRssFeed -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
 <p><code>
 {
   "title": "American Elf",
@@ -115,17 +115,17 @@ sup {vertical-align:top!important; font-size:0.4em!important; position:relative!
 }
 </code></p>
 <h1>Labels</h1>
-<h2>POST /:user/labels/:label/json</h2>
+<h2>POST /api/v1/:user/labels/:label</h2>
 <p>Label an article. Accepts hash (required) and score (optional) as parameters. If score is not present, Date.now() is used to order the article within the label. Requires authentication.</p>
-<p><code>curl https://feedreader.co/arpith/labels/read/json -F hash=cc5e5dcb16010782336e0e1a7e98395e -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
+<p><code>curl https://feedreader.co/api/v1/arpith/labels/read -F hash=cc5e5dcb16010782336e0e1a7e98395e -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
 <p><code>
 {
   "success": true
 }
 </code></p>
-<h2>GET /:user/labels/:label/json</h2>
+<h2>GET /api/v1/:user/labels/:label</h2>
 <p>Get articles labelled with label.</p>
-<p><code>curl https://feedreader.co/arpith/labels/read/json -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
+<p><code>curl https://feedreader.co/api/v1/arpith/labels/read -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
 <p><code>
 {
   "success": true,
@@ -134,9 +134,9 @@ sup {vertical-align:top!important; font-size:0.4em!important; position:relative!
   ]
 }
 </code></p>
-<h2>GET /:user/labels/json</h2>
-<p>Get all labels used.</p>
-<p><code>curl https://feedreader.co/arpith/labels/json -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
+<h2>GET /api/v1/:user/labels?hash=article_id</h2>
+<p>Get all labels used. If hash is passed as a parameter returns labels for the article.</p>
+<p><code>curl https://feedreader.co/api/v1/arpith/labels?hash=8e8fb9307239c9b99daf2cf8eea510009d7cbcf2 -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
 <p><code>
 {
   "success": true,
@@ -146,25 +146,25 @@ sup {vertical-align:top!important; font-size:0.4em!important; position:relative!
 }
 </code></p>
 <h1>Folders</h1>
-<h2>POST /:user/folders/:folder/json</h2>
+<h2>POST /api/v1/:user/folders/:folder</h2>
 <p>Add a feed to a folder. Accepts xmlurl as parameter. Requires authentication.</p>
-<p><code>curl https://feedreader.co/arpith/folders/Kochalka/json -F xmlurl=http://feeds.feedburner.com/AmericanElfRssFeed -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
+<p><code>curl https://feedreader.co/api/v1/arpith/folders/Kochalka -F xmlurl=http://feeds.feedburner.com/AmericanElfRssFeed -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
 <p><code>
 {
   "success": true
 }
 </code></p>
-<h2>DELETE /:user/folders/:folder/json</h2>
+<h2>DELETE /:user/folders/:folder</h2>
 <p>Delete a feed from a folder. Accepts xmlurl as parameter and deletes the folder if it is now empty. Requires authentication.</p>
-<p><code>curl https://feedreader.co/arpith/folders/Kochalka/json -X DELETE -F xmlurl=http://feeds.feedburner.com/AmericanElfRssFeed -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
+<p><code>curl https://feedreader.co/api/v1/arpith/folders/Kochalka -X DELETE -F xmlurl=http://feeds.feedburner.com/AmericanElfRssFeed -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
 <p><code>
 {
   "success": true
 }
 </code></p>
-<h2>GET /:user/folders/:folder/json</h2>
+<h2>GET /api/v1/:user/folders/:folder</h2>
 <p>Get feeds in folder.</p>
-<p><code>curl https://feedreader.co/arpith/folders/Kochalka/json</code></p>
+<p><code>curl https://feedreader.co/api/v1/arpith/folders/Kochalka</code></p>
 <p><code>
 {
   "success": true,
@@ -173,9 +173,9 @@ sup {vertical-align:top!important; font-size:0.4em!important; position:relative!
   ]
 }
 </code></p>
-<h2>GET /:user/folders/json</h2>
+<h2>GET /api/v1/:user/folders</h2>
 <p>Get all folders used. If xmlurl is passed as a parameter, returns folders the feed belongs to as well as all folders used.</p>
-<p><code>curl https://feedreader.co/arpith/folders/json?xmlurl=http://xkcd.com/atom.xml</code></p>
+<p><code>curl https://feedreader.co/api/v1/arpith/folders?xmlurl=http://xkcd.com/atom.xml</code></p>
 <p><code>
 {
   "success": true,
@@ -188,9 +188,9 @@ sup {vertical-align:top!important; font-size:0.4em!important; position:relative!
 }
 </code></p>
 <h1>Articles</h1>
-<h2>POST /articles/json</h2>
+<h2>POST /api/v1/articles</h2>
 <p>Generates a hash for identification. Accepts pubdate, link and xmlurl as parameters, and returns a hex digest of the sha1 hash.</p>
-<p><code>curl https://feedreader.co/articles/json -F pubdate=2012-10-15T05:50:00.000Z -F link=http://feedproxy.google.com/~r/AmericanElfRssFeed/~3/RyYvUlNe5jw/americanelf.php -F xmlurl=http://feeds.feedburner.com/AmericanElfRssFeed -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
+<p><code>curl https://feedreader.co/api/v1/articles -F pubdate=2012-10-15T05:50:00.000Z -F link=http://feedproxy.google.com/~r/AmericanElfRssFeed/~3/RyYvUlNe5jw/americanelf.php -F xmlurl=http://feeds.feedburner.com/AmericanElfRssFeed -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
 <p>Note: This is currently generating a different hash and needs to be fixed.</p>
 <p><code>
 {
@@ -198,9 +198,9 @@ sup {vertical-align:top!important; font-size:0.4em!important; position:relative!
   "hash": "cf7a11a8d058e60cacd3fd3d26bcbb3f"
 }
 </code></p>
-<h2>GET /articles/:hash/json</h2>
+<h2>GET /api/v1/articles/:hash</h2>
 <p>Get an article from S3.</p>
-<p><code>curl https://feedreader.co/articles/8e8fb9307239c9b99daf2cf8eea510009d7cbcf2/json</code></p>
+<p><code>curl https://feedreader.co/api/v1/articles/8e8fb9307239c9b99daf2cf8eea510009d7cbcf2</code></p>
 <p><code>
 {
   "success": true,
