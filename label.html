@@ -76,7 +76,7 @@ var current
   var xhr = new XMLHttpRequest()
   , urlparams = ''
   if ((params) && (method==='GET')) urlparams = '?'+params
-  xhr.open(method,'https://feedreader.co'+endpoint+'/json'+urlparams)
+  xhr.open(method,'https://feedreader.co/api/v1/'+endpoint+urlparams)
   if (method!='GET') xhr.setRequestHeader('authorization','Basic '+base64_encode(token+':'))
   xhr.onload = onload
   if (params) {
