@@ -1,0 +1,307 @@
+<!doctype html>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+@media all and (min-device-width:320px) {
+  body {font-size:19px!important;}
+  h1 {font-size:24px!important;}
+  embed, iframe, object {max-height:10em!important;}
+}
+@media all and (min-device-width:768px) {
+  body {font-size:21px!important;}
+  h1 {font-size:30px!important;}
+  embed, iframe, object {max-height:20em!important;}
+}
+@media all and (min-device-width:1024px) {
+  body {font-size:23px!important;}
+  h1 {font-size:36px!important;}
+}
+embed, iframe, object, img, p, div, table, tbody, big, h1, h3 {max-width:100%!important; overflow-x:auto!important;}
+body {width:36em!important; max-width:92%!important; padding-top:0.8em!important; margin:auto!important; line-height:1.6em!important; font-family:'Helvetica Neue',helvetica,sans!important; text-rendering:optimizeLegibility!important; color:#4A525A!important; background:#FEFCFF!important;}
+big, h1, h2, h3 {font-weight:200!important; font-family:inherit!important; line-height:inherit!important; padding:0!important; margin:0!important; word-wrap:break-word!important;}
+big, h2 {font-size:1em!important;}
+h1 {padding-bottom:0.2em!important; margin-top:0.4em!important;}
+h2 {line-height:1.4em!important; margin-bottom:0.4em!important;}
+h3 {font-size:0.8em!important; text-transform:uppercase!important;}
+big {font-weight:bold!important;}
+a {text-decoration:none!important; color:#157DEC!important; border-bottom:thin solid!important; border-bottom-color:#157DEC!important;}
+.article {margin-bottom:1.6em!important; float:left!important; clear:left!important; word-wrap:break-word!important;}
+.pillbox {font-weight:200!important; background:Gainsboro!important; border:thin solid!important; border-color:Gainsboro!important; color:inherit!important; font-size:0.8em!imp
+ortant; padding:0.2em!important; padding-left:0.4em!important; padding-right:0.4em!important; margin-right:0.1em!important; border-radius: 0.2em!important;}
+.pillbox.empty {background:white!important; color:#4A525A!important; border-color:#D1D0CE!important;}
+.minor-margin-top {margin-top:0.2em!important;}
+input {-webkit-appearance:none!important; font-family:inherit!important;}
+input[type="submit"] {background:#4A525A!important; border-color:#4A525A!important; color:white!important;}
+input[type="text"] {background:white!important; color:#4A525A!important; border-color:#D1D0CE!important;}
+img, p, blockquote, ul, ol, li, figcaption, span {padding:0!important; margin:0!important;}
+img {max-width:100% !important; height:auto !important; float:none !important;}
+img[width] {width: auto !important;}
+ul, ol {padding-left:1.8em!important;}
+blockquote, figcaption {padding-left:1em!important;}
+blockquote, p {margin-bottom:1em!important;}
+blockquote {padding-left:1em!important; border-left:thin solid!important; border-left-color:#4A525A!important;}
+em, strong {font-weight:normal!important; font-style:italic!important;}
+hr {border:none!important; border-top:thin solid!important; border-top-color:#4A525A!important;}
+table, tbody {table-layout:fixed!important;}
+tbody, table, pre, code {word-break:break-all!important;}
+sup {vertical-align:top!important; font-size:0.4em!important; position:relative!important; top:-0.5em!important;}
+</style>
+<title>Feed Reader API</title>
+</style>
+<h1>DEPRECATED API</h1>
+<p>This API is deprecated. Please use <a href=/api>the new API</a> instead. <a href='mailto:arpith@feedreader.co'>Mail me</a> if you need help.</p>
+<h1>Tokens</h1>
+<h2>POST /:user/tokens/json</h2>
+<p>Authenticates a session. Accepts password as a parameter and returns an authentication token. </p>
+<p><code>curl https://feedreader.co/arpith/tokens/json -F password=notreallymypassword</code></p>
+<p><code>
+{
+  "success": true,
+  "token": "fb8ac39f556118deef404bb7d0c0192f7d483759c348694d"
+}
+</code></p>
+<h2>DELETE /:user/tokens/json</h2>
+<p>Revokes a session. Requires authentication.</p>
+<p><code>curl -X DELETE https://feedreader.co/arpith/tokens/json -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
+<p><code>
+{
+  "success": true
+}
+</code></p>
+<h1>Feeds</h1>
+<h2>POST /:user/feeds/json</h2>
+<p>Add feed url (parameter names: xmlurl, title, link) or feeds from an opml file (parameter name: opml). Requires authentication.</p>
+<p><code>curl https://feedreader.co/arpith/feeds/json -F opml=@subscriptions.xml -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
+<p><code>
+{
+  "success": true
+}
+</code></p>
+<h2>GET /:user/feeds/json</h2>
+<p>Get all subscribed feeds. Returns a list of feed objects and articles not marked read. </p>
+<p><code>curl https://feedreader.co/arpith/feeds/json</code></p>
+<p><code>
+{
+  "success": true,
+  "feeds": [
+    {
+      "title": "American Elf",
+      "htmlUrl": "http://www.americanelf.com",
+      "type": "rss",
+      "lastModified": "undefined",
+      "etag": "undefined",
+      "key": "http://feeds.feedburner.com/AmericanElfRssFeed"
+    }
+  ],
+  "articles": []
+}
+</code></p>
+<h2>GET /feeds/:xmlurl/json</h2>
+<p>Checks url for new articles and returns feed object with sorted list of article hashes.</p>
+<p><code>curl https://feedreader.co/arpith/feeds/http://feeds.feedburner.com/AmericanElfRssFeed/json -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
+<p><code>
+{
+  "title": "American Elf",
+  "htmlUrl": "http://www.americanelf.com",
+  "type": "rss",
+  "lastModified": "undefined",
+  "etag": "undefined",
+  "success": true,
+  "articles": [
+    "54eac3bad961867dfc67b659a027f0d4",
+    "97bee92629ecf71804dc4505080c68da",
+    "b3763bd521a5ef1c81443e1448cdc051"
+  ]
+}
+</code></p>
+<h1>Labels</h1>
+<h2>POST /:user/labels/:label/json</h2>
+<p>Label an article. Accepts hash (required) and score (optional) as parameters. If score is not present, Date.now() is used to order the article within the label. Requires authentication.</p>
+<p><code>curl https://feedreader.co/arpith/labels/read/json -F hash=cc5e5dcb16010782336e0e1a7e98395e -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
+<p><code>
+{
+  "success": true
+}
+</code></p>
+<h2>GET /:user/labels/:label/json</h2>
+<p>Get articles labelled with label.</p>
+<p><code>curl https://feedreader.co/arpith/labels/read/json -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
+<p><code>
+{
+  "success": true,
+  "articles": [
+    "cc5e5dcb16010782336e0e1a7e98395e"
+  ]
+}
+</code></p>
+<h2>GET /:user/labels/json</h2>
+<p>Get all labels used.</p>
+<p><code>curl https://feedreader.co/arpith/labels/json -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
+<p><code>
+{
+  "success": true,
+  "labels": [
+    "read"
+  ]
+}
+</code></p>
+<h1>Folders</h1>
+<h2>POST /:user/folders/:folder/json</h2>
+<p>Add a feed to a folder. Accepts xmlurl as parameter. Requires authentication.</p>
+<p><code>curl https://feedreader.co/arpith/folders/Kochalka/json -F xmlurl=http://feeds.feedburner.com/AmericanElfRssFeed -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
+<p><code>
+{
+  "success": true
+}
+</code></p>
+<h2>DELETE /:user/folders/:folder/json</h2>
+<p>Delete a feed from a folder. Accepts xmlurl as parameter and deletes the folder if it is now empty. Requires authentication.</p>
+<p><code>curl https://feedreader.co/arpith/folders/Kochalka/json -X DELETE -F xmlurl=http://feeds.feedburner.com/AmericanElfRssFeed -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
+<p><code>
+{
+  "success": true
+}
+</code></p>
+<h2>GET /:user/folders/:folder/json</h2>
+<p>Get feeds in folder.</p>
+<p><code>curl https://feedreader.co/arpith/folders/Kochalka/json</code></p>
+<p><code>
+{
+  "success": true,
+  "feeds": [
+    "http://feeds.feedburner.com/AmericanElfRssFeed"
+  ]
+}
+</code></p>
+<h2>GET /:user/folders/json</h2>
+<p>Get all folders used. If xmlurl is passed as a parameter, returns folders the feed belongs to as well as all folders used.</p>
+<p><code>curl https://feedreader.co/arpith/folders/json?xmlurl=http://xkcd.com/atom.xml</code></p>
+<p><code>
+{
+  "success": true,
+  "folders": [
+    "Other"
+  ],
+  "allFolders": [
+    "Other"
+  ]
+}
+</code></p>
+<h1>Articles</h1>
+<h2>POST /articles/json</h2>
+<p>Generates a hash for identification. Accepts pubdate, link and xmlurl as parameters, and returns a hex digest of the sha1 hash.</p>
+<p><code>curl https://feedreader.co/articles/json -F pubdate=2012-10-15T05:50:00.000Z -F link=http://feedproxy.google.com/~r/AmericanElfRssFeed/~3/RyYvUlNe5jw/americanelf.php -F xmlurl=http://feeds.feedburner.com/AmericanElfRssFeed -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
+<p>Note: This is currently generating a different hash and needs to be fixed.</p>
+<p><code>
+{
+  "success": true,
+  "hash": "cf7a11a8d058e60cacd3fd3d26bcbb3f"
+}
+</code></p>
+<h2>GET /articles/:hash/json</h2>
+<p>Get an article from S3.</p>
+<p><code>curl https://feedreader.co/articles/8e8fb9307239c9b99daf2cf8eea510009d7cbcf2/json</code></p>
+<p><code>
+{
+  "success": true,
+  "article": {
+    "title": "The Incident: The Music",
+    "description": "<a href=\"http://cabel.me/2012/11/12/the-incident-the-music/\">The Incident: The Music</a>: <p>For years now, Matt and I have been getting this question: when are you going to release the soundtrack from The Incident? Today, the singer/songwriter behind this wonderful, wonderful score has made it available for download.</p>\n<p>Hit up <a href=\"http://cabel.me/2012/11/12/the-incident-the-music/\">Cabel’s new blog</a> and get the back story plus some bitchin’ tunes!</p>",
+    "summary": "<a href=\"http://cabel.me/2012/11/12/the-incident-the-music/\">The Incident: The Music</a>: <p>For years now, Matt and I have been getting this question: when are you going to release the soundtrack from The Incident? Today, the singer/songwriter behind this wonderful, wonderful score has made it available for download.</p>\n<p>Hit up <a href=\"http://cabel.me/2012/11/12/the-incident-the-music/\">Cabel’s new blog</a> and get the back story plus some bitchin’ tunes!</p>",
+    "date": "2012-11-12T21:49:48.000Z",
+    "pubdate": "2012-11-12T21:49:48.000Z",
+    "pubDate": "2012-11-12T21:49:48.000Z",
+    "link": "http://mrgan.tumblr.com/post/35588576448",
+    "guid": "http://mrgan.tumblr.com/post/35588576448",
+    "author": null,
+    "comments": null,
+    "origlink": null,
+    "image": {},
+    "source": {},
+    "categories": [],
+    "enclosures": [],
+    "rss:@": {},
+    "rss:title": {
+      "@": {},
+      "#": "The Incident: The Music"
+    },
+    "rss:description": {
+      "@": {},
+      "#": "<a href=\"http://cabel.me/2012/11/12/the-incident-the-music/\">The Incident: The Music</a>: <p>For years now, Matt and I have been getting this question: when are you going to release the soundtrack from The Incident? Today, the singer/songwriter behind this wonderful, wonderful score has made it available for download.</p>\n<p>Hit up <a href=\"http://cabel.me/2012/11/12/the-incident-the-music/\">Cabel’s new blog</a> and get the back story plus some bitchin’ tunes!</p>"
+    },
+    "rss:link": {
+      "@": {},
+      "#": "http://mrgan.tumblr.com/post/35588576448"
+    },
+    "rss:guid": {
+      "@": {},
+      "#": "http://mrgan.tumblr.com/post/35588576448"
+    },
+    "rss:pubdate": {
+      "@": {},
+      "#": "Mon, 12 Nov 2012 13:49:48 -0800"
+    },
+    "meta": {
+      "#ns": [
+        {
+          "xmlns:dc": "http://purl.org/dc/elements/1.1/"
+        },
+        {
+          "xmlns:atom": "http://www.w3.org/2005/Atom"
+        }
+      ],
+      "@": [
+        {
+          "xmlns:dc": "http://purl.org/dc/elements/1.1/"
+        }
+      ],
+      "#content-type": "text/xml; charset=utf-8",
+      "#type": "rss",
+      "#version": "2.0",
+      "title": "Neven Mrgan's tumbl",
+      "description": "Missing vowels since before it was cool.",
+      "date": null,
+      "pubdate": null,
+      "pubDate": null,
+      "link": "http://mrgan.tumblr.com/",
+      "xmlurl": null,
+      "xmlUrl": null,
+      "author": null,
+      "language": null,
+      "favicon": null,
+      "copyright": null,
+      "generator": "Tumblr (3.0; @mrgan)",
+      "image": {},
+      "categories": [],
+      "rss:@": {},
+      "rss:link": [
+        {
+          "@": {
+            "rel": "hub",
+            "href": "http://tumblr.superfeedr.com/",
+            "xmlns:atom": "http://www.w3.org/2005/Atom"
+          }
+        },
+        {
+          "@": {},
+          "#": "http://mrgan.tumblr.com/"
+        }
+      ],
+      "rss:description": {
+        "@": {},
+        "#": "Missing vowels since before it was cool."
+      },
+      "rss:title": {
+        "@": {},
+        "#": "Neven Mrgan's tumbl"
+      },
+      "rss:generator": {
+        "@": {},
+        "#": "Tumblr (3.0; @mrgan)"
+      }
+    },
+    "hash": "8e8fb9307239c9b99daf2cf8eea510009d7cbcf2",
+    "feedurl": "http://mrgan.tumblr.com/rss"
+  }
+}
+</code></p>
