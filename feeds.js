@@ -80,7 +80,7 @@ exports.get = function(req,res) {
 }
 exports.feed = {}
 exports.feed.get = function(req,res) {
-  var feedrequested = decodeURIComponent(req.url.slice(7,-5))
+  var feedrequested = decodeURIComponent(req.url.slice(14))
   redis.hgetall('feed:'+feedrequested,function(e,feed) {
     if ((e)||(!feed)) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't get details for feed:"+feedrequested}},500)
     else {
