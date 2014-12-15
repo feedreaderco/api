@@ -17,7 +17,7 @@ exports.post = function(req,res){
 }
 exports.get = function(req,res){
   s3.getObject({Key:req.params.hash},function(e,d){
-    if (e) res.json({'success':false,'error':{'type':'S3 Error','message':"Couldn't get http://articles.feedreader.co/"+req.params.hash,'log':e}},500)
+    if (e) res.json({'success':false,'error':{'type':'S3 Error','message':"Couldn't get https://feedreader.co/api/v1/articles/"+req.params.hash,'log':e}},500)
     else {
       var data = new Buffer(d.Body)
       , article = JSON.parse(data.toString())
