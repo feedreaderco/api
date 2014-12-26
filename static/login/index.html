@@ -71,7 +71,7 @@ var current
 }
 , api = function(method,endpoint,onload,params) {
   var xhr = new XMLHttpRequest()
-  xhr.open(method,'https://feedreader.co/'+endpoint)
+  xhr.open(method,'https://feedreader.co/api/v1'+endpoint)
   xhr.setRequestHeader('authorization','Basic '+base64_encode(token+':'))
   xhr.onload = onload
   if (params) {
@@ -82,7 +82,7 @@ var current
 }
 , get_token = function() {
   user = form.elements["user"].value
-  api('POST',user+'/tokens/json',function(){
+  api('POST',user+'/tokens',function(){
     if ((hash = JSON.parse(this.responseText).token)) {
       form.style.display = 'none'
       localStorage.token = hash
