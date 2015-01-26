@@ -3,7 +3,7 @@ var redis = require('redis').createClient()
 , http = require('http')
 , AWS = require('aws-sdk')
 AWS.config.loadFromPath('./aws-config.json')
-var s3 = new AWS.S3({params:{Bucket:'feed-articles'}})
+var s3 = new AWS.S3({params:{Bucket:'feedreader2015-articles'}})
 exports.hash = function(article){
   return crypto.createHash('md5').update(article.guid).digest('hex')
 }
