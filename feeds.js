@@ -128,13 +128,13 @@ exports.feed.get = function(req,res) {
                 err.log = e.message
                 this.emit('error', err)
               }
-              else s3.putObject({Key:key
+              else s3.putObject({Key:"/api/v1/articles/"+key
                 , Body:body
                 , ContentType:'application/json'
               }
               , function (e) {
                 if (e) {
-                  var err = new Error("Couldn't put "+key+" on feed-articles")
+                  var err = new Error("Couldn't put "+key+" in the S3 bucket")
                   err.type = 'S3 Error'
                   err.log = e.message
                   this.emit('error', err)
