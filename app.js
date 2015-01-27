@@ -6,6 +6,7 @@ var fs = require('fs')
     fs.readFileSync('certificates2015/primary-intermediate-certificate.crt')
   ]
 }
+, path = require('path')
 , http = require('http')
 , https = require('https')
 , express = require('express')
