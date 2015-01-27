@@ -230,7 +230,7 @@ var current
 }
 , get_article = function(hash,callback) {
   if (!!hash) api('GET','/articles/'+hash,function() {
-    if ((article = JSON.parse(this.responseText).article)) {
+    if ((article = JSON.parse(this.responseText))) {
       if (!document.getElementById(hash)) display_article(article,callback)
       else callback()
     }
