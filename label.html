@@ -230,11 +230,15 @@ var current
 }
 , get_article = function(hash,callback) {
   if (!!hash) api('GET','/articles/'+hash,function() {
-    if ((article = JSON.parse(this.responseText))) {
+    try {
+      article = JSON.parse(this.responseText)
       if (!document.getElementById(hash)) display_article(article,callback)
       else callback()
     }
-    else callback()
+    catch (e) {
+      console.error("Could not parse articles/"+hash, e.message)
+      callback()
+    }
   })
   else callback()
 }
