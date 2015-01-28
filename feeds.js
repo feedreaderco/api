@@ -126,7 +126,7 @@ exports.feed.get = function(req,res) {
                 var err = new Error("Couldn't add article:"+key+" to articles:"+feedrequested)
                 err.type = 'Redis Error'
                 err.log = e.message
-                this.emit('error', err)
+                stream.emit('error', err)
               }
               else s3.putObject({Key:"/api/v1/articles/"+key
                 , Body:body
@@ -137,7 +137,7 @@ exports.feed.get = function(req,res) {
                   var err = new Error("Couldn't put "+key+" in the S3 bucket")
                   err.type = 'S3 Error'
                   err.log = e.message
-                  this.emit('error', err)
+                  stream.emit('error', err)
                 }
               })
             })
