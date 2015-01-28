@@ -48,7 +48,7 @@ exports.post = function(req,res){
             })
             gumroad.write(postdata)
             gumroad.on('error',function(e){
-              res.json({'success':false,'error':{'type':'Gumroad Error','message':"Couldn't create payment url for "+req.body.user}},500)
+              res.status(500).json({'success':false,'error':{'type':'Gumroad Error','message':"Couldn't create payment url for "+req.body.user}})
             })
             gumroad.end()
           })

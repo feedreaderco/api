@@ -10,21 +10,21 @@ var redis = require('redis').createClient()
 , S3 = awssum.load('amazon/s3').S3
 , s3 = new S3(amazonSettings)
 exports.post = function(req,res){
-  if (!req.body.id) res.json({'success':false,'error':{'type':'Missing Parameter','message':"id is required"}},500)
+  if (!req.body.id) res.status(500).json({'success':false,'error':{'type':'Missing Parameter','message':"id is required"}})
   else redis.lpush('unread:'+req.user,'article:'+req.body.id,function(e){
-    if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't add article:"+req.body.id+" to unread:"+req.user}},500)
+    if (e) res.status(500).json({'success':false,'error':{'type':'Redis Error','message':"Couldn't add article:"+req.body.id+" to unread:"+req.user}})
     else res.json({'success':true})
   })
 }
 exports.get = function(req,res){
   redis.smembers('folders:'+req.user,function(e,folders){
-    if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't get folders for "+req.user}},500)
+    if (e) res.status(500).json({'success':false,'error':{'type':'Redis Error','message':"Couldn't get folders for "+req.user}})
     else redis.sunion(folders,function(e,feedkeys){
       var feeds = {}
-      if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't get feeds from all folders for "+req.user}},500)
+      if (e) res.status(500).json({'success':false,'error':{'type':'Redis Error','message':"Couldn't get feeds from all folders for "+req.user}})
       else feedkeys.forEach(function(key,feedpos){
         redis.hgetall(key,function(e,feed){
-          if (e) res.json({'success':false,'error':{'type':'Redis Error','message':"Couldn't get details for "+key}},500)
+          if (e) res.status(500).json({'success':false,'error':{'type':'Redis Error','message':"Couldn't get details for "+key}})
           else {
             var options = url.parse(key.substr(5))
             options['headers'] = {'If-Modified-Since':feed.lastModified,'If-None-Match':feed.etag}
