@@ -49,7 +49,7 @@ exports.folder.post = function(req,res) {
   else redis.hsetnx('feed:'+req.body.xmlurl,'key',req.body.xmlurl,function(e){
     if (e) res.status(500).json({'success':false,'error':{'type':'Redis Error','message':"Couldn't save key for feed:"+req.body.xmlurl}})
     else redis.sadd('folder:'+req.user+'/'+req.params.folder,'feed:'+req.body.xmlurl,function(e){
-      if (e) res.status(500)json({'success':false,'error':{'type':'Redis Error','message':"Couldn't add "+req.body.xmlurl+" to folder:"+req.user+"/"+req.params.folder}})
+      if (e) res.status(500).json({'success':false,'error':{'type':'Redis Error','message':"Couldn't add "+req.body.xmlurl+" to folder:"+req.user+"/"+req.params.folder}})
       else redis.sadd('folders:'+req.user,'folder:'+req.user+'/'+req.params.folder,function(e){
         if (e) res.status(500).json({'success':false,'error':{'type':'Redis Error','message':"Couldn't add folder:"+req.user+"/"+req.params.folder+" to folders:"+req.user}})
         else res.json({'success':true})
