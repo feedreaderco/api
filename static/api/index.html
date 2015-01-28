@@ -199,12 +199,10 @@ sup {vertical-align:top!important; font-size:0.4em!important; position:relative!
 }
 </code></p>
 <h2>GET /api/v1/articles/:hash</h2>
-<p>Get an article from S3.</p>
+<p>Get an article from S3 via cloudfront. Note that the json is stripped, no "success".</p>
 <p><code>curl https://feedreader.co/api/v1/articles/8e8fb9307239c9b99daf2cf8eea510009d7cbcf2</code></p>
 <p><code>
 {
-  "success": true,
-  "article": {
     "title": "The Incident: The Music",
     "description": "<a href=\"http://cabel.me/2012/11/12/the-incident-the-music/\">The Incident: The Music</a>: <p>For years now, Matt and I have been getting this question: when are you going to release the soundtrack from The Incident? Today, the singer/songwriter behind this wonderful, wonderful score has made it available for download.</p>\n<p>Hit up <a href=\"http://cabel.me/2012/11/12/the-incident-the-music/\">Cabel’s new blog</a> and get the back story plus some bitchin’ tunes!</p>",
     "summary": "<a href=\"http://cabel.me/2012/11/12/the-incident-the-music/\">The Incident: The Music</a>: <p>For years now, Matt and I have been getting this question: when are you going to release the soundtrack from The Incident? Today, the singer/songwriter behind this wonderful, wonderful score has made it available for download.</p>\n<p>Hit up <a href=\"http://cabel.me/2012/11/12/the-incident-the-music/\">Cabel’s new blog</a> and get the back story plus some bitchin’ tunes!</p>",
