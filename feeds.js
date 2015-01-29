@@ -128,7 +128,7 @@ exports.feed.get = function(req,res) {
                 err.log = e.message
                 stream.emit('error', err)
               }
-              else s3.putObject({Key:"/api/v1/articles/"+key
+              else s3.putObject({Key:"api/v1/articles/"+key
                 , Body:body
                 , ContentType:'application/json'
               }
