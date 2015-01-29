@@ -137,6 +137,7 @@ exports.feed.get = function(req,res) {
                   var err = new Error("Couldn't put "+key+" in the S3 bucket")
                   err.type = 'S3 Error'
                   err.log = e.message
+                  console.log(err)
                   stream.emit('error', err)
                 }
               })
