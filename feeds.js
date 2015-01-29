@@ -94,7 +94,9 @@ exports.feed.get = function(req,res) {
           if (e) res.status(500).json({'success':false,'error':{'type':'Redis Error','message':"Couldn't set lastModified and etag values for "+feedrequested}})
         })
       })
-      var feedparser = new FeedParser()
+      var options = {}
+      if (feed.link) options = {'feedurl':feed.link}
+      var feedparser = new FeedParser(options)
       requ.pipe(feedparser)
       feedparser.on('error', function(e) {
         if (!e.type) e.type = 'Parser Error'
