@@ -123,35 +123,33 @@ var current
     api('GET','/'+user+'/folders',function(){
       var parsedJSON = JSON.parse(this.responseText)
       if ((parsedJSON.allFolders) && (parsedJSON.allFolders.length)) {
-        if ((parsedJSON.folders) && (parsedJSON.folders.length)) {
-          parsedJSON.allFolders.forEach(function(folderName,position) {
-            folderButton = create_folder_button(folderName)
-            if (parsedJSON.folders.indexOf(folderName) != -1) folderButton.className = "pillbox"
-            foldersDiv.appendChild(folderButton)
-          })
-          var addFolder = document.createElement('input')
-          , newFolder = document.createElement('input')
-          newFolder.placeholder = "Folder Name"
-          newFolder.type = 'text'
-          newFolder.style.display = 'none'
-          newFolder.className = 'pillbox'
-          addFolder.className = 'pillbox'
-          addFolder.value = 'New Folder'
-          addFolder.type = 'submit'
-          addFolder.onclick = function() {
-            if (newFolder.style.display === 'none') {
-              newFolder.style.display = 'inline'
-              addFolder.value = 'Save'
-            }
-            else {
-              add_to_new_folder(newFolder)
-              addFolder.value = 'New Folder'
-            }
-            return false
+        parsedJSON.allFolders.forEach(function(folderName,position) {
+          folderButton = create_folder_button(folderName)
+          if (parsedJSON.folders.indexOf(folderName) != -1) folderButton.className = "pillbox"
+          foldersDiv.appendChild(folderButton)
+        })
+        var addFolder = document.createElement('input')
+        , newFolder = document.createElement('input')
+        newFolder.placeholder = "Folder Name"
+        newFolder.type = 'text'
+        newFolder.style.display = 'none'
+        newFolder.className = 'pillbox'
+        addFolder.className = 'pillbox'
+        addFolder.value = 'New Folder'
+        addFolder.type = 'submit'
+        addFolder.onclick = function() {
+          if (newFolder.style.display === 'none') {
+            newFolder.style.display = 'inline'
+            addFolder.value = 'Save'
           }
-          foldersDiv.appendChild(newFolder)
-          foldersDiv.appendChild(addFolder)
+          else {
+            add_to_new_folder(newFolder)
+            addFolder.value = 'New Folder'
+          }
+          return false
         }
+        foldersDiv.appendChild(newFolder)
+        foldersDiv.appendChild(addFolder)
       }
       callback()
     },'xmlurl='+viewedFeed)
