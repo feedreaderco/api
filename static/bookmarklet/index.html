@@ -46,7 +46,7 @@ table, tbody {table-layout:fixed!important;}
 tbody, table, pre, code {word-break:break-all!important;}
 sup {vertical-align:top!important; font-size:0.4em!important; position:relative!important; top:-0.5em!important;}
 </style>
-<title>Feed Reader Bookmarklet</title>
+<title>View in Feed Reader</title>
 <body>
 <h1>Bookmarklet</h1>
 <h2 id=h2>Computers</h2>
@@ -65,7 +65,7 @@ var h1 = document.getElementById('h2')
 , add_bookmarklet = function() {
   var bookmarklet = document.createElement('a')
   , code = document.getElementById('bookmarklet')
-  bookmarklet.innerHTML = "Feed Reader"
+  bookmarklet.innerHTML = "View in Feed Reader"
   bookmarklet.href = "javascript:try{feedreader()}catch(e){feedreader={};var script=document.createElement('script');feedreader.token='"+localStorage.token+"';feedreader.user='"+localStorage.user+"';script.src='https://feedreader.co/bookmarklet/js';document.body.appendChild(script);}"
   code.innerHTML = bookmarklet.href
   document.body.insertBefore(bookmarklet,h1.nextSibling)
