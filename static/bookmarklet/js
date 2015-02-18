@@ -45,7 +45,7 @@
     //check if it looks like a tumblr blog
       var head = document.getElementsByTagName('head')[0].innerHTML
       if ((head.indexOf('tumblr')!=-1)||(head.indexOf('Tumblr')!=-1)||(head.indexOf('TUMBLR')!=-1)) {
-        feed = window.location.hostname + '/rss'
+        feed = window.location.protocol + "//"+ window.location.hostname + '/rss'
         callback()
       }    
     }
