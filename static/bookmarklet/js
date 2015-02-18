@@ -39,7 +39,6 @@
         // feed = tag.protocol+"//"+ tag.host+ tag.pathname+ tag.search+ tag.hash
         message.innerHTML = "Found "+feed+" in one of the <a> tags"
         callback()
-        break
       }
     }
     if (!feed) {
@@ -48,7 +47,6 @@
       if ((head.innerHTML.indexOf('tumblr')!=-1)||(head.innerHTML.indexOf('Tumblr')!=-1)||(head.innerHTML.indexOf('TUMBLR')!=-1)) {
         feed = window.location.hostname + '/rss'
         callback()
-        break
       }    
     }
     if (!feed) message.innerHTML = "Couldn't find a feed URL on this page"
