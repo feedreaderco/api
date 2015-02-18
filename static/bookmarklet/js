@@ -43,7 +43,8 @@
     }
     if (!feed) {
     //check if it looks like a tumblr blog
-      if ((document.head.indexOf('tumblr')!=-1)||(document.head.indexOf('Tumblr')!=-1)||(document.head.indexOf('TUMBLR')!=-1)) {
+      var head = document.getElementsByTagName('head')[0].innerHTML
+      if ((head.indexOf('tumblr')!=-1)||(head.indexOf('Tumblr')!=-1)||(head.indexOf('TUMBLR')!=-1)) {
         feed = window.location.hostname + '/rss'
         callback()
       }    
