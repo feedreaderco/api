@@ -1,23 +1,6 @@
 (function(){
   var feed = ''
-  , article = ''
-  , message = document.createElement('div')
-  , toggleBookmarklet = function(callback) {
-    bookmarklet = document.createElement('div')
-    bookmarklet.style.position = 'fixed'
-    bookmarklet.style.overflow = 'scroll'
-    bookmarklet.style.maxWidth = '320px'
-    bookmarklet.style.top = '0'
-    bookmarklet.style.right = '0'
-    bookmarklet.style.zIndex = '9999'
-    bookmarklet.style.background = 'white'
-    bookmarklet.style.padding = '10px'
-    bookmarklet.appendChild(message)
-    document.body.appendChild(bookmarklet)
-    if (callback) callback()
-  }
   , getFeed = function(callback) {
-    message.innerHTML = "Searching this page for a feed URL"
     var linkTags = document.getElementsByTagName('link')
     , aTags = document.getElementsByTagName('a')
     for (var i = 0; i < linkTags.length; ++i) {
@@ -25,8 +8,6 @@
       if (tag.rel === 'alternate') {
         if ((tag.type.indexOf('atom')!=-1)||(tag.type.indexOf('rss')!=-1)||(tag.type.indexOf('xml')!=-1)) {
           feed = tag.href
-//          feed = tag.host+ tag.pathname+ tag.search+ tag.hash
-          message.innerHTML = "Found "+feed+" in a <link> tag"
           callback()
           break
         }
@@ -36,8 +17,6 @@
       var tag = aTags[i]
       if ((tag.innerHTML.indexOf('atom')!=-1)||(tag.innerHTML.indexOf('rss')!=-1)||(tag.innerHTML.indexOf('xml')!=-1)) {
         feed = tag.href
-        // feed = tag.protocol+"//"+ tag.host+ tag.pathname+ tag.search+ tag.hash
-        message.innerHTML = "Found "+feed+" in one of the <a> tags"
         callback()
       }
     }
@@ -49,17 +28,15 @@
         callback()
       }    
     }
-    if (!feed) message.innerHTML = "Couldn't find a feed URL on this page"
+    if (!feed) alert("Couldn't find a feed URL on this page")
     else callback()
   }
   , postFeed = function() {
     var redirectURL = "https://feedreader.co/feeds/"+feed
-    message.innerHTML = "Taking you to <a href="+redirectURL+">view this feed on Feedreader</a>"
+    alert("Taking you to <a href="+redirectURL+">view this feed on Feedreader</a>")
     window.location.href = redirectURL
   }
-  toggleBookmarklet(function(){
-    getFeed(function(){
-      postFeed()
-    })
+  getFeed(function(){
+    postFeed()
   })
 })()
