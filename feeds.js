@@ -122,26 +122,40 @@ exports.feed.get = function(req,res) {
           var body = JSON.stringify(article)
           , key = article.hash
           , rank = article.score
-          redis.zadd('articles:'+feedrequested,rank,'article:'+key,function(e){
+          redis.zscore('articles:'+feedrequested,'article:'+key,function(e,oldscore) {
             if (e) {
-              var err = new Error("Couldn't add article:"+key+" to articles:"+feedrequested)
+              var err = new Error("Couldn't get score for article:"+key)
               err.type = 'Redis Error'
               err.log = e.message
-              stream.emit('error', err)
+              stream.emit('error',err)
             }
-            else s3.putObject({Key:"api/v1/articles/"+key
-              , Body:body
-              , ContentType:'application/json'
+            else {
+              redis.zadd('articles:'+feedrequested,rank,'article:'+key,function(e){
+                if (e) {
+                  var err = new Error("Couldn't add article:"+key+" to articles:"+feedrequested)
+                  err.type = 'Redis Error'
+                  err.log = e.message
+                  stream.emit('error', err)
+                }
+                else {
+                  if ((oldscore) && (rank != oldscore)) {
+                    s3.putObject({Key:"api/v1/articles/"+key
+                      , Body:body
+                      , ContentType:'application/json'
+                    }
+                    , function (e) {
+                      if (e) {
+                        var err = new Error("Couldn't put "+key+" in the S3 bucket")
+                        err.type = 'S3 Error'
+                        err.log = e.message
+                        console.log(err)
+                        stream.emit('error', err)
+                      }
+                    })
+                  }
+                }
+              })
             }
-            , function (e) {
-              if (e) {
-                var err = new Error("Couldn't put "+key+" in the S3 bucket")
-                err.type = 'S3 Error'
-                err.log = e.message
-                console.log(err)
-                stream.emit('error', err)
-              }
-            })
           })
         }
       }
