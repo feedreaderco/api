@@ -138,7 +138,7 @@ exports.feed.get = function(req,res) {
                   stream.emit('error', err)
                 }
                 else {
-                  if ((oldscore) && (rank != oldscore)) {
+              //    if ((!oldscore) || ((oldscore) && (rank != oldscore))) {
                     s3.putObject({Key:"api/v1/articles/"+key
                       , Body:body
                       , ContentType:'application/json'
@@ -152,7 +152,7 @@ exports.feed.get = function(req,res) {
                         stream.emit('error', err)
                       }
                     })
-                  }
+              //   }
                 }
               })
             }
