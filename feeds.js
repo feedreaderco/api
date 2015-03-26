@@ -54,8 +54,8 @@ exports.get = function(req,res) {
      if (e) res.status(500).json({'success':false,'error':{'type':'Redis Error','message':"Couldn't get feeds from all folders for "+req.params.user}})
      else {
        var feedurls = feedkeys.map(function(feedkey){ return feedkey.substr(5)})
-       , unionkeys = feedurls.map(function(feedkey){return 'articles:'+feedkey}).concat('label:'+req.params.user+'/read')
-       , weights = feedurls.map(function(){return -1}).concat(1)
+       , unionkeys = feedurls.map(function(feedkey){return 'articles:'+feedkey})
+       , weights = feedurls.map(function(){return -1})
        redis.zunionstore(['articles:'+req.params.user,unionkeys.length].concat(unionkeys,'weights',weights,'aggregate','max'),function(e){
          if (e) res.status(500).json({'success':false,'error':{'type':'Redis Error','message':"Couldn't create article list for "+req.params.user,'log':e.message}})
          else redis.zrangebyscore('articles:'+req.params.user,'-inf','0',function(e,articles){
