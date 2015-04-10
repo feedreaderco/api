@@ -13,39 +13,6 @@ var Opmlparser = require('opmlparser')
 AWS.config.loadFromPath('./aws-config.json')
 var s3 = new AWS.S3({params:{Bucket:'feedreader2015-articles'}})
 
-exports.post = function(req,res) {
-  if (req.body.xmlurl) {
-    redis.sadd('folder:'+req.user+'/Other','feed:'+req.body.xmlurl,function(e){
-      if (e) res.status(500).json({'success':false,'error':{'type':'Redis Error','message':"Couldn't add "+req.body.xmlurl+" to folder:"+req.user+"/Other"}})
-      else redis.sadd('folders:'+req.user,'folder:'+req.user+'/Other',function(e){
-        if (e) res.status(500).json({'success':false,'error':{'type':'Redis Error','message':"Couldn't add Others to folders:"+req.user}})
-        else redis.hmset('feed:'+req.body.xmlurl,'key',req.body.xmlurl,'title',req.body.title,'link',req.body.link,function(e){
-          if (e) res.status(500).json({'success':false,'error':{'type':'Redis Error','message':"Couldn't store details for feed:"+req.body.xmlurl}})
-          else res.json({'success':true})
-        })
-      })
-    })
-  }
-  else if (req.files.opml) {
-    opmlparser.parseStream(fs.createReadStream(req.files.opml.path),function(e,meta,feeds,outline){
-      if (e) res.status(500).json({'success':false,'error':{'type':'Opmlparser Error','message':"Couldn't parse "+req.files.opml.path}})
-      else feeds.forEach(function(feed){
-        if (!feed.folder) feed.folder = 'Other'
-        redis.sadd('folder:'+req.user+'/'+feed.folder,'feed:'+feed.xmlUrl,function(e){
-          if (e) res.status(500).json({'success':false,'error':{'type':'Redis Error','message':"Couldn't set "+feed.xmlUrl+" in folder:"+req.user+"/"+feed.folder}})
-          else redis.sadd('folders:'+req.user,'folder:'+req.user+'/'+feed.folder,function(e){
-            if (e) res.status(500).json({'success':false,'error':{'type':'Redis Error','message':"Couldn't add "+feed.folder+" to folders:"+req.user}})
-            else redis.hmset('feed:'+feed.xmlUrl,'title',feed.title,'link',feed.htmlUrl,function(e){
-              if (e) res.status(500).json({'success':false,'error':{'type':'Redis Error','message':"Couldn't store details for feed:"+feed.xmlUrl}})
-              else res.json({'success':true})
-            })
-          })
-        })
-      })
-    })
-  }
-  else res.status(400).json({'success':false,'error':{'type':'Missing Parameter Error','message':"url or opml required"}})
-}
 exports.get = function(req,res) {
   redis.smembers('folders:'+req.params.user,function(e,folders){
     var feeds = []

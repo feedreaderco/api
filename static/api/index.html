@@ -53,7 +53,7 @@ sup {vertical-align:top!important; font-size:0.4em!important; position:relative!
 <h1>Tokens</h1>
 <h2>POST /api/v1/:user/tokens</h2>
 <p>Authenticates a session. Accepts password as a parameter and returns an authentication token. </p>
-<p><code>curl https://feedreader.co/api/v1/arpith/tokens -F password=notreallymypassword</code></p>
+<p><code>curl https://feedreader.co/api/v1/arpith/tokens --data "password=somepassword"</code></p>
 <p><code>
 {
   "success": true,
@@ -69,14 +69,6 @@ sup {vertical-align:top!important; font-size:0.4em!important; position:relative!
 }
 </code></p>
 <h1>Feeds</h1>
-<h2>POST /api/v1/:user/feeds</h2>
-<p>Add feed url (parameter names: xmlurl, title, link) or feeds from an opml file (parameter name: opml). Requires authentication.</p>
-<p><code>curl https://feedreader.co/api/v1/arpith/feeds -F opml=@subscriptions.xml -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
-<p><code>
-{
-  "success": true
-}
-</code></p>
 <h2>GET /api/v1/:user/feeds</h2>
 <p>Get all subscribed feeds. Returns a list of feed objects and articles not marked read. </p>
 <p><code>curl https://feedreader.co/api/v1/arpith/feeds</code></p>
@@ -117,7 +109,7 @@ sup {vertical-align:top!important; font-size:0.4em!important; position:relative!
 <h1>Labels</h1>
 <h2>POST /api/v1/:user/labels/:label</h2>
 <p>Label an article. Accepts hash (required) and score (optional) as parameters. If score is not present, Date.now() is used to order the article within the label. Requires authentication.</p>
-<p><code>curl https://feedreader.co/api/v1/arpith/labels/read -F hash=cc5e5dcb16010782336e0e1a7e98395e -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
+<p><code>curl https://feedreader.co/api/v1/arpith/labels/read --data "hash=cc5e5dcb16010782336e0e1a7e98395e" -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
 <p><code>
 {
   "success": true
@@ -148,7 +140,7 @@ sup {vertical-align:top!important; font-size:0.4em!important; position:relative!
 <h1>Folders</h1>
 <h2>POST /api/v1/:user/folders/:folder</h2>
 <p>Add a feed to a folder. Accepts xmlurl as parameter. Requires authentication.</p>
-<p><code>curl https://feedreader.co/api/v1/arpith/folders/Kochalka -F xmlurl=http://feeds.feedburner.com/AmericanElfRssFeed -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
+<p><code>curl https://feedreader.co/api/v1/arpith/folders/Kochalka --data "xmlurl=http://feeds.feedburner.com/AmericanElfRssFeed" -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
 <p><code>
 {
   "success": true
@@ -156,7 +148,7 @@ sup {vertical-align:top!important; font-size:0.4em!important; position:relative!
 </code></p>
 <h2>DELETE /api/v1/:user/folders/:folder</h2>
 <p>Delete a feed from a folder. Accepts xmlurl as parameter and deletes the folder if it is now empty. Requires authentication.</p>
-<p><code>curl https://feedreader.co/api/v1/arpith/folders/Kochalka -X DELETE -F xmlurl=http://feeds.feedburner.com/AmericanElfRssFeed -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
+<p><code>curl https://feedreader.co/api/v1/arpith/folders/Kochalka -X DELETE --data "xmlurl=http://feeds.feedburner.com/AmericanElfRssFeed" -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
 <p><code>
 {
   "success": true
@@ -188,7 +180,7 @@ sup {vertical-align:top!important; font-size:0.4em!important; position:relative!
 }
 </code></p>
 <h1>Articles</h1>
-<h2>POST /api/v1/articles</h2>
+<!--  <h2>POST /api/v1/articles</h2>
 <p>Generates a hash for identification. Accepts pubdate, link and xmlurl as parameters, and returns a hex digest of the sha1 hash.</p>
 <p><code>curl https://feedreader.co/api/v1/articles -F pubdate=2012-10-15T05:50:00.000Z -F link=http://feedproxy.google.com/~r/AmericanElfRssFeed/~3/RyYvUlNe5jw/americanelf.php -F xmlurl=http://feeds.feedburner.com/AmericanElfRssFeed -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
 <p>Note: This is currently generating a different hash and needs to be fixed.</p>
@@ -198,6 +190,7 @@ sup {vertical-align:top!important; font-size:0.4em!important; position:relative!
   "hash": "cf7a11a8d058e60cacd3fd3d26bcbb3f"
 }
 </code></p>
+-->
 <h2>GET /api/v1/articles/:hash</h2>
 <p>Get an article from S3 via cloudfront. Note that the json is stripped, no "success".</p>
 <p><code>curl https://feedreader.co/api/v1/articles/8e8fb9307239c9b99daf2cf8eea510009d7cbcf2</code></p>

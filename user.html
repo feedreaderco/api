@@ -51,11 +51,6 @@ sup {vertical-align:top!important; font-size:0.4em!important; position:relative!
 <a href=bookmarklet>Bookmarklet</a>
 <a href=# id=unread>Unread Articles</a>
 <a href=help>Help</a>
-<form id=uploadForm method=POST action=#>
-<label for=opml>Import Subscriptions</label>
-<input placeholder=Subscriptions type=file id=opml name=opml class='pillbox empty'>
-<input id=upload type=submit value='Upload' class=pillbox>
-</form>
 <h3>Labels</h3>
 <div id=labels>
 Loading labels.
@@ -71,8 +66,6 @@ Loading feeds.
 <script>
 var h2 = document.getElementById('user')
 , unread = document.getElementById('unread')
-, form = document.getElementById('uploadForm')
-, upload = document.getElementById('upload')
 , user = window.location.pathname.split('/')[1]
 , base64_encode = function(str) {
   return window.btoa(unescape(encodeURIComponent(str)))
@@ -118,18 +111,9 @@ var h2 = document.getElementById('user')
     else ul.innerHTML = "Couldn't load feeds."
   })
 }
-, upload_opml = function() {
-  api('POST',user+'/feeds',function(){
-    if (JSON.parse(this.responseText).success) window.location = window.location
-    return false
-  },new FormData(form))
-  return false
-}
 h2.innerHTML = user
 document.title = user + ' (feedreader.co)'
 unread.href = "/" + user + "/feeds"
-upload.onclick = upload_opml
-if (localStorage.user===user) form.style.display = 'block'
 get_labels()
 get_folders()
 get_feeds()
