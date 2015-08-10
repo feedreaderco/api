@@ -217,6 +217,14 @@ var current
     }
   })
 }
+, append_read_articles = function(callback) {
+  api('GET', '/'+user+'/lables/read', function() {
+    if ((theseArticles = JSON.parse(this.responseText).articles)) {
+      articles = articles.concat(theseArticles)
+      callback()
+    }
+  });
+}
 , refresh_feeds = function() {
   if (token) api('GET','/'+user+'/feeds',function(){
     if ((feeds = JSON.parse(this.responseText).feeds)) feeds.forEach(function(feed){
@@ -319,9 +327,19 @@ window.onscroll = updateState
 window.onbeforeunload = function() {
   api('DELETE')
 }
-get_articles(function(){
-  get_folders(function(){
-    get_labels(refresh_feeds)
+if (pathname === '/'+user+'/feeds/') {
+  get_articles(function() {
+    get_folders(function() {
+      append_read_articles(function() {
+      	get_labels(refresh_feeds)
+      })
+    })
   })
-})
+} else {
+  get_articles(function(){
+    get_folders(function(){
+      get_labels(refresh_feeds)
+    })
+  })
+}
 </script>
