@@ -218,7 +218,7 @@ var current
   })
 }
 , append_read_articles = function(callback) {
-  api('GET', '/'+user+'/lables/read', function() {
+  api('GET', '/'+user+'/labels/read', function() {
     if ((theseArticles = JSON.parse(this.responseText).articles)) {
       articles = articles.concat(theseArticles)
       callback()
