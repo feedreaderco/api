@@ -291,7 +291,7 @@ var refresh_feeds = function() {
     } catch (e) {
       var feeds = null;
     }
-    if (feeds) feeds.forEach(function(feeed) {
+    if (feeds) feeds.forEach(function(feed) {
       api('GET', '/feeds/' + feed.key, function() {
         try {
           var p = JSON.parse(this.responseText);
