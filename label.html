@@ -91,14 +91,26 @@ var api = function(method, endpoint, onload, params) {
 var add_to_folder = function(folderButton) {
   var folderName = folderButton.value;
   api('POST', '/' + user + '/folders/' + encodeURIComponent(folderName), function() {
-    if ((success = JSON.parse(this.responseText).success)) if (success === true) folderButton.className = 'pillbox';
+    try {
+      var p = JSON.parse(this.responseText);
+      var success = p.success;
+    } catch (e) {
+      var success = false;
+    }
+    if (success) folderButton.className = 'pillbox';
   }, 'xmlurl=' + viewedFeed);
 };
 
 var remove_from_folder = function(folderButton) {
   var folderName = folderButton.value;
   api('DELETE', '/' + user + '/folders/' + encodeURIComponent(folderName), function() {
-    if ((success = JSON.parse(this.responseText).success)) if (success === true) folderButton.className = 'pillbox empty';
+    try {
+      var p = JSON.parse(this.responseText);
+      var success = p.success;
+    } catch (e) {
+      var success = false;
+    }
+    if (success) folderButton.className = 'pillbox empty'; 
   }, 'xmlurl=' + viewedFeed);
 };
 
@@ -161,7 +173,13 @@ var get_folders = function(callback) {
     }, 'xmlurl=' + viewedFeed);
   } else {
     api('GET', '/' + user + '/folders', function() {
-      if ((folders = JSON.parse(this.responseText).folders)) if (folders.length) {
+      try {
+        var p = JSON.parse(this.responseText);
+        var folders = p.folders;
+      } catch (e) {
+        var folders = [];
+      }
+      if (folders.length) {
         foldersDiv.innerHTML = folders.map(function(folder) {
           return '<a href=/' + user + '/folders/' + encodeURIComponent(folder) + ' class=pillbox>' + folder + '</a>';
         }).join(' ');
@@ -181,18 +199,36 @@ var add_label = function(newLabel) {
   newLabel.parentElement.insertBefore(newLabelLink, newLabel);
   newLabel.style.display = 'none';
   api('POST', '/' + user + '/labels/' + encodeURIComponent(value), function() {
-    if ((success = JSON.parse(this.responseText).success)) if (success === true) newLabelLink.className = 'pillbox';
+    try {
+      var p = JSON.parse(this.responseText);
+      var success = p.success;
+    } catch (e) {
+      var success = false;
+    }
+    if (success) newLabelLink.className = 'pillbox'; 
   }, 'hash=' + newLabel.parentElement.id);
 };
 
 var get_labels = function(callback) {
   api('GET', '/' + user + '/labels', function() {
-    if ((labels = JSON.parse(this.responseText).labels)) if (labels.length) {
+    try {
+      var p = JSON.parse(this.responseText);
+      var labels = p.labels;
+    } catch (e) {
+      var labels = [];
+    }
+    if (labels.length) {
       labelNames = labels;
       labels.forEach(function(feedLabel) {
         api('GET', '/' + user + '/labels/' + feedLabel, function() {
           labelArticles[feedLabel] = [];
-          if ((theseArticles = JSON.parse(this.responseText).articles)) if (theseArticles.length) labelArticles[feedLabel] = theseArticles;
+          try {
+            var p = JSON.parse(this.responseText);
+            var theseArticles = p.articles;
+          } catch (e) {
+            var theseArticles = [];
+          }
+          if (theseArticles.length) labelArticles[feedLabel] = theseArticles;
         });
       });
     }
@@ -203,7 +239,13 @@ var get_labels = function(callback) {
 var get_articles = function(callback) {
   var pathname_stripped = pathname.slice(0, -1);
   api('GET', pathname_stripped, function() {
-    if ((theseArticles = JSON.parse(this.responseText).articles)) {
+    try {
+      var p = JSON.parse(this.responseText);
+      var theseArticles = p.articles;
+    } catch (e) {
+      var theseArticles = null;
+    }
+    if (theseArticles) {
       var i = 0;
       articles = theseArticles;
       if (hash) i = articles.indexOf(hash);
@@ -228,7 +270,13 @@ var get_articles = function(callback) {
 
 var append_read_articles = function(callback) {
   api('GET', '/' + user + '/labels/read', function() {
-    if ((theseArticles = JSON.parse(this.responseText).articles)) {
+    try {
+      var p = JSON.parse(this.responseText);
+      var theseArticles = p.articles;
+    } catch (e) {
+      var theseArticles = null;
+    }
+    if (theseArticles) {
       articles = articles.concat(theseArticles);
       callback();
     }
@@ -237,9 +285,21 @@ var append_read_articles = function(callback) {
 
 var refresh_feeds = function() {
   if (token) api('GET', '/' + user + '/feeds', function() {
-    if ((feeds = JSON.parse(this.responseText).feeds)) feeds.forEach(function(feed) {
+    try {
+      var p = JSON.parse(this.responseText);
+      var feeds = p.feeds;
+    } catch (e) {
+      var feeds = null;
+    }
+    if (feeds) feeds.forEach(function(feeed) {
       api('GET', '/feeds/' + feed.key, function() {
-        if ((all_articles = JSON.parse(this.responseText).articles)) console.log('Refreshed ' + feed.title + ', ' + all_articles.length + ' articles so far');
+        try {
+          var p = JSON.parse(this.responseText);
+          var all_articles = p.articles;
+        } catch (e) {
+          var all_articles = null;
+        }
+        if (all_articles) console.log('Refreshed ' + feed.title + ', ' + all_articles.length + ' articles so far');
       });
     });
   });
