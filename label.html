@@ -278,7 +278,7 @@ var append_read_articles = function(callback) {
     }
     if (theseArticles) {
       articles = articles.concat(theseArticles);
-      callback();
+      if (callback) callback();
     }
   });
 };
