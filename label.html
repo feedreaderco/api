@@ -268,22 +268,7 @@ var get_articles = function(callback) {
   });
 };
 
-var append_read_articles = function(callback) {
-  api('GET', '/' + user + '/labels/read', function() {
-    try {
-      var p = JSON.parse(this.responseText);
-      var theseArticles = p.articles;
-    } catch (e) {
-      var theseArticles = null;
-    }
-    if (theseArticles) {
-      articles = articles.concat(theseArticles);
-      if (callback) callback();
-    }
-  });
-};
-
-var refresh_feeds = function(callback) {
+var refresh_feeds = function() {
   if (token) api('GET', '/' + user + '/feeds', function() {
     try {
       var p = JSON.parse(this.responseText);
@@ -301,7 +286,6 @@ var refresh_feeds = function(callback) {
         }
         if (all_articles) console.log('Refreshed ' + feed.title + ', ' + all_articles.length + ' articles so far');
       });
-    callback();
     });
   });
 };
@@ -404,19 +388,9 @@ window.onbeforeunload = function() {
   api('DELETE');
 };
 
-if (pathname === '/' + user + '/feeds/') {
-  get_articles(function() {
-    get_folders(function() {
-      get_labels(function() {
-        refresh_feeds(append_read_articles);
-      });
-    });
+get_articles(function() {
+  get_folders(function() {
+    get_labels(refresh_feeds);
   });
-} else {
-  get_articles(function() {
-    get_folders(function() {
-      get_labels(refresh_feeds);
-    });
-  });
-}
+});
 </script>
