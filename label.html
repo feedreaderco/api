@@ -283,7 +283,7 @@ var append_read_articles = function(callback) {
   });
 };
 
-var refresh_feeds = function() {
+var refresh_feeds = function(callback) {
   if (token) api('GET', '/' + user + '/feeds', function() {
     try {
       var p = JSON.parse(this.responseText);
@@ -301,6 +301,7 @@ var refresh_feeds = function() {
         }
         if (all_articles) console.log('Refreshed ' + feed.title + ', ' + all_articles.length + ' articles so far');
       });
+    callback();
     });
   });
 };
@@ -406,8 +407,8 @@ window.onbeforeunload = function() {
 if (pathname === '/' + user + '/feeds/') {
   get_articles(function() {
     get_folders(function() {
-      append_read_articles(function() {
-      	get_labels(refresh_feeds);
+      get_labels(function() {
+        refresh_feeds(append_read_articles);
       });
     });
   });
