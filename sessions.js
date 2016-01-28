@@ -75,8 +75,8 @@ exports.post = function(req, res) {
                       'token': t
                     });
                   }
-                }
-              });
+                });
+              }
             });
           }
         });
