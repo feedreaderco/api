@@ -30,8 +30,8 @@ exports.post = function(req, res) {
               headers: {
 	              'Content-Type': 'application/x-www-form-urlencoded',
                 'Content-Length': postdata.length
-              }
-              method:"POST"
+              },
+              method: "POST"
             }, function(s) {
               var body = '';
               s.setEncoding('utf8');
