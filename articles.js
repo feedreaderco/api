@@ -1,6 +1,4 @@
-var redis = require('redis').createClient();
 var crypto = require('crypto');
-var http = require('http');
 var AWS = require('aws-sdk');
 
 AWS.config.loadFromPath('./aws-config.json');

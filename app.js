@@ -4,7 +4,6 @@ var http = require('http');
 var https = require('https');
 var express = require('express');
 var bodyParser = require('body-parser');
-var redis = require('redis').createClient();
 
 var auth = require('./auth');
 var sessions = require('./sessions');
