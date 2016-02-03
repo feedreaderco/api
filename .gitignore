@@ -2,5 +2,6 @@
 /certificates/*
 /certificates2014/*
 /certificates2015/*
+node_modules
 aws-config.json
 gumroad-config.json

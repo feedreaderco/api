@@ -1,0 +1,32 @@
+{
+  "name": "feedreader.co",
+  "version": "1.0.1",
+  "description": "This is what happens at https://feedreader.co",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arpith/feedreader.co.git"
+  },
+  "author": "Arpith Siromoney",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/arpith/feedreader.co/issues"
+  },
+  "homepage": "https://github.com/arpith/feedreader.co#readme",
+  "dependencies": {
+    "aws-sdk": "^2.2.33",
+    "bcrypt": "^0.8.5",
+    "body-parser": "^1.14.2",
+    "express": "^4.13.4",
+    "feedparser": "^1.1.4",
+    "opmlparser": "^0.8.0",
+    "querystring": "^0.2.0",
+    "redis": "^2.4.2",
+    "request": "^2.69.0",
+    "xml2js": "^0.4.16"
+  }
+}
