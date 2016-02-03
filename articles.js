@@ -5,7 +5,7 @@ AWS.config.loadFromPath('./aws-config.json');
 
 var s3 = new AWS.S3({
   params: {
-    Bucket: 'feedreader2015-articles'
+    Bucket: 'feedreader2016-articles'
   }
 });
 
@@ -28,7 +28,7 @@ exports.post = function(req,res) {
 
 exports.get = function(req,res) {
   s3.getObject({
-    Key: "/api/v1/articles/" + req.params.hash
+    Key: req.params.hash
   }, function(e,d) {
     if (e) {
       res.status(500).json({

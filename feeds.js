@@ -16,7 +16,7 @@ AWS.config.loadFromPath('./aws-config.json');
 
 var s3 = new AWS.S3({
   params: {
-    Bucket: 'feedreader2015-articles'
+    Bucket: 'feedreader2016-articles'
   }
 });
 
@@ -226,7 +226,7 @@ exports.feed.get = function(req, res) {
                 } else {
                   if ((oldscore == null) || (rank != oldscore)) {
                     s3.putObject({
-                      Key: "api/v1/articles/" + key,
+                      Key: key,
                       Body: body,
                       ContentType: 'application/json'
                     }, function (e) {
