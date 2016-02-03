@@ -21,6 +21,7 @@
     "aws-sdk": "^2.2.33",
     "bcrypt": "^0.8.5",
     "body-parser": "^1.14.2",
+    "dotenv": "^2.0.0",
     "express": "^4.13.4",
     "feedparser": "^1.1.4",
     "opmlparser": "^0.8.0",

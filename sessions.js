@@ -1,6 +1,7 @@
+require('dotenv').config();
+var redis = require('redis').createClient({host: process.env.REDIS_HOST});
 var crypto = require('crypto');
 var bcrypt = require('bcrypt');
-var redis = require('redis').createClient();
 
 exports.post = function(req, res) {
   if (!req.body.password) {

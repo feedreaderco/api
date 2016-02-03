@@ -1,8 +1,9 @@
+require('dotenv').config();
+var redis = require('redis').createClient({host: process.env.REDIS_HOST});
 var Opmlparser = require('opmlparser');
 var FeedParser = require('feedparser');
 var fs = require('fs');
 var xml2js = require('xml2js');
-var redis = require('redis').createClient();
 var url = require('url');
 var http = require('http');
 var request = require('request');

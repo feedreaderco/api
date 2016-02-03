@@ -1,4 +1,5 @@
-var redis = require('redis').createClient();
+require('dotenv').config();
+var redis = require('redis').createClient({host: process.env.REDIS_HOST});
 
 exports.post = function(q, r) {
   redis.get('token:' + q.params.token, function(e, u) {
