@@ -1,10 +1,11 @@
-#Feedreader
-This is what happens at feedreader.co and api.feedreader.co
+#Feedreader API
+This is an API to subscribe to RSS/Atom feeds. Feeds can be organized into folders, and labels can be applied to articles. The folders and labels are stored in Redis. Articles are stored on S3.
 
-##Feedreader.co
-To deploy the website to heroku, use this button:
+##Installation
+1. Clone the repository
+2. Inside the repository, create a file named `aws-config.json` with your AWS credentials (used to store articles on S3)
+3. Set `$REDIS_HOST` and `$GUMROAD_TOKEN`
+4. `npm install && npm start`
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
-
-##Feedreader API
-The API uses Redis for labels and folders, S3 for articles and feeds, and Gumroad for signup. Create an `aws-config.json` file with your AWS credentials, and set `$REDIS_HOST` and `$GUMROAD_TOKEN`
+##api.feedreader.co
+The API is running at api.feedreader.co

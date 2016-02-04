@@ -1,6 +1,0 @@
-{
-  "name": "Feedreader.co",
-  "description": "Feedreader website",
-  "repository": "https://github.com/arpith/feedreader.co",
-  "keywords": ["node", "express"]
-}
