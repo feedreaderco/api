@@ -120,7 +120,7 @@ exports.get = function(req, res) {
 exports.feed = {};
 
 exports.feed.get = function(req, res) {
-  var feedrequested = decodeURIComponent(req.url.slice(14));
+  var feedrequested = decodeURIComponent(req.url.slice(10));
   redis.hgetall('feed:' + feedrequested, function(e, feed) {
     if ((e) || (!feed)) feed = {};
     var unread = [];
