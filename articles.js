@@ -35,7 +35,7 @@ exports.get = function(req,res) {
         'success': false,
         'error': {
           'type': 'S3 Error',
-          'message': "Couldn't get https://feedreader.co/api/v1/articles/" + req.params.hash,
+          'message': "Couldn't get " + req.params.hash,
           'log': e
         }
       });

@@ -25,45 +25,25 @@ app.all('*', function(req,res,next) {
   next()
 });
 
-app.post('/api/v1/:user/tokens', sessions.post);
-app.delete('/api/v1/:user/tokens', auth,sessions.delete);
+app.post('/v1/:user/tokens', sessions.post);
+app.delete('/v1/:user/tokens', auth,sessions.delete);
 
-app.get('/api/v1/:user/folders', folders.get);
-app.get('/api/v1/:user/folders/:folder', folders.folder.get);
-app.post('/api/v1/:user/folders/:folder', auth, folders.folder.post);
-app.delete('/api/v1/:user/folders/:folder', auth, folders.folder.delete);
+app.get('/v1/:user/folders', folders.get);
+app.get('/v1/:user/folders/:folder', folders.folder.get);
+app.post('/v1/:user/folders/:folder', auth, folders.folder.post);
+app.delete('/v1/:user/folders/:folder', auth, folders.folder.delete);
 
-app.get('/api/v1/:user/labels', labels.get);
-app.get('/api/v1/:user/labels/:label', labels.label.get);
-app.post('/api/v1/:user/labels/:label', auth, labels.label.post);
+app.get('/v1/:user/labels', labels.get);
+app.get('/v1/:user/labels/:label', labels.label.get);
+app.post('/v1/:user/labels/:label', auth, labels.label.post);
 
-app.get('/api/v1/:user/feeds', feeds.get);
-app.get('/api/v1/feeds/*', feeds.feed.get);
+app.get('/v1/:user/feeds', feeds.get);
+app.get('/v1/feeds/*', feeds.feed.get);
 
-app.post('/api/v1/articles', articles.post);
-app.get('/api/v1/articles/:hash', articles.get);
+app.post('/v1/articles', articles.post);
+app.get('/v1/articles/:hash', articles.get);
 
 app.post('/signup', signup.post);
 app.post('/paid/:token', paid.post);
-
-app.get('/:user/labels/:label*', function(req,res) {
-  res.sendFile(path.join(__dirname, 'label.html'));
-});
-
-app.get('/:user/folders/:folder*', function(req,res) {
-  res.sendFile(path.join(__dirname, 'label.html'));
-});
-
-app.get('/:user/feeds*', function(req,res) {
-  res.sendFile(path.join(__dirname, 'label.html'));
-});
-
-app.get('/feeds/*', function(req,res) {
-  res.sendFile(path.join(__dirname, 'label.html'));
-});
-
-app.get('/:user', function(req,res) {
-  res.sendFile(path.join(__dirname, 'user.html'));
-});
 
 app.listen(8000);
