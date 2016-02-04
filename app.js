@@ -1,7 +1,5 @@
-var fs = require('fs');
 var path = require('path');
 var http = require('http');
-var https = require('https');
 var express = require('express');
 var bodyParser = require('body-parser');
 
@@ -13,14 +11,6 @@ var feeds = require('./feeds.js');
 var folders = require('./folders.js');
 var articles = require('./articles.js');
 var labels = require('./labels.js');
-
-var options = {
-  key: fs.readFileSync('certificates2015/certificate-private.key'),
-  cert: fs.readFileSync('certificates2015/web-server-certificate.crt'),
-  ca: [
-    fs.readFileSync('certificates2015/primary-intermediate-certificate.crt')
-  ]
-};
 
 var app = express();
 
@@ -77,8 +67,4 @@ app.get('/:user', function(req,res) {
   res.sendFile(path.join(__dirname, 'user.html'));
 });
 
-https.createServer(options, app).listen(8000);
-
-http.createServer(express().use(function(req,res) {
-  res.redirect(301, 'https://feedreader.co' + req.url);
-})).listen(8080);
+http.createServer(options, app).listen(8000);
