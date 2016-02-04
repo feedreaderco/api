@@ -1,5 +1,4 @@
 var path = require('path');
-var http = require('http');
 var express = require('express');
 var bodyParser = require('body-parser');
 
@@ -67,4 +66,4 @@ app.get('/:user', function(req,res) {
   res.sendFile(path.join(__dirname, 'user.html'));
 });
 
-http.createServer(options, app).listen(8000);
+app.listen(8000);
