@@ -41,12 +41,21 @@ exports.post = function(req, res) {
               s.on('end', function() {
                 try {
                   product = JSON.parse(body).product;
-                  res.redirect(product.short_url);
+                  res.status(200).json({
+                    'success': true,
+                    'url': product.short_url
+                  });
                 } catch(e) {
                   console.log('STATUS: ' + s.statusCode);
                   console.log('HEADERS: ' + JSON.stringify(s.headers));
                   console.log(body);
-                  res.redirect('/error.html');
+                  res.status(500).json({
+                    'success': false,
+                    'error': {
+                      'type': 'Gumroad Error',
+                      'message': "Couldn't create payment url for " + req.body.user
+                    }
+                  });
                 }
               });
             });
