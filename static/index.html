@@ -50,6 +50,16 @@ sup {vertical-align:top!important; font-size:0.4em!important; position:relative!
 </style>
 <h1>API</h1>
 <p>The <a href=/>Feed Reader</a> API is REST based, uses basic authentication and returns JSON. When authentication is required, the token can be passed as a query parameter instead ("?token=SOMETOKENHERE"). Please <a href='mailto:arpith@feedreader.co'>email me</a> your feedback.</p>
+<h1>Sign up</h1>
+<h2>POST /v1/signup</h2>
+<p>Creates a user account. Accepts username, password and redirecturl as parameters and returns a payment page url. Send the user to this url. Once payment is complete, the user will be redirected to the redirect url you supplied as parameter</p>
+<p><code>curl https://api.feedreader.co/v1/signup --data "username=someusername&password=somepassword&redirecturl=feedreader.co"</code></p>
+<p><code>
+{
+  "success": true,
+  "url": "somepaymenturl"
+}
+</code></p>
 <h1>Tokens</h1>
 <h2>POST /api/v1/:user/tokens</h2>
 <p>Authenticates a session. Accepts password as a parameter and returns an authentication token. </p>
