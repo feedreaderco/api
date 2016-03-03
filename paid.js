@@ -6,8 +6,8 @@ exports.post = function(q, r) {
   // The buyer makes a purchase, and we send a request to your endpoint.
   // You do some custom logic (for example, generate a unique license key with a specific URL) and send us back a response URL.
   // We return the response URL to the buyer.
-  redis.get('token:' + q.params.token, function(e, u) {
-    redis.hmset('user:' + u, 'paid', q.body.price, 'email', q.body.email, function(e, v) {
+  redis.hgetall('token:' + q.params.token, function(e, signupDetails) {
+    redis.hmset('user:' + signupDetails.username, 'paid', q.body.price, 'email', q.body.email, function(e, v) {
       if (e) {
         r.status(500).json({
           'success': false,
@@ -27,7 +27,7 @@ exports.post = function(q, r) {
               }
             });
           } else {
-            r.send('https://feedreader.co');
+            r.send(signupDetails.redirectURL);
           }
         });
       }

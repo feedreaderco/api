@@ -8,15 +8,15 @@ var redis = require('redis').createClient({host: process.env.REDIS_HOST});
 var gumroadToken = process.env.GUMROAD_TOKEN;
 
 exports.post = function(req, res) {
-  console.log(req.body.user);
+  console.log(req.body.username);
   bcrypt.genSalt(10, function(e, salt) {
     bcrypt.hash(req.body.password, salt, function(e, hash) {
-      redis.hsetnx('user:' + req.body.user, 'password', hash, function(e) {
+      redis.hsetnx('user:' + req.body.username, 'password', hash, function(e) {
         crypto.randomBytes(48, function(e,b) {
           var token = b.toString('hex');
-          redis.set('token:' + token, req.body.user, function(e,u) {
+          redis.hmset('token:' + token, 'username', req.body.username, 'redirectURL', req.body.redirecturl, function(e,u) {
 	          var postdata = querystring.stringify({
-              'name': 'Feed Reader Subscription for '+req.body.user,
+              'name': 'Feed Reader Subscription for '+req.body.username,
               'url': 'https://feedreader.co/paid/'+token,
               'price': 100,
               'description': 'Access to the Feed Reader API',
@@ -53,7 +53,7 @@ exports.post = function(req, res) {
                     'success': false,
                     'error': {
                       'type': 'Gumroad Error',
-                      'message': "Couldn't create payment url for " + req.body.user
+                      'message': "Couldn't create payment url for " + req.body.username
                     }
                   });
                 }
@@ -67,7 +67,7 @@ exports.post = function(req, res) {
                 'success': false,
                 'error': {
                   'type': 'Gumroad Error',
-                  'message': "Couldn't create payment url for " + req.body.user
+                  'message': "Couldn't create payment url for " + req.body.username
                 }
               });
             });
