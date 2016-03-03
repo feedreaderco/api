@@ -1,6 +1,7 @@
 var path = require('path');
 var express = require('express');
 var bodyParser = require('body-parser');
+var cors = require('cors');
 
 var auth = require('./auth');
 var sessions = require('./sessions');
@@ -13,17 +14,10 @@ var labels = require('./labels.js');
 
 var app = express();
 
+app.use(cors());
 app.use(express.static('static'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-
-app.all('*', function(req,res,next) {
-  res.header('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS')
-  res.header("Access-Control-Allow-Origin", "*")
-  res.header("Access-Control-Allow-Headers", "X-Requested-With, authorization")
-  if ('OPTIONS' == req.method) return res.sendStatus(200)
-  next()
-});
 
 app.post('/v1/:user/tokens', sessions.post);
 app.delete('/v1/:user/tokens', auth,sessions.delete);
