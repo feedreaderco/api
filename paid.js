@@ -2,6 +2,10 @@ require('dotenv').config();
 var redis = require('redis').createClient({host: process.env.REDIS_HOST});
 
 exports.post = function(q, r) {
+  // From https://gumroad.com/webhooks
+  // The buyer makes a purchase, and we send a request to your endpoint.
+  // You do some custom logic (for example, generate a unique license key with a specific URL) and send us back a response URL.
+  // We return the response URL to the buyer.
   redis.get('token:' + q.params.token, function(e, u) {
     redis.hmset('user:' + u, 'paid', q.body.price, 'email', q.body.email, function(e, v) {
       if (e) {
