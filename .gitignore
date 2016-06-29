@@ -6,3 +6,4 @@ node_modules
 aws-config.json
 gumroad-config.json
 .env
+npm-debug.log
