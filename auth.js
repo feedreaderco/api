@@ -1,5 +1,4 @@
-require('dotenv').config();
-var redis = require('redis').createClient({host: process.env.REDIS_HOST});
+var redis = require('redis').createClient();
 
 module.exports = function(req, res, next) {
   var header = req.headers['authorization'] || '';

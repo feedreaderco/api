@@ -20,7 +20,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.post('/v1/:user/tokens', sessions.post);
-app.delete('/v1/:user/tokens', auth,sessions.delete);
+app.delete('/v1/:user/tokens', auth, sessions.delete);
 
 app.get('/v1/:user/folders', folders.get);
 app.get('/v1/:user/folders/:folder', folders.folder.get);

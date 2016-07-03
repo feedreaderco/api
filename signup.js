@@ -4,7 +4,7 @@ var bcrypt = require('bcrypt');
 var https = require('https');
 var querystring = require('querystring');
 
-var redis = require('redis').createClient({host: process.env.REDIS_HOST});
+var redis = require('redis').createClient();
 var gumroadToken = process.env.GUMROAD_TOKEN;
 
 exports.post = function(req, res) {
