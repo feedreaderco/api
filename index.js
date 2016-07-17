@@ -37,7 +37,7 @@ app.get('/v1/feeds/*', feeds.feed.get);
 app.post('/v1/articles', articles.post);
 app.get('/v1/articles/:hash', articles.get);
 
-app.post('/signup', signup.post);
-app.post('/paid/:token', paid.post);
+app.post('/v1/signup', signup.post);
+app.post('/v1/paid/:token', paid.post);
 
 app.listen(8000);
