@@ -6,7 +6,6 @@ var cors = require('cors');
 var auth = require('./auth');
 var sessions = require('./sessions');
 var signup = require('./signup');
-var paid = require('./paid');
 var feeds = require('./feeds.js');
 var folders = require('./folders.js');
 var articles = require('./articles.js');
@@ -38,6 +37,5 @@ app.post('/v1/articles', articles.post);
 app.get('/v1/articles/:hash', articles.get);
 
 app.post('/v1/signup', signup.post);
-app.post('/v1/paid/:token', paid.post);
 
 app.listen(8000);
