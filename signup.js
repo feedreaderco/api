@@ -8,10 +8,10 @@ var redis = require('redis').createClient();
 var gumroadToken = process.env.GUMROAD_TOKEN;
 
 exports.post = function(req, res) {
-  console.log(req.body.username);
+  console.log(req.body.user);
   bcrypt.genSalt(10, function(e, salt) {
     bcrypt.hash(req.body.password, salt, function(e, hash) {
-      redis.hsetnx('user:' + req.body.username, 'password', hash, function(e) {
+      redis.hsetnx('user:' + req.body.user, 'password', hash, function(e) {
         crypto.randomBytes(48, function(e,b) {
           if (e) {
             res.status(500).json({
