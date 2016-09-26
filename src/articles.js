@@ -1,14 +1,6 @@
 var crypto = require('crypto');
 var AWS = require('aws-sdk');
 
-AWS.config.loadFromPath('./aws-config.json');
-
-var s3 = new AWS.S3({
-  params: {
-    Bucket: 'feedreader2016-articles'
-  }
-});
-
 exports.hash = function(article) {
   return crypto.createHash('md5').update(article.guid).digest('hex');
 };
@@ -26,7 +18,17 @@ exports.post = function(req,res) {
   });
 };
 
-exports.get = function(req,res) {
+export function get(configPath) {
+  AWS.config.loadFromPath('./aws-config.json');
+
+  var s3 = new AWS.S3({
+    params: {
+      Bucket: 'feedreader2016-articles'
+    }
+  });
+
+return function(req,res) {
+
   s3.getObject({
     Key: req.params.hash
   }, function(e,d) {
@@ -49,3 +51,4 @@ exports.get = function(req,res) {
     }
   });
 };
+}

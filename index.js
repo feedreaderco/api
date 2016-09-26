@@ -37,7 +37,7 @@ app.get('/v1/:user/feeds', feeds.get);
 app.get('/v1/feeds/*', feeds.feed.get(awsConfigPath));
 
 app.post('/v1/articles', articles.post);
-app.get('/v1/articles/:hash', articles.get);
+app.get('/v1/articles/:hash', articles.get(awsConfigPath));
 
 app.post('/v1/signup', signup.post);
 
