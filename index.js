@@ -14,7 +14,7 @@ var labels = require('./lib/labels.js');
 
 var app = express();
 
-const awsConfigPath = process.argv[2];
+const awsConfigPath = process.argv[3];
 
 app.use(cors());
 app.use(express.static('static'));
