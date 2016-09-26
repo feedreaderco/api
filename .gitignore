@@ -4,6 +4,6 @@
 /certificates2015/*
 node_modules
 aws-config.json
-gumroad-config.json
 .env
+dump.rdb
 npm-debug.log
