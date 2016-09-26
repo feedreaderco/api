@@ -1,17 +1,20 @@
+#!/usr/bin/env node
 var path = require('path');
 var express = require('express');
 var bodyParser = require('body-parser');
 var cors = require('cors');
 
-var auth = require('./auth');
-var sessions = require('./sessions');
-var signup = require('./signup');
-var feeds = require('./feeds.js');
-var folders = require('./folders.js');
-var articles = require('./articles.js');
-var labels = require('./labels.js');
+var auth = require('./lib/auth');
+var sessions = require('./lib/sessions');
+var signup = require('./lib/signup');
+var feeds = require('./lib/feeds.js');
+var folders = require('./lib/folders.js');
+var articles = require('./lib/articles.js');
+var labels = require('./lib/labels.js');
 
 var app = express();
+
+const awsConfigPath = process.argv[2];
 
 app.use(cors());
 app.use(express.static('static'));
@@ -31,7 +34,7 @@ app.get('/v1/:user/labels/:label', labels.label.get);
 app.post('/v1/:user/labels/:label', auth, labels.label.post);
 
 app.get('/v1/:user/feeds', feeds.get);
-app.get('/v1/feeds/*', feeds.feed.get);
+app.get('/v1/feeds/*', feeds.feed.get(awsConfigPath));
 
 app.post('/v1/articles', articles.post);
 app.get('/v1/articles/:hash', articles.get);

@@ -11,14 +11,6 @@ var score = require('./articles.js').score;
 
 var opmlparser = new Opmlparser();
 
-AWS.config.loadFromPath('./aws-config.json');
-
-var s3 = new AWS.S3({
-  params: {
-    Bucket: 'feedreader2016-articles'
-  }
-});
-
 exports.get = function(req, res) {
   redis.smembers('folders:' + req.params.user, function(e, folders) {
     var feeds = [];
@@ -118,32 +110,40 @@ exports.get = function(req, res) {
 
 exports.feed = {};
 
-exports.feed.get = function(req, res) {
-  var feedrequested = decodeURIComponent(req.url.slice(10));
-  redis.hgetall('feed:' + feedrequested, function(e, feed) {
-    if ((e) || (!feed)) feed = {};
-    var unread = [];
-    var headers = {
-      'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36'
-    };
-    if (feed.lastModified) headers['If-Modified-Since'] = feed.lastModified;
-    if (feed.etag) headers['If-None-Match'] = feed.etag;
+exports.feed.get = function(configFilename) {
+  AWS.config.loadFromPath(configPath);
+  var s3 = new AWS.S3({
+    params: {
+      Bucket: 'feedreader2016-articles'
+    }
+  });
+ 
+  return function(req, res) {
+    var feedrequested = decodeURIComponent(req.url.slice(10));
+    redis.hgetall('feed:' + feedrequested, function(e, feed) {
+      if ((e) || (!feed)) feed = {};
+      var unread = [];
+      var headers = {
+        'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36'
+      };
+      if (feed.lastModified) headers['If-Modified-Since'] = feed.lastModified;
+      if (feed.etag) headers['If-None-Match'] = feed.etag;
 
-    var requ = request({
-      'uri': feedrequested,
-      'headers': headers
-    }, function(e, response, body) {
-      if (e) {
-        res.status(500).json({
-          'success': false,
-          'error': {
-            'type': 'Feed Error',
-            'message': "Couldn't get " + feedrequested + " (" + e.message + ")",
-            'log':e
-          }
-        });
-      } else {
-        redis.hmset('feed:' + feedrequested, 'lastModified', response.headers['last-modified'], 'etag', response.headers['etag'], function(e) {
+      var requ = request({
+        'uri': feedrequested,
+        'headers': headers
+      }, function(e, response, body) {
+        if (e) {
+          res.status(500).json({
+            'success': false,
+            'error': {
+              'type': 'Feed Error',
+              'message': "Couldn't get " + feedrequested + " (" + e.message + ")",
+              'log':e
+            }
+          });
+        } else {
+          redis.hmset('feed:' + feedrequested, 'lastModified', response.headers['last-modified'], 'etag', response.headers['etag'], function(e) {
           if (e) {
             res.status(500).json({
               'success': false,
@@ -266,4 +266,5 @@ exports.feed.get = function(req, res) {
       });
     });
   });
-};
+  };
+}
