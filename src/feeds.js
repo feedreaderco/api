@@ -110,7 +110,7 @@ exports.get = function(req, res) {
 
 exports.feed = {};
 
-exports.feed.get = function(configFilename) {
+exports.feed.get = function(configPath) {
   AWS.config.loadFromPath(configPath);
   var s3 = new AWS.S3({
     params: {
