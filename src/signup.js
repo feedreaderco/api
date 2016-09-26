@@ -9,7 +9,7 @@ Promise.promisifyAll(crypto);
 
 const redisClient = redis.createClient();
 
-function post(req, res) {
+export function post(req, res) {
   bcrypt.genSaltAsync(10)
   .then(salt => bcrypt.hashAsync(req.body.password, salt))
   .then(hash => redisClient.hsetnxAsync(`user:${req.body.user}`, 'password', hash))
@@ -43,5 +43,3 @@ function post(req, res) {
     });
   });
 }
-
-export default { post };
