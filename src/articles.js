@@ -19,7 +19,7 @@ exports.post = function(req,res) {
 };
 
 export function get(configPath) {
-  AWS.config.loadFromPath('./aws-config.json');
+  AWS.config.loadFromPath(configPath);
 
   var s3 = new AWS.S3({
     params: {
