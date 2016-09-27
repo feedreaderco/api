@@ -20,7 +20,7 @@ if (process.argv.length === 4) {
 }
 
 app.use(cors());
-app.use(express.static('static'));
+app.use(express.static(__dirname+'/static'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
