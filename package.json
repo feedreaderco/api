@@ -1,11 +1,14 @@
 {
   "name": "feedreader-api",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "This is what happens at https://api.feedreader.co",
   "main": "index.js",
   "bin": {
     "feedreader-api": "index.js"
   },
+  "files": [
+    "static"
+  ],
   "scripts": {
     "start": "node index.js",
     "compile": "babel --presets es2015 -d lib/ src/",
