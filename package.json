@@ -1,6 +1,6 @@
 {
   "name": "feedreader-api",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "description": "This is what happens at https://api.feedreader.co",
   "main": "index.js",
   "bin": {
