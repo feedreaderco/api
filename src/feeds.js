@@ -1,4 +1,5 @@
-var redis = require('redis').createClient();
+var redisURL = process.env.REDIS_URL;
+var redis = require('redis').createClient(redisURL);
 var Opmlparser = require('opmlparser');
 var FeedParser = require('feedparser');
 var url = require('url');
@@ -114,7 +115,7 @@ exports.feed.get = function(configPath) {
   AWS.config.loadFromPath(configPath);
   var s3 = new AWS.S3({
     params: {
-      Bucket: 'feedreader2016-articles'
+      Bucket: 'feedreader2017-articles'
     }
   });
  

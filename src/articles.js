@@ -23,7 +23,7 @@ export function get(configPath) {
 
   var s3 = new AWS.S3({
     params: {
-      Bucket: 'feedreader2016-articles'
+      Bucket: 'feedreader2017-articles'
     }
   });
 
