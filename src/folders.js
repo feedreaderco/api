@@ -1,4 +1,5 @@
-var redis = require('redis').createClient();
+var redisURL = process.env.REDIS_URL;
+var redis = require('redis').createClient(redisURL);
 
 exports.get = function(req,res) {
   var folders = [];

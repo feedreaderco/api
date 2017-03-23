@@ -7,7 +7,8 @@ Promise.promisifyAll(redis);
 Promise.promisifyAll(bcrypt);
 Promise.promisifyAll(crypto);
 
-const redisClient = redis.createClient();
+const redisURL = process.env.REDIS_URL;
+const redisClient = redis.createClient(redisURL);
 
 export function post(req, res) {
   bcrypt.genSaltAsync(10)
