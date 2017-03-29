@@ -111,161 +111,158 @@ exports.get = function(req, res) {
 
 exports.feed = {};
 
-exports.feed.get = function(configPath) {
-  AWS.config.loadFromPath(configPath);
+exports.feed.get = function(req, res) {
   var s3 = new AWS.S3({
     params: {
       Bucket: 'feedreader2017-articles'
     }
   });
  
-  return function(req, res) {
-    var feedrequested = decodeURIComponent(req.url.slice(10));
-    redis.hgetall('feed:' + feedrequested, function(e, feed) {
-      if ((e) || (!feed)) feed = {};
-      var unread = [];
-      var headers = {
-        'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36'
-      };
-      if (feed.lastModified) headers['If-Modified-Since'] = feed.lastModified;
-      if (feed.etag) headers['If-None-Match'] = feed.etag;
+  var feedrequested = decodeURIComponent(req.url.slice(10));
+  redis.hgetall('feed:' + feedrequested, function(e, feed) {
+    if ((e) || (!feed)) feed = {};
+    var unread = [];
+    var headers = {
+      'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36'
+    };
+    if (feed.lastModified) headers['If-Modified-Since'] = feed.lastModified;
+    if (feed.etag) headers['If-None-Match'] = feed.etag;
 
-      var requ = request({
-        'uri': feedrequested,
-        'headers': headers
-      }, function(e, response, body) {
+    var requ = request({
+      'uri': feedrequested,
+      'headers': headers
+    }, function(e, response, body) {
+      if (e) {
+        res.status(500).json({
+          'success': false,
+          'error': {
+            'type': 'Feed Error',
+            'message': "Couldn't get " + feedrequested + " (" + e.message + ")",
+            'log':e
+          }
+        });
+      } else {
+        redis.hmset('feed:' + feedrequested, 'lastModified', response.headers['last-modified'], 'etag', response.headers['etag'], function(e) {
         if (e) {
           res.status(500).json({
             'success': false,
             'error': {
-              'type': 'Feed Error',
-              'message': "Couldn't get " + feedrequested + " (" + e.message + ")",
-              'log':e
+              'type': 'Redis Error',
+              'message': "Couldn't set lastModified and etag values for " + feedrequested
             }
           });
-        } else {
-          redis.hmset('feed:' + feedrequested, 'lastModified', response.headers['last-modified'], 'etag', response.headers['etag'], function(e) {
+        }
+      });
+    }
+  });
+
+  var options = {}
+  if (feed.link) {
+    options = {
+      'feedurl': feed.link
+    };
+  }
+
+  var feedparser = new FeedParser(options);
+  requ.pipe(feedparser);
+  
+  feedparser.on('error', function(e) {
+    if (!e.type) e.type = 'Parser Error';
+    if (!e.log) {
+      e.log = e.message;
+      e.message = "Couldn't parse the server response";
+      if (!feed.errors) feed.errors = [];
+      feed.errors.push({
+        'type': e.type,
+        'message': e.message,
+        'log': e.log
+      });
+    }
+  });
+
+  feedparser.on('meta', function (meta) {
+    redis.hmset('feed:' + feedrequested, 'title', meta.title, 'link', meta.link, function(e) {
+      if (e) {
+        res.status(500).json({
+          'success': false,
+          'error': {
+            'type': 'Redis Error',
+            'message': "Couldn't set title and link values for " + feedrequested
+          }
+        });
+      }
+    });
+  });
+
+  feedparser.on('readable', function() {
+    var stream = this, article;
+    while (article = stream.read()) {
+      if (!(article.guid && article.description)) {
+        return false;
+      } else {
+        article.hash = hash(article);
+        article.score = score(article);
+        article.feedurl = feedrequested;
+
+        var body = JSON.stringify(article);
+        var key = article.hash;
+        var rank = article.score;
+
+        redis.zscore('articles:' + feedrequested, 'article:' + key, function(e, oldscore) {
           if (e) {
-            res.status(500).json({
-              'success': false,
-              'error': {
-                'type': 'Redis Error',
-                'message': "Couldn't set lastModified and etag values for " + feedrequested
+            var err = new Error("Couldn't get score for article:" + key);
+            err.type = 'Redis Error';
+            err.log = e.message;
+            stream.emit('error', err);
+          } else {
+            redis.zadd('articles:' + feedrequested, rank, 'article:' + key, function(e) {
+              if (e) {
+                var err = new Error("Couldn't add article:" + key + " to articles:" + feedrequested);
+                err.type = 'Redis Error';
+                err.log = e.message;
+                stream.emit('error', err);
+              } else {
+                if ((oldscore == null) || (rank != oldscore)) {
+                  s3.putObject({
+                    Key: key,
+                    Body: body,
+                    ContentType: 'application/json'
+                  }, function (e) {
+                    if (e) {
+                      var err = new Error("Couldn't put "+key+" in the S3 bucket");
+                      err.type = 'S3 Error';
+                      err.log = e.message;
+                      console.log(err);
+                      stream.emit('error', err);
+                    }
+                  });
+                }
               }
             });
           }
         });
       }
-    });
-
-    var options = {}
-    if (feed.link) {
-      options = {
-        'feedurl': feed.link
-      };
     }
+  });
 
-    var feedparser = new FeedParser(options);
-    requ.pipe(feedparser);
-    
-    feedparser.on('error', function(e) {
-      if (!e.type) e.type = 'Parser Error';
-      if (!e.log) {
-        e.log = e.message;
-        e.message = "Couldn't parse the server response";
-        if (!feed.errors) feed.errors = [];
-        feed.errors.push({
-          'type': e.type,
-          'message': e.message,
-          'log': e.log
+  feedparser.on('end', function() {
+    redis.zrevrange('articles:' + feedrequested, 0, -1, function(e, all_articles) {
+      if (e) {
+        res.status(500).json({
+          'success': false,
+          'error': {
+            'type': 'Redis Error',
+            'message': "Couldn't get articles for " + feedrequested
+          }
         });
+      } else {
+        feed.success = true;
+        feed.articles = all_articles.map(function(key) {
+          return key.substr(8);
+        });
+        res.json(feed);
       }
-    });
-
-    feedparser.on('meta', function (meta) {
-      redis.hmset('feed:' + feedrequested, 'title', meta.title, 'link', meta.link, function(e) {
-        if (e) {
-          res.status(500).json({
-            'success': false,
-            'error': {
-              'type': 'Redis Error',
-              'message': "Couldn't set title and link values for " + feedrequested
-            }
-          });
-        }
-      });
-    });
-
-    feedparser.on('readable', function() {
-      var stream = this, article;
-      while (article = stream.read()) {
-        if (!(article.guid && article.description)) {
-          return false;
-        } else {
-          article.hash = hash(article);
-          article.score = score(article);
-          article.feedurl = feedrequested;
-
-          var body = JSON.stringify(article);
-          var key = article.hash;
-          var rank = article.score;
-
-          redis.zscore('articles:' + feedrequested, 'article:' + key, function(e, oldscore) {
-            if (e) {
-              var err = new Error("Couldn't get score for article:" + key);
-              err.type = 'Redis Error';
-              err.log = e.message;
-              stream.emit('error', err);
-            } else {
-              redis.zadd('articles:' + feedrequested, rank, 'article:' + key, function(e) {
-                if (e) {
-                  var err = new Error("Couldn't add article:" + key + " to articles:" + feedrequested);
-                  err.type = 'Redis Error';
-                  err.log = e.message;
-                  stream.emit('error', err);
-                } else {
-                  if ((oldscore == null) || (rank != oldscore)) {
-                    s3.putObject({
-                      Key: key,
-                      Body: body,
-                      ContentType: 'application/json'
-                    }, function (e) {
-                      if (e) {
-                        var err = new Error("Couldn't put "+key+" in the S3 bucket");
-                        err.type = 'S3 Error';
-                        err.log = e.message;
-                        console.log(err);
-                        stream.emit('error', err);
-                      }
-                    });
-                  }
-                }
-              });
-            }
-          });
-        }
-      }
-    });
-
-    feedparser.on('end', function() {
-      redis.zrevrange('articles:' + feedrequested, 0, -1, function(e, all_articles) {
-        if (e) {
-          res.status(500).json({
-            'success': false,
-            'error': {
-              'type': 'Redis Error',
-              'message': "Couldn't get articles for " + feedrequested
-            }
-          });
-        } else {
-          feed.success = true;
-          feed.articles = all_articles.map(function(key) {
-            return key.substr(8);
-          });
-          res.json(feed);
-        }
-      });
     });
   });
-  };
-}
+});
+};

@@ -14,11 +14,6 @@ var labels = require('./lib/labels.js');
 
 var app = express();
 
-let awsConfigPath = 'aws-config.json';
-if (process.argv.length === 4) {
-  awsConfigPath = process.argv[3];
-}
-
 app.use(cors());
 app.use(express.static(__dirname+'/static'));
 app.use(bodyParser.json());
@@ -37,10 +32,10 @@ app.get('/v1/:user/labels/:label', labels.label.get);
 app.post('/v1/:user/labels/:label', auth, labels.label.post);
 
 app.get('/v1/:user/feeds', feeds.get);
-app.get('/v1/feeds/*', feeds.feed.get(awsConfigPath));
+app.get('/v1/feeds/*', feeds.feed.get);
 
 app.post('/v1/articles', articles.post);
-app.get('/v1/articles/:hash', articles.get(awsConfigPath));
+app.get('/v1/articles/:hash', articles.get);
 
 app.post('/v1/signup', signup.post);
 

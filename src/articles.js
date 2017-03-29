@@ -18,16 +18,12 @@ exports.post = function(req,res) {
   });
 };
 
-export function get(configPath) {
-  AWS.config.loadFromPath(configPath);
-
+export function get(req, res) {
   var s3 = new AWS.S3({
     params: {
       Bucket: 'feedreader2017-articles'
     }
   });
-
-return function(req,res) {
 
   s3.getObject({
     Key: req.params.hash
@@ -51,4 +47,3 @@ return function(req,res) {
     }
   });
 };
-}
