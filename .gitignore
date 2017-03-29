@@ -7,3 +7,4 @@ aws-config.json
 .env
 dump.rdb
 npm-debug.log
+lib
