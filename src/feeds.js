@@ -142,7 +142,9 @@ exports.feed.get = function(req, res) {
           }
         });
       } else {
-        redis.hmset('feed:' + feedrequested, 'lastModified', response.headers['last-modified'], 'etag', response.headers['etag'], function(e) {
+        const lastModified = response.headers['last-modified'] || '';
+        const etag = response.headers['etag'] || '';
+        redis.hmset('feed:' + feedrequested, 'lastModified', lastModified, 'etag', etag, function(e) {
         if (e) {
           res.status(500).json({
             'success': false,
