@@ -1,46 +1,49 @@
-var redisURL = process.env.REDIS_URL;
-var redis = require('redis').createClient(redisURL);
+import redis from 'redis';
 
-module.exports = function(req, res, next) {
-  var header = req.headers['authorization'] || '';
-  var split_header = header.split(/\s+/);
-  var encoded = split_header.pop() || '';
-  var decoded = new Buffer(encoded, 'base64').toString();
-  var auth = decoded.split(':')[0];
+const redisURL = process.env.REDIS_URL;
+const redisClient = redis.createClient(redisURL);
 
-  if (!auth) auth = req.query['token'];
-  redis.get('auth:' + auth, function(e, u) {
+export default function (req, res, next) {
+  const header = req.headers.authorization || '';
+  const splitHeader = header.split(/\s+/);
+  const encoded = splitHeader.pop() || '';
+  const decoded = new Buffer(encoded, 'base64').toString();
+
+  let auth = decoded.split(':')[0];
+  if (!auth) auth = req.query.token;
+
+  redisClient.get(`auth:${auth}`, (e, u) => {
     if (e) {
       res.status(500).json({
-        'success' : false,
-        'error': {
-          'type': 'Redis Error',
-          'message': "Couldn't get user for token " + auth
-        }
+        success: false,
+        error: {
+          type: 'Redis Error',
+          message: `Couldn't get user for token ${auth}`,
+        },
       });
     }
 
     if (!u) {
       res.status(401).json({
-        'success': false,
-        'error': {
-          'type': 'Invalid Credentials Error',
-          'message': "Token ('" + auth + "') doesn't match anything we've got stored"
-        }
+        success: false,
+        error: {
+          type: 'Invalid Credentials Error',
+          message: `Token ('${auth}') doesn't match anything we've got stored`,
+        },
       });
     } else {
-      req.user = u;
+      req.user = u; // eslint-disable-line no-param-reassign
       if (req.user === req.params.user) {
         next();
       } else {
         res.status(401).json({
-          'success': false,
-          'error': {
-            'type': 'Invalid Credentials Error',
-            'message': "Token ('" + auth + "') hasn't been stored for " + req.params.user
-          }
+          success: false,
+          error: {
+            type: 'Invalid Credentials Error',
+            message: `Token ('${auth}') hasn't been stored for ${req.params.user}`,
+          },
         });
       }
     }
   });
-};
+}

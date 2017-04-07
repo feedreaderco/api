@@ -10,7 +10,7 @@ Promise.promisifyAll(crypto);
 const redisURL = process.env.REDIS_URL;
 const redisClient = redis.createClient(redisURL);
 
-export function post(req, res) {
+function post(req, res) {
   bcrypt.genSaltAsync(10)
   .then(salt => bcrypt.hashAsync(req.body.password, salt))
   .then(hash => redisClient.hsetnxAsync(`user:${req.body.user}`, 'password', hash))
@@ -29,7 +29,7 @@ export function post(req, res) {
         success: false,
         error: {
           type: 'Redis Error',
-          message: `Couldn\'t set auth token for ${req.params.user}`,
+          message: `Couldn't set auth token for ${req.params.user}`,
         },
       });
     });
@@ -44,3 +44,5 @@ export function post(req, res) {
     });
   });
 }
+
+export default { post };

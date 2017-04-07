@@ -1,49 +1,46 @@
-var crypto = require('crypto');
-var AWS = require('aws-sdk');
+import crypto from 'crypto';
+import AWS from 'aws-sdk';
 
-exports.hash = function(article) {
+function hash(article) {
   return crypto.createHash('md5').update(article.guid).digest('hex');
-};
+}
 
-exports.score = function(article) {
-  var article_date = article.pubDate || article.pubdate || article.date;
-  var score = Date.parse(article_date) || Date.now();
-  return(score);
-};
+function score(article) {
+  const articleDate = article.pubDate || article.pubdate || article.date;
+  const articleScore = Date.parse(articleDate) || Date.now();
+  return articleScore;
+}
 
-exports.post = function(req,res) {
+function post(req, res) {
   res.json({
-    'success': true,
-    'hash': exports.hash(req.body)
+    success: true,
+    hash: exports.hash(req.body),
   });
-};
+}
 
-export function get(req, res) {
-  var s3 = new AWS.S3({
-    params: {
-      Bucket: 'feedreader2017-articles'
-    }
-  });
+function get(req, res) {
+  const params = { Bucket: 'feedreader2017-articles' };
+  const s3 = new AWS.S3({ params });
 
-  s3.getObject({
-    Key: req.params.hash
-  }, function(e,d) {
+  s3.getObject({ Key: req.params.hash }, (e, d) => {
     if (e) {
       res.status(500).json({
-        'success': false,
-        'error': {
-          'type': 'S3 Error',
-          'message': "Couldn't get " + req.params.hash,
-          'log': e
-        }
+        success: false,
+        error: {
+          type: 'S3 Error',
+          message: `Couldn't get ${req.params.hash}`,
+          log: e,
+        },
       });
     } else {
-      var data = new Buffer(d.Body);
-      var article = JSON.parse(data.toString());
+      const data = new Buffer(d.Body);
+      const article = JSON.parse(data.toString());
       res.json({
-        'success': true,
-        'article': article
+        success: true,
+        article,
       });
     }
   });
-};
+}
+
+export default { hash, score, post, get };
