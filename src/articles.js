@@ -19,7 +19,7 @@ function post(req, res) {
 }
 
 function get(req, res) {
-  const params = { Bucket: 'feedreader2017-articles' };
+  const params = { Bucket: 'feedreader2018-articles' };
   const s3 = new AWS.S3({ params });
 
   s3.getObject({ Key: req.params.hash }, (e, d) => {

@@ -107,7 +107,7 @@ function get(req, res) {
 
 const feed = {
   get: (req, res) => {
-    const params = { Bucket: 'feedreader2017-articles' };
+    const params = { Bucket: 'feedreader2018-articles' };
     const s3 = new AWS.S3({ params });
     const feedURI = decodeURIComponent(req.url.slice(10));
     const feedKey = `feed:${feedURI}`;
