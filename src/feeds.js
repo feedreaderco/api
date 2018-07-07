@@ -30,10 +30,11 @@ function get(req, res) {
           });
         } else {
           const articlesKey = `articles:${req.params.user}`;
+          const missingLabel = `label:all/missing`;
           const readLabel = `label:${req.params.user}/read`;
           const feedurls = feedkeys.map(key => key.substr(5));
-          const unionkeys = feedurls.map(key => `articles:${key}`).concat(readLabel);
-          const weights = feedurls.map(() => -1).concat(1);
+          const unionkeys = feedurls.map(key => `articles:${key}`).concat(readLabel, missingLabel);
+          const weights = feedurls.map(() => -1).concat(1, 2);
           const args = [
             articlesKey,
             unionkeys.length,
