@@ -3,6 +3,44 @@ import redis from 'redis';
 const redisURL = process.env.REDIS_URL;
 const redisClient = redis.createClient(redisURL);
 
+function add(user, label, hash, initScore, callback) {
+  const labelsKey = `labels:${user}`;
+  const labelKey = `label:${user}/${label}`;
+  const articleKey = `article:${hash}`;
+  const score = initScore || Date.now();
+  redisClient.sadd(labelsKey, labelKey, (e) => {
+    if (e) {
+      callback({
+        type: 'Redis Error',
+        message: `Couldn't add ${labelKey} to ${labelsKey}`,
+      });
+    } else {
+      redisClient.zadd(labelKey, score, articleKey, (zaddErr) => {
+        if (zaddErr) {
+          callback({
+            type: 'Redis Error',
+            message: `Couldn't add ${articleKey} to ${labelKey}`,
+          });
+        } else if (label === 'read') {
+          const unreadLabel = `label:${user}/unread`;
+          redisClient.zrem(unreadLabel, articleKey, (zremErr) => {
+            if (zremErr) {
+              callback({
+                type: 'Redis Error',
+                message: `Couldn't remove ${articleKey} from ${unreadLabel}`,
+              });
+            } else {
+              callback();
+            }
+          });
+        } else {
+          callback();
+        }
+      });
+    }
+  });
+}
+
 function get(req, res) {
   redisClient.smembers(`labels:${req.params.user}`, (e, labels) => {
     if (e) {
@@ -24,53 +62,23 @@ function get(req, res) {
 
 const label = {
   post: (req, res) => {
-    redisClient.sadd(`labels:${req.user}`, `label:${req.user}/${req.params.label}`, (e) => {
+    if (!req.body || !req.body.hash) {
+      res.status(500).json({
+        success: false,
+        error: {
+          type: 'Missing Parameter',
+          message: 'Article hash required',
+        },
+      });
+    }
+    add(req.user, req.params.label, req.body.hash, req.body.score, (e) => {
       if (e) {
         res.status(500).json({
           success: false,
-          error: {
-            type: 'Redis Error',
-            message: `Couldn't add label:${req.user}/${req.params.label} to labels:${req.user}`,
-          },
-        });
-      } else if (!req.body || !req.body.hash) {
-        res.status(500).json({
-          success: false,
-          error: {
-            type: 'Missing Parameter',
-            message: 'Article hash required',
-          },
+          error: e,
         });
       } else {
-        const key = `label:${req.user}/${req.params.label}`;
-        const score = req.body.score || Date.now();
-        redisClient.zadd(key, score, `article:${req.body.hash}`, (zaddErr) => {
-          if (zaddErr) {
-            res.status(500).json({
-              success: false,
-              error: {
-                type: 'Redis Error',
-                message: `Couldn't add article:${req.body.hash} to label:${req.user}/${req.params.label}`,
-              },
-            });
-          } else if (req.params.label === 'read') {
-            redisClient.zrem(`label:${req.user}/unread`, `article:${req.body.hash}`, (zremErr) => {
-              if (zremErr) {
-                res.status(500).json({
-                  success: false,
-                  error: {
-                    type: 'Redis Error',
-                    message: `Couldn't remove article:${req.body.hash} from label:${req.user}/unread`,
-                  },
-                });
-              } else {
-                res.json({ success: true });
-              }
-            });
-          } else {
-            res.json({ success: true });
-          }
-        });
+        res.json({ success: true });
       }
     });
   },
@@ -114,4 +122,4 @@ const label = {
   },
 };
 
-export default { get, label };
+export default { get, label, add };
