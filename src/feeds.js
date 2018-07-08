@@ -2,7 +2,7 @@ import redis from 'redis';
 import FeedParser from 'feedparser';
 import request from 'request';
 import AWS from 'aws-sdk';
-import { hash, score } from './articles.js';
+import { hash, score } from './articles';
 
 const redisURL = process.env.REDIS_URL;
 const redisClient = redis.createClient(redisURL);

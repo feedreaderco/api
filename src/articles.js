@@ -2,11 +2,11 @@ import crypto from 'crypto';
 import AWS from 'aws-sdk';
 import labels from './labels';
 
-function hash(article) {
+export function hash(article) {
   return crypto.createHash('md5').update(article.guid).digest('hex');
 }
 
-function score(article) {
+export function score(article) {
   const articleDate = article.pubDate || article.pubdate || article.date;
   const articleScore = Date.parse(articleDate) || Date.now();
   return articleScore;
@@ -63,4 +63,4 @@ function get(req, res) {
   });
 }
 
-export default { hash, score, post, get };
+export default { post, get };
