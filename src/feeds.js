@@ -183,7 +183,7 @@ const feed = {
         });
       });
 
-      feedparser.on('readable', () => {
+      feedparser.on('readable', function() {
         const stream = this;
         for (;;) {
           const article = stream.read();
