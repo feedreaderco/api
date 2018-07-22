@@ -1,4 +1,4 @@
-#Feedreader API
+# Feedreader API
 This is an API to subscribe to RSS/Atom feeds. Feeds can be organized into folders, and labels can be applied to articles. The folders and labels are stored in Redis. Articles are stored on S3.
 
 ## Installation
