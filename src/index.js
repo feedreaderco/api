@@ -27,6 +27,7 @@ app.delete('/v1/:user/folders/:folder', auth, folders.folder.del);
 app.get('/v1/:user/labels', labels.get);
 app.get('/v1/:user/labels/:label', labels.label.get);
 app.post('/v1/:user/labels/:label', auth, labels.label.post);
+app.delete('/v1/:user/labels/:label', auth, labels.label.del);
 
 app.get('/v1/:user/feeds', feeds.get);
 app.get('/v1/feeds/*', feeds.feed.get);

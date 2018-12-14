@@ -125,6 +125,14 @@ sup {vertical-align:top!important; font-size:0.4em!important; position:relative!
   "success": true
 }
 </code></p>
+<h2>DELETE /api/v1/:user/labels/:label</h2>
+<p>Remove a label from an article. Accepts hash (required) as parameter. Requires authentication.</p>
+<p><code>curl https://feedreader.co/api/v1/arpith/labels/read -X DELETE --data "hash=cc5e5dcb16010782336e0e1a7e98395e" -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>
+<p><code>
+{
+  "success": true
+}
+</code></p>
 <h2>GET /api/v1/:user/labels/:label</h2>
 <p>Get articles labelled with label.</p>
 <p><code>curl https://feedreader.co/api/v1/arpith/labels/read -u fb8ac39f556118deef404bb7d0c0192f7d483759c348694d:</code></p>

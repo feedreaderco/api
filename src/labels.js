@@ -41,6 +41,21 @@ function add(user, label, hash, initScore, callback) {
   });
 }
 
+function remove(user, label, hash, callback) {
+  const labelKey = `label:${user}/${label}`;
+  const articleKey = `article:${hash}`;
+  redisClient.zrem(labelKey, articleKey, (zremErr) => {
+    if (zremErr) {
+      callback({
+        type: 'Redis Error',
+        message: `Couldn't remove ${articleKey} from ${unreadLabel}`,
+      });
+    } else {
+      callback();
+    }
+  });
+}
+
 function get(req, res) {
   redisClient.smembers(`labels:${req.params.user}`, (e, labels) => {
     if (e) {
@@ -72,6 +87,28 @@ const label = {
       });
     }
     add(req.user, req.params.label, req.body.hash, req.body.score, (e) => {
+      if (e) {
+        res.status(500).json({
+          success: false,
+          error: e,
+        });
+      } else {
+        res.json({ success: true });
+      }
+    });
+  },
+
+  del: (req, res) => {
+    if (!req.body || !req.body.hash) {
+      res.status(500).json({
+        success: false,
+        error: {
+          type: 'Missing Parameter',
+          message: 'Article hash required',
+        },
+      });
+    }
+    remove(req.user, req.params.label, req.body.hash, (e) => {
       if (e) {
         res.status(500).json({
           success: false,
