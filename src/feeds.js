@@ -212,7 +212,7 @@ const feed = {
                   articleAddErr.type = 'Redis Error';
                   articleAddErr.log = zaddErr.message;
                   stream.emit('error', articleAddErr);
-                } else if ((oldscore === null) || (rank !== oldscore)) {
+                } else if ((oldscore === null) || (rank !== parseInt(oldscore))) {
                   s3.putObject({
                     Key: key,
                     Body: body,
