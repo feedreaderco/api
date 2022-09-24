@@ -1,6 +1,6 @@
 import redis from 'redis';
 import crypto from 'crypto';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 const redisURL = process.env.REDIS_URL;
 const redisClient = redis.createClient(redisURL);

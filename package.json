@@ -29,7 +29,7 @@
   "homepage": "https://github.com/arpith/feedreader.co#readme",
   "dependencies": {
     "aws-sdk": "^2.2.33",
-    "bcrypt": "^0.8.5",
+    "bcryptjs": "^2.4.3",
     "bluebird": "^3.4.6",
     "body-parser": "^1.14.2",
     "cors": "^2.7.1",
