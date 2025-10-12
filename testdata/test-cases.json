@@ -1,0 +1,145 @@
+{
+  "hash_function_tests": [
+    {
+      "description": "Hash function with XKCD article GUID",
+      "input": { "guid": "https://xkcd.com/3153/" },
+      "expected": "13a0bebeed5b348147d880a1a4917587"
+    },
+    {
+      "description": "Hash function with different GUID",
+      "input": { "guid": "https://xkcd.com/3152/" },
+      "expected": "21664da7ee05988c62d1f516f3442411"
+    },
+    {
+      "description": "Hash function with empty GUID",
+      "input": { "guid": "" },
+      "expected": "d41d8cd98f00b204e9800998ecf8427e"
+    }
+  ],
+  "score_function_tests": [
+    {
+      "description": "Score with pubDate",
+      "input": { "pubDate": "2025-10-10T00:00:00Z" },
+      "expected": 1760054400000
+    },
+    {
+      "description": "Score with alternative date field pubdate",
+      "input": { "pubdate": "2025-10-08T00:00:00Z" },
+      "expected": 1759881600000
+    },
+    {
+      "description": "Score with alternative date field date",
+      "input": { "date": "2025-10-06T00:00:00Z" },
+      "expected": 1759708800000
+    }
+  ],
+  "request_headers_tests": [
+    {
+      "description": "Headers with no stored feed data",
+      "input": {},
+      "expected": {
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36"
+      }
+    },
+    {
+      "description": "Headers with lastModified",
+      "input": { "lastModified": "Wed, 09 Oct 2025 12:00:00 GMT" },
+      "expected": {
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36",
+        "If-Modified-Since": "Wed, 09 Oct 2025 12:00:00 GMT"
+      }
+    },
+    {
+      "description": "Headers with etag",
+      "input": { "etag": "\"abc123\"" },
+      "expected": {
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36",
+        "If-None-Match": "\"abc123\""
+      }
+    },
+    {
+      "description": "Headers with both lastModified and etag",
+      "input": {
+        "lastModified": "Wed, 09 Oct 2025 12:00:00 GMT",
+        "etag": "\"abc123\""
+      },
+      "expected": {
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36",
+        "If-Modified-Since": "Wed, 09 Oct 2025 12:00:00 GMT",
+        "If-None-Match": "\"abc123\""
+      }
+    }
+  ],
+  "redis_keys_tests": [
+    {
+      "description": "Build Redis keys for XKCD feed",
+      "input": "https://xkcd.com/atom.xml",
+      "expected": {
+        "feedKey": "feed:https://xkcd.com/atom.xml",
+        "articlesKey": "articles:https://xkcd.com/atom.xml"
+      }
+    },
+    {
+      "description": "Build Redis keys for HN feed",
+      "input": "https://news.ycombinator.com/rss",
+      "expected": {
+        "feedKey": "feed:https://news.ycombinator.com/rss",
+        "articlesKey": "articles:https://news.ycombinator.com/rss"
+      }
+    }
+  ],
+  "article_storage_tests": [
+    {
+      "description": "Should store new article (oldScore is null)",
+      "input": { "oldScore": null, "newScore": 1728518400000 },
+      "expected": true
+    },
+    {
+      "description": "Should store article with changed score",
+      "input": { "oldScore": 1728518400000, "newScore": 1728604800000 },
+      "expected": true
+    },
+    {
+      "description": "Should NOT store article with same score",
+      "input": { "oldScore": 1728518400000, "newScore": 1728518400000 },
+      "expected": false
+    },
+    {
+      "description": "Should store article when old score differs (string vs number)",
+      "input": { "oldScore": "1728518400000", "newScore": 1728518400001 },
+      "expected": true
+    }
+  ],
+  "article_validation_tests": [
+    {
+      "description": "Valid article with all required fields",
+      "input": {
+        "guid": "https://example.com/article1",
+        "description": "Article description",
+        "title": "Article Title"
+      },
+      "expected": true
+    },
+    {
+      "description": "Invalid article missing guid",
+      "input": {
+        "description": "Article description",
+        "title": "Article Title"
+      },
+      "expected": false
+    },
+    {
+      "description": "Invalid article missing description",
+      "input": {
+        "guid": "https://example.com/article1",
+        "title": "Article Title"
+      },
+      "expected": false
+    },
+    {
+      "description": "Invalid article is null",
+      "input": null,
+      "expected": false
+    }
+  ]
+}
