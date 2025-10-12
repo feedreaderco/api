@@ -1,7 +1,7 @@
 // Pure utility functions for article processing (no external dependencies)
 // These can be tested without AWS or Redis
 
-import crypto from 'crypto';
+const crypto = require('crypto');
 
 /**
  * Generates MD5 hash of article GUID
@@ -9,7 +9,7 @@ import crypto from 'crypto';
  * @param {Object} article - Article object with guid field
  * @returns {string} MD5 hash in hex format
  */
-export function hash(article) {
+function hash(article) {
   return crypto.createHash('md5').update(article.guid).digest('hex');
 }
 
@@ -19,8 +19,10 @@ export function hash(article) {
  * @param {Object} article - Article object with date fields
  * @returns {number} Unix timestamp in milliseconds
  */
-export function score(article) {
+function score(article) {
   const articleDate = article.pubDate || article.pubdate || article.date;
   const articleScore = Date.parse(articleDate) || Date.now();
   return articleScore;
 }
+
+module.exports = { hash, score };

@@ -1,14 +1,15 @@
 // Tests for feed utility functions
 // Run with: node src/lib/feedUtils.test.js
 
-import * as feedUtils from './feedUtils.js';
-import { hash, score } from './articleUtils.js';
-import fs from 'fs';
-import assert from 'assert';
+const feedUtils = require('./feedUtils.js');
+const { hash, score } = require('./articleUtils.js');
+const fs = require('fs');
+const yaml = require('js-yaml');
+const assert = require('assert');
 
-// Load test cases from JSON
-const testCasesJson = fs.readFileSync('./testdata/test-cases.json', 'utf8');
-const testCases = JSON.parse(testCasesJson);
+// Load test cases from YAML
+const testCasesYaml = fs.readFileSync('./testdata/test-cases.yaml', 'utf8');
+const testCases = yaml.load(testCasesYaml);
 
 // Simple test runner
 let passed = 0;
