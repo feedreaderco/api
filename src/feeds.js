@@ -11,6 +11,7 @@ import {
   shouldStoreArticle,
   isValidArticle,
   extractArticleIds,
+  generateArticleBody,
 } from './lib/feedUtils.js';
 
 const redisURL = process.env.REDIS_URL;
@@ -215,7 +216,7 @@ const feed = {
                   stream.emit('error', articleAddErr);
                 } else if (shouldStoreArticle(oldscore, rank)) {
                   // Only stringify when we actually need to store it
-                  const body = JSON.stringify(processedArticle);
+                  const body = generateArticleBody(processedArticle);
                   s3.putObject({
                     Key: key,
                     Body: body,

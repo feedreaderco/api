@@ -104,4 +104,13 @@ export function extractArticleIds(articleKeys) {
   return articleKeys.map(key => key.substring(prefixLength));
 }
 
+/**
+ * Generates JSON body for S3 storage
+ * @param {Object} article - Processed article with all fields
+ * @returns {string} JSON string representation of article
+ */
+export function generateArticleBody(article) {
+  return JSON.stringify(article);
+}
+
 export { REDIS_FEED_PREFIX, REDIS_ARTICLES_PREFIX, REDIS_ARTICLE_PREFIX };

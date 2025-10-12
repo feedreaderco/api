@@ -135,6 +135,21 @@ test('extractArticleIds strips article: prefix', () => {
   ]);
 });
 
+// Test generateArticleBody
+test('generateArticleBody produces valid JSON', () => {
+  const article = {
+    guid: 'test-guid',
+    title: 'Test Article',
+    hash: 'abc123',
+    score: 1234567890,
+  };
+
+  const result = feedUtils.generateArticleBody(article);
+  const parsed = JSON.parse(result);
+
+  assert.deepStrictEqual(parsed, article);
+});
+
 // Print summary
 console.log(`\n=== Test Summary ===`);
 console.log(`Passed: ${passed}`);
