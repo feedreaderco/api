@@ -69,7 +69,14 @@ testCases.redis_keys_tests.forEach((testCase) => {
 test('buildArticleKey creates correct format', () => {
   const hashValue = '13a0bebeed5b348147d880a1a4917587';
   const result = feedUtils.buildArticleKey(hashValue);
-  assert.strictEqual(result, `article:${hashValue}`);
+  assert.strictEqual(result, `${feedUtils.REDIS_ARTICLE_PREFIX}${hashValue}`);
+});
+
+// Test Redis key prefix constants
+test('Redis prefix constants are defined', () => {
+  assert.strictEqual(feedUtils.REDIS_FEED_PREFIX, 'feed:');
+  assert.strictEqual(feedUtils.REDIS_ARTICLES_PREFIX, 'articles:');
+  assert.strictEqual(feedUtils.REDIS_ARTICLE_PREFIX, 'article:');
 });
 
 // Test shouldStoreArticle

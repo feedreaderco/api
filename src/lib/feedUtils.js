@@ -1,6 +1,11 @@
 // Utility functions for feed processing
 // These functions are extracted from feeds.js to make them testable
 
+// Redis key prefixes - used for building and parsing keys
+const REDIS_FEED_PREFIX = 'feed:';
+const REDIS_ARTICLES_PREFIX = 'articles:';
+const REDIS_ARTICLE_PREFIX = 'article:';
+
 /**
  * Builds request headers for conditional GET requests
  * @param {Object} storedFeed - Feed metadata from Redis
@@ -31,8 +36,8 @@ export function buildRequestHeaders(storedFeed = {}) {
  */
 export function buildRedisKeys(feedURI) {
   return {
-    feedKey: `feed:${feedURI}`,
-    articlesKey: `articles:${feedURI}`,
+    feedKey: `${REDIS_FEED_PREFIX}${feedURI}`,
+    articlesKey: `${REDIS_ARTICLES_PREFIX}${feedURI}`,
   };
 }
 
@@ -42,7 +47,7 @@ export function buildRedisKeys(feedURI) {
  * @returns {string} Article key in format "article:{hash}"
  */
 export function buildArticleKey(hash) {
-  return `article:${hash}`;
+  return `${REDIS_ARTICLE_PREFIX}${hash}`;
 }
 
 /**
@@ -101,5 +106,8 @@ export function isValidArticle(article) {
  * @returns {string[]} Array of hashes
  */
 export function extractArticleIds(articleKeys) {
-  return articleKeys.map(key => key.substr(8));
+  const prefixLength = REDIS_ARTICLE_PREFIX.length;
+  return articleKeys.map(key => key.substring(prefixLength));
 }
+
+export { REDIS_FEED_PREFIX, REDIS_ARTICLES_PREFIX, REDIS_ARTICLE_PREFIX };
