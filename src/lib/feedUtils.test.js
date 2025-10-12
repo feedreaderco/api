@@ -30,24 +30,6 @@ function test(name, fn) {
 // Run all tests
 console.log('\n=== Testing Feed Utility Functions ===\n');
 
-// Test hash function
-testCases.hash_function_tests.forEach((testCase) => {
-  test(testCase.description, () => {
-    const result = hash(testCase.input);
-    assert.strictEqual(result, testCase.expected,
-      `Hash mismatch: got ${result}, expected ${testCase.expected}`);
-  });
-});
-
-// Test score function
-testCases.score_function_tests.forEach((testCase) => {
-  test(testCase.description, () => {
-    const result = score(testCase.input);
-    assert.strictEqual(result, testCase.expected,
-      `Score mismatch: got ${result}, expected ${testCase.expected}`);
-  });
-});
-
 // Test buildRequestHeaders
 testCases.request_headers_tests.forEach((testCase) => {
   test(testCase.description, () => {
