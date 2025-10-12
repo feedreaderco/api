@@ -59,7 +59,7 @@ function buildArticleKey(hash) {
  * @returns {Object} Article with hash, score, and feedurl added
  */
 function processArticle(article, feedURI, hashFn, scoreFn) {
-  const processed = { ...article };
+  const processed = Object.assign({}, article);
   processed.hash = hashFn(article);
   processed.score = scoreFn(article);
   processed.feedurl = feedURI;
