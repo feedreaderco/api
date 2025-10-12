@@ -22,5 +22,11 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
 
-    - name: Run utility function tests
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run article utility tests
+      run: node src/lib/articleUtils.test.js
+
+    - name: Run feed utility tests
       run: node src/lib/feedUtils.test.js
