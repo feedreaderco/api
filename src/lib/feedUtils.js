@@ -95,11 +95,12 @@ export function isValidArticle(article) {
 }
 
 /**
- * Extracts article IDs from Redis keys
+ * Extracts article IDs (hashes) from Redis keys by removing the "article:" prefix
  * @param {string[]} articleKeys - Array of article keys like "article:hash123"
- * @returns {string[]} Array of hashes
+ * @returns {string[]} Array of hashes without the prefix
  */
 export function extractArticleIds(articleKeys) {
+  // Remove the "article:" prefix (REDIS_ARTICLE_PREFIX)
   const prefixLength = REDIS_ARTICLE_PREFIX.length;
   return articleKeys.map(key => key.substring(prefixLength));
 }
