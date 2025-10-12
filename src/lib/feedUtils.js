@@ -76,6 +76,8 @@ export function shouldStoreArticle(oldScore, newScore) {
   // Store if:
   // 1. Article is new (oldScore is null)
   // 2. Score has changed (article was updated)
+  // Note: parseInt(oldScore, 10) - the radix (10) ensures decimal parsing
+  // and prevents edge cases where strings starting with 0 are parsed as octal
   return (oldScore === null) || (newScore !== parseInt(oldScore, 10));
 }
 
@@ -85,6 +87,10 @@ export function shouldStoreArticle(oldScore, newScore) {
  * @returns {boolean} True if article is valid
  */
 export function isValidArticle(article) {
+  // Using !! to convert truthy value to boolean explicitly
+  // This is equivalent to: !(!article || !article.guid || !article.description)
+  // but more concise. The && operator short-circuits, so if article is null/undefined,
+  // it won't try to access article.guid or article.description
   return !!(article && article.guid && article.description);
 }
 
