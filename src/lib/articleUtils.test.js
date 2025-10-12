@@ -42,8 +42,15 @@ testCases.hash_function_tests.forEach((testCase) => {
 testCases.score_function_tests.forEach((testCase) => {
   test(testCase.description, () => {
     const result = score(testCase.input);
-    assert.strictEqual(result, testCase.expected,
-      `Score mismatch: got ${result}, expected ${testCase.expected}`);
+    if (testCase.expected_type === 'timestamp') {
+      // For invalid dates that fallback to Date.now(), just check it's a number
+      assert.strictEqual(typeof result, 'number',
+        `Score should be a number: got ${typeof result}`);
+      assert.ok(result > 0, `Score should be positive: got ${result}`);
+    } else {
+      assert.strictEqual(result, testCase.expected,
+        `Score mismatch: got ${result}, expected ${testCase.expected}`);
+    }
   });
 });
 

@@ -20,17 +20,17 @@ hash_function_tests:
 score_function_tests:
   - description: "Score with pubDate"
     input:
-      pubDate: "2025-10-10T00:00:00Z"
+      pubDate: "2024-10-10T00:00:00Z"
     expected: 1728518400000
 
   - description: "Score with alternative date field 'pubdate'"
     input:
-      pubdate: "2025-10-08T00:00:00Z"
+      pubdate: "2024-10-08T00:00:00Z"
     expected: 1728345600000
 
   - description: "Score with alternative date field 'date'"
     input:
-      date: "2025-10-06T00:00:00Z"
+      date: "2024-10-06T00:00:00Z"
     expected: 1728172800000
 
   - description: "Score with invalid date falls back to Date.now()"
@@ -46,10 +46,10 @@ request_headers_tests:
 
   - description: "Headers with lastModified"
     input:
-      lastModified: "Wed, 09 Oct 2025 12:00:00 GMT"
+      lastModified: "Wed, 09 Oct 2024 12:00:00 GMT"
     expected:
       user-agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36"
-      If-Modified-Since: "Wed, 09 Oct 2025 12:00:00 GMT"
+      If-Modified-Since: "Wed, 09 Oct 2024 12:00:00 GMT"
 
   - description: "Headers with etag"
     input:
@@ -60,11 +60,11 @@ request_headers_tests:
 
   - description: "Headers with both lastModified and etag"
     input:
-      lastModified: "Wed, 09 Oct 2025 12:00:00 GMT"
+      lastModified: "Wed, 09 Oct 2024 12:00:00 GMT"
       etag: "\"abc123\""
     expected:
       user-agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36"
-      If-Modified-Since: "Wed, 09 Oct 2025 12:00:00 GMT"
+      If-Modified-Since: "Wed, 09 Oct 2024 12:00:00 GMT"
       If-None-Match: "\"abc123\""
 
 redis_keys_tests:
