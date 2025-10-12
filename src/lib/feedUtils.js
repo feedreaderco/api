@@ -80,18 +80,6 @@ export function shouldStoreArticle(oldScore, newScore) {
 }
 
 /**
- * Extracts feed metadata from parser meta object
- * @param {Object} meta - Meta object from feedparser
- * @returns {Object} Object with title and link
- */
-export function extractFeedMetadata(meta) {
-  return {
-    title: meta.title || '',
-    link: meta.link || '',
-  };
-}
-
-/**
  * Validates that an article has required fields
  * @param {Object} article - Article to validate
  * @returns {boolean} True if article is valid

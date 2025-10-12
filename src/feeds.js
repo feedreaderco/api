@@ -10,7 +10,6 @@ import {
   processArticle,
   shouldStoreArticle,
   isValidArticle,
-  extractFeedMetadata,
   extractArticleIds,
 } from './lib/feedUtils.js';
 
@@ -175,8 +174,7 @@ const feed = {
       });
 
       feedparser.on('meta', (meta) => {
-        const metadata = extractFeedMetadata(meta);
-        redisClient.hmset(feedKey, 'title', metadata.title, 'link', metadata.link, (hmsetErr) => {
+        redisClient.hmset(feedKey, 'title', meta.title, 'link', meta.link, (hmsetErr) => {
           if (hmsetErr) {
             res.status(500).json({
               success: false,

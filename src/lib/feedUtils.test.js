@@ -118,23 +118,6 @@ test('processArticle adds hash, score, and feedurl', () => {
   assert.strictEqual(result.title, article.title);
 });
 
-// Test extractFeedMetadata
-test('extractFeedMetadata extracts title and link', () => {
-  const meta = {
-    title: 'xkcd.com',
-    link: 'https://xkcd.com/',
-    description: 'A webcomic',
-    other: 'ignored',
-  };
-
-  const result = feedUtils.extractFeedMetadata(meta);
-
-  assert.deepStrictEqual(result, {
-    title: 'xkcd.com',
-    link: 'https://xkcd.com/',
-  });
-});
-
 // Test extractArticleIds
 test('extractArticleIds strips article: prefix', () => {
   const keys = [
