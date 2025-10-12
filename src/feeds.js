@@ -3,6 +3,16 @@ import FeedParser from 'feedparser';
 import request from 'request';
 import AWS from 'aws-sdk';
 import { hash, score } from './articles';
+import {
+  buildRequestHeaders,
+  buildRedisKeys,
+  buildArticleKey,
+  processArticle,
+  shouldStoreArticle,
+  isValidArticle,
+  extractArticleIds,
+  generateArticleBody,
+} from './lib/feedUtils.js';
 
 const redisURL = process.env.REDIS_URL;
 const redisClient = redis.createClient(redisURL);
@@ -83,7 +93,7 @@ function get(req, res) {
                           const feed = storedFeed;
                           feed.key = feedurl;
                           feeds.push(feed);
-                          const articleIDs = articles.map(key => key.substr(8));
+                          const articleIDs = extractArticleIds(articles);
                           if (feedurlPosition === feedurls.length - 1) {
                             res.json({
                               success: true,
@@ -111,17 +121,12 @@ const feed = {
     const params = { Bucket: 'feedreader2018-articles' };
     const s3 = new AWS.S3({ params });
     const feedURI = decodeURIComponent(req.url.slice(10));
-    const feedKey = `feed:${feedURI}`;
-    const articlesKey = `articles:${feedURI}`;
+    const { feedKey, articlesKey } = buildRedisKeys(feedURI);
 
     redisClient.hgetall(feedKey, (e, storedFeed) => {
       let fetchedFeed = {};
       if ((!e) && storedFeed) fetchedFeed = storedFeed;
-      const headers = {
-        'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36',
-      };
-      if (fetchedFeed.lastModified) headers['If-Modified-Since'] = fetchedFeed.lastModified;
-      if (fetchedFeed.etag) headers['If-None-Match'] = fetchedFeed.etag;
+      const headers = buildRequestHeaders(fetchedFeed);
 
       const requ = request({
         uri: feedURI,
@@ -187,16 +192,14 @@ const feed = {
         const stream = this;
         for (;;) {
           const article = stream.read();
-          if (!article || !article.guid || !article.description) {
+          if (!isValidArticle(article)) {
             return;
           }
-          article.hash = hash(article);
-          article.score = score(article);
-          article.feedurl = feedURI;
 
-          const key = article.hash;
-          const rank = article.score;
-          const articleKey = `article:${key}`;
+          const processedArticle = processArticle(article, feedURI, hash, score);
+          const key = processedArticle.hash;
+          const rank = processedArticle.score;
+          const articleKey = buildArticleKey(key);
 
           redisClient.zscore(articlesKey, articleKey, (zscoreErr, oldscore) => {
             if (zscoreErr) {
@@ -211,9 +214,9 @@ const feed = {
                   articleAddErr.type = 'Redis Error';
                   articleAddErr.log = zaddErr.message;
                   stream.emit('error', articleAddErr);
-                } else if ((oldscore === null) || (rank !== parseInt(oldscore))) {
+                } else if (shouldStoreArticle(oldscore, rank)) {
                   // Only stringify when we actually need to store it
-                  const body = JSON.stringify(article);
+                  const body = generateArticleBody(processedArticle);
                   s3.putObject({
                     Key: key,
                     Body: body,
@@ -245,7 +248,7 @@ const feed = {
             });
           } else {
             fetchedFeed.success = true;
-            fetchedFeed.articles = allArticles.map(key => key.substr(8));
+            fetchedFeed.articles = extractArticleIds(allArticles);
             res.json(fetchedFeed);
           }
         });

@@ -1,16 +1,11 @@
-import crypto from 'crypto';
 import AWS from 'aws-sdk';
 import labels from './labels';
+// Import hash and score functions from testable utilities
+import { hash as hashArticle, score as scoreArticle } from './lib/articleUtils.js';
 
-export function hash(article) {
-  return crypto.createHash('md5').update(article.guid).digest('hex');
-}
-
-export function score(article) {
-  const articleDate = article.pubDate || article.pubdate || article.date;
-  const articleScore = Date.parse(articleDate) || Date.now();
-  return articleScore;
-}
+// Re-export for backward compatibility
+export const hash = hashArticle;
+export const score = scoreArticle;
 
 function post(req, res) {
   res.json({
