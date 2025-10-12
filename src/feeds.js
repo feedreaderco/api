@@ -194,7 +194,6 @@ const feed = {
           article.score = score(article);
           article.feedurl = feedURI;
 
-          const body = JSON.stringify(article);
           const key = article.hash;
           const rank = article.score;
           const articleKey = `article:${key}`;
@@ -213,6 +212,8 @@ const feed = {
                   articleAddErr.log = zaddErr.message;
                   stream.emit('error', articleAddErr);
                 } else if ((oldscore === null) || (rank !== parseInt(oldscore))) {
+                  // Only stringify when we actually need to store it
+                  const body = JSON.stringify(article);
                   s3.putObject({
                     Key: key,
                     Body: body,
