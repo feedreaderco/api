@@ -49,17 +49,21 @@ testCases.redis_keys_tests.forEach((testCase) => {
 });
 
 // Test buildArticleKey
-test('buildArticleKey creates correct format', () => {
-  const hashValue = '13a0bebeed5b348147d880a1a4917587';
-  const result = feedUtils.buildArticleKey(hashValue);
-  assert.strictEqual(result, `${feedUtils.REDIS_ARTICLE_PREFIX}${hashValue}`);
+testCases.build_article_key_tests.forEach((testCase) => {
+  test(testCase.description, () => {
+    const result = feedUtils.buildArticleKey(testCase.input);
+    assert.strictEqual(result, testCase.expected,
+      `Article key mismatch: got ${result}, expected ${testCase.expected}`);
+  });
 });
 
 // Test Redis key prefix constants
-test('Redis prefix constants are defined', () => {
-  assert.strictEqual(feedUtils.REDIS_FEED_PREFIX, 'feed:');
-  assert.strictEqual(feedUtils.REDIS_ARTICLES_PREFIX, 'articles:');
-  assert.strictEqual(feedUtils.REDIS_ARTICLE_PREFIX, 'article:');
+testCases.redis_key_prefix_tests.forEach((testCase) => {
+  test(testCase.description, () => {
+    const constantValue = feedUtils[testCase.key];
+    assert.strictEqual(constantValue, testCase.expected,
+      `${testCase.key} mismatch: got ${constantValue}, expected ${testCase.expected}`);
+  });
 });
 
 // Test shouldStoreArticle
@@ -84,53 +88,47 @@ testCases.article_validation_tests.forEach((testCase) => {
 });
 
 // Test processArticle
-test('processArticle adds hash, score, and feedurl', () => {
-  const article = {
-    guid: 'https://xkcd.com/3153/',
-    title: 'Test Article',
-    pubDate: '2025-10-10T00:00:00Z',
-  };
-  const feedURI = 'https://xkcd.com/atom.xml';
+testCases.process_article_tests.forEach((testCase) => {
+  test(testCase.description, () => {
+    const result = feedUtils.processArticle(
+      testCase.input.article,
+      testCase.input.feedURI,
+      hash,
+      score
+    );
 
-  const result = feedUtils.processArticle(article, feedURI, hash, score);
-
-  assert.strictEqual(result.hash, '13a0bebeed5b348147d880a1a4917587');
-  assert.strictEqual(result.score, 1760054400000);
-  assert.strictEqual(result.feedurl, feedURI);
-  assert.strictEqual(result.guid, article.guid);
-  assert.strictEqual(result.title, article.title);
+    assert.strictEqual(result.hash, testCase.expected.hash,
+      `Hash mismatch: got ${result.hash}, expected ${testCase.expected.hash}`);
+    assert.strictEqual(result.score, testCase.expected.score,
+      `Score mismatch: got ${result.score}, expected ${testCase.expected.score}`);
+    assert.strictEqual(result.feedurl, testCase.expected.feedurl,
+      `FeedURL mismatch: got ${result.feedurl}, expected ${testCase.expected.feedurl}`);
+    assert.strictEqual(result.guid, testCase.expected.guid,
+      `GUID mismatch: got ${result.guid}, expected ${testCase.expected.guid}`);
+    assert.strictEqual(result.title, testCase.expected.title,
+      `Title mismatch: got ${result.title}, expected ${testCase.expected.title}`);
+  });
 });
 
 // Test extractArticleIds
-test('extractArticleIds strips article: prefix', () => {
-  const keys = [
-    'article:13a0bebeed5b348147d880a1a4917587',
-    'article:21664da7ee05988c62d1f516f3442411',
-    'article:3fa08ba1591ba3683e87265ee9300946',
-  ];
-
-  const result = feedUtils.extractArticleIds(keys);
-
-  assert.deepStrictEqual(result, [
-    '13a0bebeed5b348147d880a1a4917587',
-    '21664da7ee05988c62d1f516f3442411',
-    '3fa08ba1591ba3683e87265ee9300946',
-  ]);
+testCases.extract_article_ids_tests.forEach((testCase) => {
+  test(testCase.description, () => {
+    const result = feedUtils.extractArticleIds(testCase.input);
+    assert.deepStrictEqual(result, testCase.expected,
+      `Article IDs mismatch: got ${JSON.stringify(result)}, expected ${JSON.stringify(testCase.expected)}`);
+  });
 });
 
 // Test generateArticleBody
-test('generateArticleBody produces valid JSON', () => {
-  const article = {
-    guid: 'test-guid',
-    title: 'Test Article',
-    hash: 'abc123',
-    score: 1234567890,
-  };
+testCases.generate_article_body_tests.forEach((testCase) => {
+  test(testCase.description, () => {
+    const result = feedUtils.generateArticleBody(testCase.input);
+    const parsed = JSON.parse(result);
 
-  const result = feedUtils.generateArticleBody(article);
-  const parsed = JSON.parse(result);
-
-  assert.deepStrictEqual(parsed, article);
+    // Verify it produces valid JSON and round-trips correctly
+    assert.deepStrictEqual(parsed, testCase.input,
+      `Article body mismatch: got ${JSON.stringify(parsed)}, expected ${JSON.stringify(testCase.input)}`);
+  });
 });
 
 // Print summary

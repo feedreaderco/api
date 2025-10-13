@@ -7,7 +7,7 @@ on:
     branches: [ master ]
 
 jobs:
-  test:
+  test-nodejs:
     runs-on: ubuntu-latest
 
     strategy:
@@ -30,3 +30,21 @@ jobs:
 
     - name: Run feed utility tests
       run: node src/lib/feedUtils.test.js
+
+  test-go:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        go-version: ['1.22', '1.23']
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Go ${{ matrix.go-version }}
+      uses: actions/setup-go@v4
+      with:
+        go-version: ${{ matrix.go-version }}
+
+    - name: Run Go tests
+      run: go test -v ./feedfetcher/...
