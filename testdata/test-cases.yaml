@@ -128,3 +128,61 @@ article_validation_tests:
   - description: "Invalid article is null"
     input: null
     expected: false
+
+redis_key_prefix_tests:
+  - description: "Redis feed prefix constant"
+    key: "REDIS_FEED_PREFIX"
+    expected: "feed:"
+
+  - description: "Redis articles prefix constant"
+    key: "REDIS_ARTICLES_PREFIX"
+    expected: "articles:"
+
+  - description: "Redis article prefix constant"
+    key: "REDIS_ARTICLE_PREFIX"
+    expected: "article:"
+
+build_article_key_tests:
+  - description: "Build article key with hash"
+    input: "13a0bebeed5b348147d880a1a4917587"
+    expected: "article:13a0bebeed5b348147d880a1a4917587"
+
+  - description: "Build article key with different hash"
+    input: "21664da7ee05988c62d1f516f3442411"
+    expected: "article:21664da7ee05988c62d1f516f3442411"
+
+process_article_tests:
+  - description: "Process article adds hash, score, and feedurl"
+    input:
+      article:
+        guid: "https://xkcd.com/3153/"
+        title: "Test Article"
+        pubDate: "2024-10-10T00:00:00Z"
+      feedURI: "https://xkcd.com/atom.xml"
+    expected:
+      guid: "https://xkcd.com/3153/"
+      title: "Test Article"
+      pubDate: "2024-10-10T00:00:00Z"
+      hash: "13a0bebeed5b348147d880a1a4917587"
+      score: 1728518400000
+      feedurl: "https://xkcd.com/atom.xml"
+
+extract_article_ids_tests:
+  - description: "Extract article IDs from Redis keys"
+    input:
+      - "article:13a0bebeed5b348147d880a1a4917587"
+      - "article:21664da7ee05988c62d1f516f3442411"
+      - "article:3fa08ba1591ba3683e87265ee9300946"
+    expected:
+      - "13a0bebeed5b348147d880a1a4917587"
+      - "21664da7ee05988c62d1f516f3442411"
+      - "3fa08ba1591ba3683e87265ee9300946"
+
+generate_article_body_tests:
+  - description: "Generate JSON body for article"
+    input:
+      guid: "test-guid"
+      title: "Test Article"
+      hash: "abc123"
+      score: 1234567890
+    expected_json: true  # Test should verify valid JSON and round-trip
