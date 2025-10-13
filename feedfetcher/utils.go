@@ -1,4 +1,4 @@
-package feeds
+package feedfetcher
 
 import (
 	"encoding/json"

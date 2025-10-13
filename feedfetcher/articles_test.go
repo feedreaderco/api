@@ -1,4 +1,4 @@
-package feeds
+package feedfetcher
 
 import (
 	"os"
@@ -26,7 +26,7 @@ type TestCases struct {
 
 func TestHash(t *testing.T) {
 	// Load test cases from YAML
-	data, err := os.ReadFile("../../testdata/test-cases.yaml")
+	data, err := os.ReadFile("../testdata/test-cases.yaml")
 	if err != nil {
 		t.Fatalf("Failed to read test data: %v", err)
 	}
@@ -49,7 +49,7 @@ func TestHash(t *testing.T) {
 
 func TestScore(t *testing.T) {
 	// Load test cases from YAML
-	data, err := os.ReadFile("../../testdata/test-cases.yaml")
+	data, err := os.ReadFile("../testdata/test-cases.yaml")
 	if err != nil {
 		t.Fatalf("Failed to read test data: %v", err)
 	}

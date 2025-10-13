@@ -1,4 +1,4 @@
-package feeds
+package feedfetcher
 
 import (
 	"crypto/md5"

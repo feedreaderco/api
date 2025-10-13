@@ -1,4 +1,4 @@
-package feeds
+package feedfetcher
 
 import (
 	"encoding/json"
@@ -42,7 +42,7 @@ type UtilsTestCases struct {
 }
 
 func TestBuildRequestHeaders(t *testing.T) {
-	data, err := os.ReadFile("../../testdata/test-cases.yaml")
+	data, err := os.ReadFile("../testdata/test-cases.yaml")
 	if err != nil {
 		t.Fatalf("Failed to read test data: %v", err)
 	}
@@ -63,7 +63,7 @@ func TestBuildRequestHeaders(t *testing.T) {
 }
 
 func TestBuildRedisKeys(t *testing.T) {
-	data, err := os.ReadFile("../../testdata/test-cases.yaml")
+	data, err := os.ReadFile("../testdata/test-cases.yaml")
 	if err != nil {
 		t.Fatalf("Failed to read test data: %v", err)
 	}
@@ -105,7 +105,7 @@ func TestRedisKeyPrefixConstants(t *testing.T) {
 }
 
 func TestShouldStoreArticle(t *testing.T) {
-	data, err := os.ReadFile("../../testdata/test-cases.yaml")
+	data, err := os.ReadFile("../testdata/test-cases.yaml")
 	if err != nil {
 		t.Fatalf("Failed to read test data: %v", err)
 	}
@@ -126,7 +126,7 @@ func TestShouldStoreArticle(t *testing.T) {
 }
 
 func TestIsValidArticle(t *testing.T) {
-	data, err := os.ReadFile("../../testdata/test-cases.yaml")
+	data, err := os.ReadFile("../testdata/test-cases.yaml")
 	if err != nil {
 		t.Fatalf("Failed to read test data: %v", err)
 	}
