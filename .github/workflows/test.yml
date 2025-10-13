@@ -48,3 +48,59 @@ jobs:
 
     - name: Run Go tests
       run: go test -v ./feedfetcher/...
+
+  test-go-integration:
+    runs-on: ubuntu-latest
+
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      minio:
+        image: minio/minio:latest
+        ports:
+          - 9000:9000
+        env:
+          MINIO_ROOT_USER: minioadmin
+          MINIO_ROOT_PASSWORD: minioadmin
+        options: >-
+          --health-cmd "curl -f http://localhost:9000/minio/health/live"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.23'
+
+    - name: Install MinIO Client
+      run: |
+        wget https://dl.min.io/client/mc/release/linux-amd64/mc
+        chmod +x mc
+        sudo mv mc /usr/local/bin/
+
+    - name: Configure MinIO
+      run: |
+        mc alias set local http://localhost:9000 minioadmin minioadmin
+        mc mb local/feedreader2018-articles || true
+
+    - name: Run integration tests
+      env:
+        REDIS_HOST: localhost
+        REDIS_PORT: 6379
+        S3_ENDPOINT: http://localhost:9000
+        S3_ACCESS_KEY: minioadmin
+        S3_SECRET_KEY: minioadmin
+        S3_BUCKET: feedreader2018-articles
+      run: go test -v -tags=integration ./feedfetcher/...
