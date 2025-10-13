@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Invalid Feed</title>
+  <link href="https://example.com/" rel="alternate"></link>
+  <id>https://example.com/</id>
+  <updated>2024-10-10T00:00:00Z</updated>
+
+  <entry>
+    <title>Article without GUID</title>
+    <link href="https://example.com/article1" rel="alternate"></link>
+    <updated>2024-10-10T00:00:00Z</updated>
+    <!-- Missing id/guid field -->
+    <summary>This article has no GUID and should be skipped</summary>
+  </entry>
+
+  <entry>
+    <!-- Missing description -->
+    <title>Article without description</title>
+    <link href="https://example.com/article2" rel="alternate"></link>
+    <updated>2024-10-10T00:00:00Z</updated>
+    <id>https://example.com/article2</id>
+  </entry>
+</feed>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Hacker News</title>
+    <link>https://news.ycombinator.com/</link>
+    <description>Links for the intellectually curious, ranked by readers.</description>
+    <lastBuildDate>Wed, 09 Oct 2024 12:00:00 GMT</lastBuildDate>
+
+    <item>
+      <title>Show HN: My Project</title>
+      <link>https://news.ycombinator.com/item?id=12345</link>
+      <guid>https://news.ycombinator.com/item?id=12345</guid>
+      <pubDate>Wed, 09 Oct 2024 12:00:00 GMT</pubDate>
+      <description>A description of my project</description>
+    </item>
+
+    <item>
+      <title>Ask HN: What are you working on?</title>
+      <link>https://news.ycombinator.com/item?id=12346</link>
+      <guid>https://news.ycombinator.com/item?id=12346</guid>
+      <pubDate>Wed, 09 Oct 2024 11:00:00 GMT</pubDate>
+      <description>Monthly thread about projects</description>
+    </item>
+
+    <item>
+      <title>New JavaScript Framework Released</title>
+      <link>https://news.ycombinator.com/item?id=12347</link>
+      <guid>https://news.ycombinator.com/item?id=12347</guid>
+      <pubDate>Wed, 09 Oct 2024 10:00:00 GMT</pubDate>
+      <description>Yet another JavaScript framework</description>
+    </item>
+  </channel>
+</rss>
