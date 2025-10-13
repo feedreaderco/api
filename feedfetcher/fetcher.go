@@ -14,7 +14,7 @@ import (
 	"github.com/mmcdole/gofeed"
 )
 
-type FeedGetter struct {
+type Fetcher struct {
 	redisClient *redis.Client
 	s3Client    *s3.Client
 	httpClient  *http.Client
@@ -32,8 +32,8 @@ type FeedResponse struct {
 	StatusMessage string   `json:"statusMessage,omitempty"`
 }
 
-func NewFeedGetter(redisClient *redis.Client, s3Client *s3.Client, s3Bucket string) *FeedGetter {
-	return &FeedGetter{
+func NewFetcher(redisClient *redis.Client, s3Client *s3.Client, s3Bucket string) *Fetcher {
+	return &Fetcher{
 		redisClient: redisClient,
 		s3Client:    s3Client,
 		httpClient:  &http.Client{},
@@ -41,11 +41,11 @@ func NewFeedGetter(redisClient *redis.Client, s3Client *s3.Client, s3Bucket stri
 	}
 }
 
-func (fg *FeedGetter) Get(ctx context.Context, feedURI string) (*FeedResponse, error) {
+func (f *Fetcher) FetchFeed(ctx context.Context, feedURI string) (*FeedResponse, error) {
 	keys := BuildRedisKeys(feedURI)
 
 	// Fetch stored feed metadata from Redis
-	storedFeed, err := fg.redisClient.HGetAll(ctx, keys.FeedKey).Result()
+	storedFeed, err := f.redisClient.HGetAll(ctx, keys.FeedKey).Result()
 	if err != nil && err != redis.Nil {
 		return nil, fmt.Errorf("failed to get stored feed: %w", err)
 	}
@@ -63,7 +63,7 @@ func (fg *FeedGetter) Get(ctx context.Context, feedURI string) (*FeedResponse, e
 		req.Header.Set(key, value)
 	}
 
-	resp, err := fg.httpClient.Do(req)
+	resp, err := f.httpClient.Do(req)
 	if err != nil {
 		return &FeedResponse{
 			Success:       false,
@@ -75,7 +75,7 @@ func (fg *FeedGetter) Get(ctx context.Context, feedURI string) (*FeedResponse, e
 	// Handle HTTP status codes
 	if resp.StatusCode == http.StatusNotModified {
 		// Feed not modified, return cached articles
-		articles, err := fg.getArticleIds(ctx, keys.ArticlesKey)
+		articles, err := f.getArticleIds(ctx, keys.ArticlesKey)
 		if err != nil {
 			return nil, err
 		}
@@ -124,7 +124,7 @@ func (fg *FeedGetter) Get(ctx context.Context, feedURI string) (*FeedResponse, e
 		"etag":         etag,
 	}
 
-	if err := fg.redisClient.HMSet(ctx, keys.FeedKey, feedMeta).Err(); err != nil {
+	if err := f.redisClient.HMSet(ctx, keys.FeedKey, feedMeta).Err(); err != nil {
 		return nil, fmt.Errorf("failed to store feed metadata: %w", err)
 	}
 
@@ -153,7 +153,7 @@ func (fg *FeedGetter) Get(ctx context.Context, feedURI string) (*FeedResponse, e
 		articleKey := BuildArticleKey(processedArticle.Hash)
 
 		// Get old score from Redis
-		oldScoreStr, err := fg.redisClient.ZScore(ctx, keys.ArticlesKey, articleKey).Result()
+		oldScoreStr, err := f.redisClient.ZScore(ctx, keys.ArticlesKey, articleKey).Result()
 		var oldScore *string
 		if err == nil {
 			scoreStr := strconv.FormatInt(int64(oldScoreStr), 10)
@@ -161,7 +161,7 @@ func (fg *FeedGetter) Get(ctx context.Context, feedURI string) (*FeedResponse, e
 		}
 
 		// Add article to sorted set
-		err = fg.redisClient.ZAdd(ctx, keys.ArticlesKey, &redis.Z{
+		err = f.redisClient.ZAdd(ctx, keys.ArticlesKey, &redis.Z{
 			Score:  float64(processedArticle.Score),
 			Member: articleKey,
 		}).Err()
@@ -171,14 +171,14 @@ func (fg *FeedGetter) Get(ctx context.Context, feedURI string) (*FeedResponse, e
 
 		// Store article in S3 if score changed
 		if ShouldStoreArticle(oldScore, processedArticle.Score) {
-			if err := fg.storeArticleInS3(ctx, processedArticle); err != nil {
+			if err := f.storeArticleInS3(ctx, processedArticle); err != nil {
 				return nil, fmt.Errorf("failed to store article in S3: %w", err)
 			}
 		}
 	}
 
 	// Get all article IDs
-	articles, err := fg.getArticleIds(ctx, keys.ArticlesKey)
+	articles, err := f.getArticleIds(ctx, keys.ArticlesKey)
 	if err != nil {
 		return nil, err
 	}
@@ -194,14 +194,14 @@ func (fg *FeedGetter) Get(ctx context.Context, feedURI string) (*FeedResponse, e
 	}, nil
 }
 
-func (fg *FeedGetter) storeArticleInS3(ctx context.Context, article Article) error {
+func (f *Fetcher) storeArticleInS3(ctx context.Context, article Article) error {
 	body, err := GenerateArticleBody(article)
 	if err != nil {
 		return err
 	}
 
-	_, err = fg.s3Client.PutObject(ctx, &s3.PutObjectInput{
-		Bucket:      aws.String(fg.s3Bucket),
+	_, err = f.s3Client.PutObject(ctx, &s3.PutObjectInput{
+		Bucket:      aws.String(f.s3Bucket),
 		Key:         aws.String(article.Hash + ".json"),
 		Body:        bytes.NewReader([]byte(body)),
 		ContentType: aws.String("application/json"),
@@ -210,8 +210,8 @@ func (fg *FeedGetter) storeArticleInS3(ctx context.Context, article Article) err
 	return err
 }
 
-func (fg *FeedGetter) getArticleIds(ctx context.Context, articlesKey string) ([]string, error) {
-	allArticles, err := fg.redisClient.ZRevRange(ctx, articlesKey, 0, -1).Result()
+func (f *Fetcher) getArticleIds(ctx context.Context, articlesKey string) ([]string, error) {
+	allArticles, err := f.redisClient.ZRevRange(ctx, articlesKey, 0, -1).Result()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get articles from sorted set: %w", err)
 	}

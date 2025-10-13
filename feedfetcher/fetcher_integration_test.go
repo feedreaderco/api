@@ -19,7 +19,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-type FeedGetTestCases struct {
+type FetchFeedTestCases struct {
 	FeedGetTests []struct {
 		Description            string `yaml:"description"`
 		FeedFixture            string `yaml:"feed_fixture"`
@@ -93,14 +93,14 @@ func setupS3Client() (*s3.Client, error) {
 	return client, nil
 }
 
-func TestFeedGetIntegration(t *testing.T) {
+func TestFetchFeedIntegration(t *testing.T) {
 	// Load test cases
 	data, err := os.ReadFile("../testdata/feed-get-tests.yaml")
 	if err != nil {
 		t.Fatalf("Failed to read test data: %v", err)
 	}
 
-	var testCases FeedGetTestCases
+	var testCases FetchFeedTestCases
 	if err := yaml.Unmarshal(data, &testCases); err != nil {
 		t.Fatalf("Failed to parse test data: %v", err)
 	}
@@ -144,11 +144,11 @@ func TestFeedGetIntegration(t *testing.T) {
 			}))
 			defer server.Close()
 
-			// Create FeedGetter and fetch the feed
-			fg := NewFeedGetter(redisClient, s3Client, bucket)
-			result, err := fg.Get(ctx, server.URL)
+			// Create Fetcher and fetch the feed
+			fetcher := NewFetcher(redisClient, s3Client, bucket)
+			result, err := fetcher.FetchFeed(ctx, server.URL)
 			if err != nil {
-				t.Fatalf("FeedGetter.Get() failed: %v", err)
+				t.Fatalf("Fetcher.FetchFeed() failed: %v", err)
 			}
 
 			// Verify success
@@ -210,7 +210,7 @@ func TestFeedGetIntegration(t *testing.T) {
 	}
 }
 
-func TestFeedGetCaching(t *testing.T) {
+func TestFetchFeedCaching(t *testing.T) {
 	ctx := context.Background()
 
 	// Setup clients
@@ -264,14 +264,14 @@ func TestFeedGetCaching(t *testing.T) {
 	}))
 	defer server.Close()
 
-	fg := NewFeedGetter(redisClient, s3Client, bucket)
+	fetcher := NewFetcher(redisClient, s3Client, bucket)
 
 	// Clear Redis
 	keys := BuildRedisKeys(server.URL)
 	redisClient.Del(ctx, keys.FeedKey, keys.ArticlesKey)
 
 	// First request
-	result1, err := fg.Get(ctx, server.URL)
+	result1, err := fetcher.FetchFeed(ctx, server.URL)
 	if err != nil {
 		t.Fatalf("First request failed: %v", err)
 	}
@@ -285,7 +285,7 @@ func TestFeedGetCaching(t *testing.T) {
 	}
 
 	// Second request (should use caching)
-	result2, err := fg.Get(ctx, server.URL)
+	result2, err := fetcher.FetchFeed(ctx, server.URL)
 	if err != nil {
 		t.Fatalf("Second request failed: %v", err)
 	}
