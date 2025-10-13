@@ -80,3 +80,13 @@ feed_get_tests:
       - hash: "13a0bebeed5b348147d880a1a4917587"
         score: 1728518400000  # Same score
     should_update_s3: false
+
+  - description: "HTTP 304 caching with lastModified and etag"
+    feed_fixture: "testdata/feeds/xkcd.atom.xml"
+    feed_uri: "https://xkcd.com/atom.xml"
+    caching_test:
+      response_headers:
+        last_modified: "Wed, 09 Oct 2024 12:00:00 GMT"
+        etag: "\"test-etag-123\""
+      expected_articles_count: 3
+      should_return_304_on_second_request: true

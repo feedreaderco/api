@@ -45,7 +45,7 @@ const s3 = new AWS.S3({
 });
 
 // Import feed utilities
-const { buildRedisKeys, buildArticleKey, extractArticleIds } = require('./feedUtils.js');
+const { buildRedisKeys, buildArticleKey } = require('./feedUtils.js');
 
 // Simple test runner
 let passed = 0;
@@ -72,121 +72,39 @@ function test(name, fn) {
   });
 }
 
-// Helper to create a mock feed.get wrapper that doesn't require Express
-function createFeedFetcher(feedURI, redisClient, s3Client) {
-  const request = require('request');
-  const FeedParser = require('feedparser');
-  const { buildRequestHeaders, isValidArticle, processArticle, shouldStoreArticle, generateArticleBody } = require('./feedUtils.js');
-  const { hash, score } = require('./articleUtils.js');
-
+// Helper to call feed.get with mock req/res
+function callFeedGet(feedURI) {
   return new Promise((resolve, reject) => {
-    const { feedKey, articlesKey } = buildRedisKeys(feedURI);
-    const result = {
-      success: false,
-      articles: [],
+    // Mock Express request object
+    const req = {
+      url: '/api/feed/' + encodeURIComponent(feedURI),
     };
 
-    redisClient.hgetall(feedKey, (e, storedFeed) => {
-      let fetchedFeed = storedFeed || {};
-      const headers = buildRequestHeaders(fetchedFeed);
+    // Mock Express response object
+    let responseData = null;
+    let statusCode = 200;
 
-      const requ = request({
-        uri: feedURI,
-        headers,
-      }, (requestErr, response) => {
-        if (requestErr) {
-          result.success = false;
-          result.error = requestErr.message;
-          return reject(new Error(requestErr.message));
-        }
+    const res = {
+      json: (data) => {
+        responseData = data;
+        resolve(responseData);
+      },
+      status: (code) => {
+        statusCode = code;
+        return res; // Allow chaining
+      },
+    };
 
-        const lastModified = response.headers['last-modified'] || '';
-        const etag = response.headers.etag || '';
-        result.statusCode = response.statusCode;
+    // Import feeds.js and call feed.get
+    // We need to set up the module with our Redis client
+    const feedsModule = require('../feeds.js');
 
-        if (response.statusCode === 304) {
-          // Not modified, return cached articles
-          redisClient.zrevrange(articlesKey, 0, -1, (rangeErr, allArticles) => {
-            if (rangeErr) return reject(rangeErr);
-            result.success = true;
-            result.articles = extractArticleIds(allArticles);
-            result.title = fetchedFeed.title;
-            result.link = fetchedFeed.link;
-            result.lastModified = fetchedFeed.lastModified;
-            result.etag = fetchedFeed.etag;
-            resolve(result);
-          });
-          return;
-        }
-
-        redisClient.hmset(feedKey, 'lastModified', lastModified, 'etag', etag, (hmsetErr) => {
-          if (hmsetErr) return reject(hmsetErr);
-        });
-      });
-
-      const options = {};
-      if (fetchedFeed.link) options.feedurl = fetchedFeed.link;
-
-      const feedparser = new FeedParser(options);
-      requ.pipe(feedparser);
-
-      feedparser.on('error', (parseErr) => {
-        result.success = false;
-        result.error = parseErr.message;
-        reject(parseErr);
-      });
-
-      feedparser.on('meta', (meta) => {
-        result.title = meta.title;
-        result.link = meta.link;
-        redisClient.hmset(feedKey, 'title', meta.title, 'link', meta.link, (hmsetErr) => {
-          if (hmsetErr) reject(hmsetErr);
-        });
-      });
-
-      feedparser.on('readable', function() {
-        const stream = this;
-        for (;;) {
-          const article = stream.read();
-          if (!isValidArticle(article)) {
-            return;
-          }
-
-          const processedArticle = processArticle(article, feedURI, hash, score);
-          const key = processedArticle.hash;
-          const rank = processedArticle.score;
-          const articleKey = buildArticleKey(key);
-
-          redisClient.zscore(articlesKey, articleKey, (zscoreErr, oldscore) => {
-            if (zscoreErr) return;
-
-            redisClient.zadd(articlesKey, rank, articleKey, (zaddErr) => {
-              if (zaddErr) return;
-
-              if (shouldStoreArticle(oldscore, rank)) {
-                const body = generateArticleBody(processedArticle);
-                s3Client.putObject({
-                  Key: key + '.json',
-                  Body: body,
-                  ContentType: 'application/json',
-                }, (s3PutErr) => {
-                  if (s3PutErr) console.error('S3 error:', s3PutErr);
-                });
-              }
-            });
-          });
-        }
-      });
-
-      feedparser.on('end', () => {
-        redisClient.zrevrange(articlesKey, 0, -1, (rangeErr, allArticles) => {
-          if (rangeErr) return reject(rangeErr);
-          result.success = true;
-          result.articles = extractArticleIds(allArticles);
-          resolve(result);
-        });
-      });
-    });
+    // Call the feed.get function
+    try {
+      feedsModule.feed.get(req, res);
+    } catch (error) {
+      reject(error);
+    }
   });
 }
 
@@ -220,7 +138,7 @@ async function runTests() {
 
           testServer.listen(8888, async () => {
             try {
-              const result = await createFeedFetcher('http://localhost:8888/xkcd', redisClient, s3);
+              const result = await callFeedGet('http://localhost:8888/xkcd');
 
               // Verify success
               if (!result.success) {
@@ -299,7 +217,7 @@ async function runTests() {
 
           testServer.listen(8889, async () => {
             try {
-              const result = await createFeedFetcher('http://localhost:8889/hn', redisClient, s3);
+              const result = await callFeedGet('http://localhost:8889/hn');
 
               if (!result.success) {
                 throw new Error(`Expected success=true, got ${result.success}`);
@@ -311,6 +229,83 @@ async function runTests() {
 
               if (result.articles.length !== rssTest.expected_articles_count) {
                 throw new Error(`Article count mismatch: got ${result.articles.length}, want ${rssTest.expected_articles_count}`);
+              }
+
+              testServer.close();
+              resolve();
+            } catch (error) {
+              testServer.close();
+              reject(error);
+            }
+          });
+        });
+      });
+    });
+  }
+
+  // Test: HTTP 304 caching
+  const cachingTest = testCases.feed_get_tests.find(tc => tc.caching_test);
+  if (cachingTest) {
+    await test(cachingTest.description, () => {
+      return new Promise((resolve, reject) => {
+        clearRedisKeys('http://localhost:8890/cache-test', (clearErr) => {
+          if (clearErr) return reject(clearErr);
+
+          const feedData = fs.readFileSync(cachingTest.feed_fixture, 'utf8');
+          const { last_modified, etag } = cachingTest.caching_test.response_headers;
+          const expectedCount = cachingTest.caching_test.expected_articles_count;
+
+          let requestCount = 0;
+
+          testServer = http.createServer((req, res) => {
+            requestCount++;
+
+            // Second request should get 304
+            if (requestCount > 1) {
+              if (req.headers['if-modified-since'] !== last_modified) {
+                testServer.close();
+                return reject(new Error(`Expected If-Modified-Since: ${last_modified}, got ${req.headers['if-modified-since']}`));
+              }
+              if (req.headers['if-none-match'] !== etag) {
+                testServer.close();
+                return reject(new Error(`Expected If-None-Match: ${etag}, got ${req.headers['if-none-match']}`));
+              }
+              res.writeHead(304);
+              res.end();
+              return;
+            }
+
+            // First request returns full feed
+            res.writeHead(200, {
+              'Content-Type': 'application/xml',
+              'Last-Modified': last_modified,
+              'Etag': etag,
+            });
+            res.end(feedData);
+          });
+
+          testServer.listen(8890, async () => {
+            try {
+              // First request
+              const result1 = await callFeedGet('http://localhost:8890/cache-test');
+
+              if (!result1.success) {
+                throw new Error('First request should succeed');
+              }
+
+              if (result1.articles.length !== expectedCount) {
+                throw new Error(`Expected ${expectedCount} articles, got ${result1.articles.length}`);
+              }
+
+              // Second request (should use cache and get 304)
+              const result2 = await callFeedGet('http://localhost:8890/cache-test');
+
+              if (!result2.success) {
+                throw new Error('Second request should succeed');
+              }
+
+              if (result2.articles.length !== expectedCount) {
+                throw new Error(`Expected ${expectedCount} cached articles, got ${result2.articles.length}`);
               }
 
               testServer.close();

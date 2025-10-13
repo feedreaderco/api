@@ -36,6 +36,14 @@ type FetchFeedTestCases struct {
 			Score   int64  `yaml:"score"`
 			FeedURL string `yaml:"feedurl"`
 		} `yaml:"expected_articles"`
+		CachingTest *struct {
+			ResponseHeaders struct {
+				LastModified string `yaml:"last_modified"`
+				Etag         string `yaml:"etag"`
+			} `yaml:"response_headers"`
+			ExpectedArticlesCount       int  `yaml:"expected_articles_count"`
+			ShouldReturn304OnSecondRequest bool `yaml:"should_return_304_on_second_request"`
+		} `yaml:"caching_test"`
 	} `yaml:"feed_get_tests"`
 }
 
@@ -213,6 +221,55 @@ func TestFetchFeedIntegration(t *testing.T) {
 func TestFetchFeedCaching(t *testing.T) {
 	ctx := context.Background()
 
+	// Load test cases
+	data, err := os.ReadFile("../testdata/feed-get-tests.yaml")
+	if err != nil {
+		t.Fatalf("Failed to read test data: %v", err)
+	}
+
+	var testCases FetchFeedTestCases
+	if err := yaml.Unmarshal(data, &testCases); err != nil {
+		t.Fatalf("Failed to parse test data: %v", err)
+	}
+
+	// Find the caching test case
+	var cachingTest *struct {
+		Description            string `yaml:"description"`
+		FeedFixture            string `yaml:"feed_fixture"`
+		FeedURI                string `yaml:"feed_uri"`
+		ExpectedFeedMetadata   struct {
+			Title string `yaml:"title"`
+			Link  string `yaml:"link"`
+		} `yaml:"expected_feed_metadata"`
+		ExpectedArticlesCount int `yaml:"expected_articles_count"`
+		ExpectedArticles      []struct {
+			GUID    string `yaml:"guid"`
+			Title   string `yaml:"title"`
+			Hash    string `yaml:"hash"`
+			Score   int64  `yaml:"score"`
+			FeedURL string `yaml:"feedurl"`
+		} `yaml:"expected_articles"`
+		CachingTest *struct {
+			ResponseHeaders struct {
+				LastModified string `yaml:"last_modified"`
+				Etag         string `yaml:"etag"`
+			} `yaml:"response_headers"`
+			ExpectedArticlesCount       int  `yaml:"expected_articles_count"`
+			ShouldReturn304OnSecondRequest bool `yaml:"should_return_304_on_second_request"`
+		} `yaml:"caching_test"`
+	}
+
+	for _, tc := range testCases.FeedGetTests {
+		if tc.CachingTest != nil {
+			cachingTest = &tc
+			break
+		}
+	}
+
+	if cachingTest == nil {
+		t.Skip("No caching test case found in YAML")
+	}
+
 	// Setup clients
 	redisClient, err := setupRedisClient()
 	if err != nil {
@@ -231,14 +288,14 @@ func TestFetchFeedCaching(t *testing.T) {
 	}
 
 	// Load feed fixture
-	feedData, err := os.ReadFile("../testdata/feeds/xkcd.atom.xml")
+	feedData, err := os.ReadFile(cachingTest.FeedFixture)
 	if err != nil {
 		t.Fatalf("Failed to read feed fixture: %v", err)
 	}
 
 	requestCount := 0
-	lastModified := "Wed, 09 Oct 2024 12:00:00 GMT"
-	etag := "\"test-etag-123\""
+	lastModified := cachingTest.CachingTest.ResponseHeaders.LastModified
+	etag := cachingTest.CachingTest.ResponseHeaders.Etag
 
 	// Create test server
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -280,8 +337,9 @@ func TestFetchFeedCaching(t *testing.T) {
 		t.Errorf("First request should succeed")
 	}
 
-	if len(result1.Articles) != 3 {
-		t.Errorf("Expected 3 articles, got %d", len(result1.Articles))
+	expectedCount := cachingTest.CachingTest.ExpectedArticlesCount
+	if len(result1.Articles) != expectedCount {
+		t.Errorf("Expected %d articles, got %d", expectedCount, len(result1.Articles))
 	}
 
 	// Second request (should use caching)
@@ -298,7 +356,7 @@ func TestFetchFeedCaching(t *testing.T) {
 		t.Errorf("Expected 304 Not Modified, got %d", result2.StatusCode)
 	}
 
-	if len(result2.Articles) != 3 {
-		t.Errorf("Expected 3 articles from cache, got %d", len(result2.Articles))
+	if len(result2.Articles) != expectedCount {
+		t.Errorf("Expected %d articles from cache, got %d", expectedCount, len(result2.Articles))
 	}
 }
