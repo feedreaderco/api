@@ -36,6 +36,18 @@ feed_get_tests:
     expected_articles:
       - guid: "https://news.ycombinator.com/item?id=12345"
         title: "Show HN: My Project"
+        hash: "e6d98eb69fa44b3807ce21bea815869b"
+        score: 1728475200000
+        feedurl: "https://news.ycombinator.com/rss"
+      - guid: "https://news.ycombinator.com/item?id=12346"
+        title: "Ask HN: What are you working on?"
+        hash: "11eeb3caf6e5906bc165618b0f00575f"
+        score: 1728471600000
+        feedurl: "https://news.ycombinator.com/rss"
+      - guid: "https://news.ycombinator.com/item?id=12347"
+        title: "New JavaScript Framework Released"
+        hash: "73b3dc5e5cb0b970a6eaf06b29b96c4a"
+        score: 1728468000000
         feedurl: "https://news.ycombinator.com/rss"
 
   - description: "Skip invalid articles without guid"
