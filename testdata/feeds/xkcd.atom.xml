@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>xkcd.com</title>
+  <link href="https://xkcd.com/" rel="alternate"></link>
+  <id>https://xkcd.com/</id>
+  <updated>2024-10-10T00:00:00Z</updated>
+
+  <entry>
+    <title>Test Comic 1</title>
+    <link href="https://xkcd.com/3153/" rel="alternate"></link>
+    <updated>2024-10-10T00:00:00Z</updated>
+    <id>https://xkcd.com/3153/</id>
+    <summary>First test comic description</summary>
+  </entry>
+
+  <entry>
+    <title>Test Comic 2</title>
+    <link href="https://xkcd.com/3152/" rel="alternate"></link>
+    <updated>2024-10-08T00:00:00Z</updated>
+    <id>https://xkcd.com/3152/</id>
+    <summary>Second test comic description</summary>
+  </entry>
+
+  <entry>
+    <title>Test Comic 3</title>
+    <link href="https://xkcd.com/3151/" rel="alternate"></link>
+    <updated>2024-10-06T00:00:00Z</updated>
+    <id>https://xkcd.com/3151/</id>
+    <summary>Third test comic description</summary>
+  </entry>
+</feed>

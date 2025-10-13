@@ -1,0 +1,92 @@
+# Test cases for feed fetching and processing
+# These tests use real feed fixtures and verify Redis/S3 storage
+
+feed_get_tests:
+  - description: "Fetch and process Atom feed (XKCD)"
+    feed_fixture: "testdata/feeds/xkcd.atom.xml"
+    feed_uri: "https://xkcd.com/atom.xml"
+    expected_feed_metadata:
+      title: "xkcd.com"
+      link: "https://xkcd.com/"
+    expected_articles_count: 3
+    expected_articles:
+      - guid: "https://xkcd.com/3153/"
+        title: "Test Comic 1"
+        hash: "13a0bebeed5b348147d880a1a4917587"
+        score: 1728518400000
+        feedurl: "https://xkcd.com/atom.xml"
+      - guid: "https://xkcd.com/3152/"
+        title: "Test Comic 2"
+        hash: "21664da7ee05988c62d1f516f3442411"
+        score: 1728345600000
+        feedurl: "https://xkcd.com/atom.xml"
+      - guid: "https://xkcd.com/3151/"
+        title: "Test Comic 3"
+        hash: "3fa08ba1591ba3683e87265ee9300946"
+        score: 1728172800000
+        feedurl: "https://xkcd.com/atom.xml"
+
+  - description: "Fetch and process RSS feed (Hacker News)"
+    feed_fixture: "testdata/feeds/hn.rss.xml"
+    feed_uri: "https://news.ycombinator.com/rss"
+    expected_feed_metadata:
+      title: "Hacker News"
+      link: "https://news.ycombinator.com/"
+    expected_articles_count: 3
+    expected_articles:
+      - guid: "https://news.ycombinator.com/item?id=12345"
+        title: "Show HN: My Project"
+        hash: "e6d98eb69fa44b3807ce21bea815869b"
+        score: 1728475200000
+        feedurl: "https://news.ycombinator.com/rss"
+      - guid: "https://news.ycombinator.com/item?id=12346"
+        title: "Ask HN: What are you working on?"
+        hash: "11eeb3caf6e5906bc165618b0f00575f"
+        score: 1728471600000
+        feedurl: "https://news.ycombinator.com/rss"
+      - guid: "https://news.ycombinator.com/item?id=12347"
+        title: "New JavaScript Framework Released"
+        hash: "73b3dc5e5cb0b970a6eaf06b29b96c4a"
+        score: 1728468000000
+        feedurl: "https://news.ycombinator.com/rss"
+
+  - description: "Skip invalid articles without guid"
+    feed_fixture: "testdata/feeds/invalid.xml"
+    feed_uri: "https://example.com/invalid.xml"
+    expected_articles_count: 0
+
+  - description: "Use cached feed metadata on subsequent fetch"
+    feed_fixture: "testdata/feeds/xkcd.atom.xml"
+    feed_uri: "https://xkcd.com/atom.xml"
+    cached_feed:
+      lastModified: "Wed, 09 Oct 2024 12:00:00 GMT"
+      etag: "\"abc123\""
+    expected_request_headers:
+      If-Modified-Since: "Wed, 09 Oct 2024 12:00:00 GMT"
+      If-None-Match: "\"abc123\""
+
+  - description: "Update article score when changed"
+    feed_fixture: "testdata/feeds/xkcd.atom.xml"
+    feed_uri: "https://xkcd.com/atom.xml"
+    existing_articles:
+      - hash: "13a0bebeed5b348147d880a1a4917587"
+        score: 1728432000000  # Different score
+    should_update_s3: true
+
+  - description: "Skip S3 update when score unchanged"
+    feed_fixture: "testdata/feeds/xkcd.atom.xml"
+    feed_uri: "https://xkcd.com/atom.xml"
+    existing_articles:
+      - hash: "13a0bebeed5b348147d880a1a4917587"
+        score: 1728518400000  # Same score
+    should_update_s3: false
+
+  - description: "HTTP 304 caching with lastModified and etag"
+    feed_fixture: "testdata/feeds/xkcd.atom.xml"
+    feed_uri: "https://xkcd.com/atom.xml"
+    caching_test:
+      response_headers:
+        last_modified: "Wed, 09 Oct 2024 12:00:00 GMT"
+        etag: "\"test-etag-123\""
+      expected_articles_count: 3
+      should_return_304_on_second_request: true
